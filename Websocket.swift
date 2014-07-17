@@ -9,6 +9,7 @@
 import Foundation
 
 protocol WebsocketDelegate {
+    func websocketDidConnect()
     func websocketDidDisconnect(error: NSError?)
 }
 
@@ -31,13 +32,18 @@ class Websocket : NSObject, NSStreamDelegate {
     //Class Constants
     let BUFFER_MAX = 2048
     
+    var delegate: WebsocketDelegate?
     var _url: NSURL
     var _inputStream: NSInputStream?
     var _outputStream: NSOutputStream?
     var _isRunLoop = false
     var _isConnected = false
     var _writeQueue: NSOperationQueue?
-    var delegate: WebsocketDelegate?
+    var _readStack = Array<String>()
+    var _inputQueue = Array<NSData>()
+    var _fragBuffer: NSData?
+    
+    //init the websocket with a url
     init(url: NSURL) {
         _url = url
     }
@@ -131,7 +137,8 @@ class Websocket : NSObject, NSStreamDelegate {
             disconnectStream(nil)
         }
     }
-    func bugMethod() {
+    //work around for a swift bug. BugID: 17712659
+    func workaroundMethod() {
         //does nothing, but fixes bug in swift
     }
     //disconnect the stream object
@@ -146,8 +153,112 @@ class Websocket : NSObject, NSStreamDelegate {
         _isRunLoop = false
         _isConnected = false
         dispatch_async(dispatch_get_main_queue(),{
-            self.bugMethod()
+            self.workaroundMethod()
             self.delegate?.websocketDidDisconnect(error)
             })
     }
+    
+    ///handles the incoming bytes and sending them to the proper processing method
+    func processInputStream() {
+        let buffer = UnsafePointer<UInt8>(BUFFER_MAX)
+        let length = _inputStream!.read(buffer, maxLength: BUFFER_MAX)
+        if length > 0 {
+            if !_isConnected {
+                _isConnected = processHTTP(buffer, bufferLen: length)
+                if !_isConnected {
+                    dispatch_async(dispatch_get_main_queue(),{
+                        self.workaroundMethod()
+                        self.delegate?.websocketDidDisconnect(self.errorWithDetail("Invalid HTTP upgrade", code: 1))
+                        })
+                }
+            } else {
+                var process = false
+                if _inputQueue.count == 0 {
+                    process = true
+                }
+                _inputQueue.append(NSData(bytes: buffer, length: length))
+                if process {
+                    dequeueInput()
+                }
+            }
+        }
+    }
+    ///dequeue the incoming input so it is processed in order
+    func dequeueInput() {
+        if _inputQueue.count > 0 {
+            let data = _inputQueue[0]
+            var work = data
+            if _fragBuffer {
+                var combine = NSMutableData(data: _fragBuffer!)
+                combine.appendData(data)
+                work = combine
+                _fragBuffer = nil
+            }
+            let buffer = UnsafePointer<UInt8>(work.bytes)
+            processRawMessage(buffer, bufferLen: work.length)
+            _inputQueue = _inputQueue.filter{$0 != data }
+            dequeueInput()
+        }
+    }
+    ///Finds the HTTP Packet in the TCP stream, by looking for the CRLF.
+    func processHTTP(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
+        let CRLFBytes = [UInt8("\r"), UInt8("\n"), UInt8("\r"), UInt8("\n")]
+        var k = 0
+        var totalSize = 0
+        for var i = 0; i < bufferLen; i++ {
+            if buffer[i] == CRLFBytes[k] {
+                k++
+                if k == 3 {
+                    totalSize = i + 1
+                    break
+                }
+            } else {
+                k = 0
+            }
+        }
+        if totalSize > 0 {
+            if validateResponse(buffer, bufferLen: totalSize) {
+                dispatch_async(dispatch_get_main_queue(),{
+                    self.workaroundMethod()
+                    self.delegate?.websocketDidConnect()
+                    })
+                totalSize += 1 //skip the last \n
+                let restSize = bufferLen - totalSize
+                if restSize > 0 {
+                    processRawMessage((buffer+totalSize),bufferLen: restSize)
+                }
+                return true
+            }
+        }
+        return false
+    }
+    
+    ///validates the HTTP is a 101 as per the RFC spec
+    func validateResponse(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
+        let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, 0)
+        CFHTTPMessageAppendBytes(response.takeUnretainedValue(), buffer, bufferLen)
+        if CFHTTPMessageGetResponseStatusCode(response.takeUnretainedValue()) != 101 {
+            return false
+        }
+        let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response.takeUnretainedValue())
+        let headers: NSDictionary = cfHeaders.takeUnretainedValue()
+        let acceptKey = headers[headerWSAcceptName] as NSString
+        if acceptKey.length > 0 {
+            return true
+        }
+        return false
+    }
+    
+    ///process the websocket data
+    func processRawMessage(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
+        
+    }
+    
+    ///Create an error
+    func errorWithDetail(detail: String, code: Int) -> NSError {
+        var details = Dictionary<String,String>()
+        details[NSLocalizedDescriptionKey] =  detail
+        return NSError(domain: "Websocket", code: code, userInfo: details)
+    }
+    
 }
