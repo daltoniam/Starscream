@@ -318,7 +318,64 @@ class Websocket : NSObject, NSStreamDelegate {
                 let payloadLen = (PayloadLenMask & buffer[1])
                 var offset = 2
                 if((isMasked > 0 || (RSVMask & buffer[0]) > 0) && receivedOpcode != OpCode.Pong.toRaw()) {
-                    
+                    let errCode = CloseCode.ProtocolError.toRaw()
+                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("masked and rsv data is not currently supported",
+                        code: errCode))
+                    writeError(errCode)
+                    return
+                }
+                let isControlFrame = (receivedOpcode == OpCode.ConnectionClose.toRaw() || receivedOpcode == OpCode.Ping.toRaw())
+                if !isControlFrame && (receivedOpcode != OpCode.BinaryFrame.toRaw() && receivedOpcode != OpCode.ContinueFrame.toRaw() &&
+                    receivedOpcode != OpCode.TextFrame.toRaw() && receivedOpcode != OpCode.Pong.toRaw()) {
+                        let errCode = CloseCode.ProtocolError.toRaw()
+                        self.delegate?.websocketDidDisconnect(self.errorWithDetail("unknown opcode: \(receivedOpcode)",
+                            code: errCode))
+                        writeError(errCode)
+                        return
+                }
+                if isControlFrame && isFin == 0 {
+                    let errCode = CloseCode.ProtocolError.toRaw()
+                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("control frames can't be fragmented",
+                        code: errCode))
+                    writeError(errCode)
+                    return
+                }
+                if receivedOpcode == OpCode.ConnectionClose.toRaw() {
+                    var code = CloseCode.Normal.toRaw()
+                    if payloadLen == 1 {
+                        code = CloseCode.ProtocolError.toRaw()
+                    } else if payloadLen > 1 {
+                        var codeBuffer = UnsafePointer<UInt16>((buffer+offset))
+                        code = codeBuffer[0].byteSwapped
+                        if code < 1000 || (code > 1003 && code < 1007) || (code > 1011 && code < 3000) {
+                            code = CloseCode.ProtocolError.toRaw()
+                        }
+                        offset += 2
+                    }
+                    let len = Int(payloadLen-2)
+                    if len > 0 {
+                        let bytes = UnsafePointer<UInt8>((buffer+offset))
+                        var str: NSString? = NSString(data: NSData(bytesNoCopy: bytes, length: len), encoding: NSUTF8StringEncoding)
+                        if !str {
+                            code = CloseCode.ProtocolError.toRaw()
+                        }
+                        writeError(code)
+                        return
+                    }
+                    if isControlFrame && payloadLen > 125 {
+                        writeError(CloseCode.ProtocolError.toRaw())
+                        return
+                    }
+                    var dataLength = UInt64(payloadLen)
+                    if dataLength == 127 {
+                        let bytes = UnsafePointer<UInt64>((buffer+offset))
+                        dataLength = bytes[0].byteSwapped
+                        offset += sizeof(UInt64)
+                    } else if dataLength == 126 {
+                        let bytes = UnsafePointer<UInt16>((buffer+offset))
+                        dataLength = UInt64(bytes[0].byteSwapped)
+                        offset += sizeof(UInt16)
+                    }
                 }
             }
         }
@@ -363,10 +420,10 @@ class Websocket : NSObject, NSStreamDelegate {
     }
     
     ///Create an error
-    func errorWithDetail(detail: String, code: Int) -> NSError {
+    func errorWithDetail(detail: String, code: UInt16) -> NSError {
         var details = Dictionary<String,String>()
         details[NSLocalizedDescriptionKey] =  detail
-        return NSError(domain: "Websocket", code: code, userInfo: details)
+        return NSError(domain: "Websocket", code: Int(code), userInfo: details)
     }
     
     ///write a an error to the socket
