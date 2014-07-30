@@ -362,20 +362,94 @@ class Websocket : NSObject, NSStreamDelegate {
                         writeError(code)
                         return
                     }
-                    if isControlFrame && payloadLen > 125 {
-                        writeError(CloseCode.ProtocolError.toRaw())
+                }
+                if isControlFrame && payloadLen > 125 {
+                    writeError(CloseCode.ProtocolError.toRaw())
+                    return
+                }
+                var dataLength = UInt64(payloadLen)
+                if dataLength == 127 {
+                    let bytes = UnsafePointer<UInt64>((buffer+offset))
+                    dataLength = bytes[0].byteSwapped
+                    offset += sizeof(UInt64)
+                } else if dataLength == 126 {
+                    let bytes = UnsafePointer<UInt16>((buffer+offset))
+                    dataLength = UInt64(bytes[0].byteSwapped)
+                    offset += sizeof(UInt16)
+                }
+                var len = dataLength
+                if dataLength > UInt64(bufferLen) {
+                    len = UInt64(bufferLen-offset)
+                }
+                var data: NSData!
+                if len < 0 {
+                    len = 0
+                    data = NSData()
+                } else {
+                    data = NSData(bytes: UnsafePointer<UInt8>((buffer+offset)), length: Int(len))
+                }
+                if receivedOpcode == OpCode.Pong.toRaw() {
+                    let step = Int(offset+len)
+                    let extra = bufferLen-step
+                    if extra > 0 {
+                        processRawMessage((buffer+step), bufferLen: extra)
+                    }
+                    return
+                }
+                var response: WSResponse? = nil
+                if _readStack.count > 0 {
+                    response = _readStack[_readStack.count-1]
+                }
+                if isControlFrame {
+                    response = nil //don't append pings
+                }
+                if isFin == 0 && receivedOpcode == OpCode.ContinueFrame.toRaw() && !response {
+                    let errCode = CloseCode.ProtocolError.toRaw()
+                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("continue frame before a binary or text frame",
+                        code: errCode))
+                    writeError(errCode)
+                    return
+                }
+                var isNew = false
+                if(!response) {
+                    if receivedOpcode == OpCode.ContinueFrame.toRaw()  {
+                        let errCode = CloseCode.ProtocolError.toRaw()
+                        self.delegate?.websocketDidDisconnect(self.errorWithDetail("first frame can't be a continue frame",
+                            code: errCode))
+                        writeError(errCode)
                         return
                     }
-                    var dataLength = UInt64(payloadLen)
-                    if dataLength == 127 {
-                        let bytes = UnsafePointer<UInt64>((buffer+offset))
-                        dataLength = bytes[0].byteSwapped
-                        offset += sizeof(UInt64)
-                    } else if dataLength == 126 {
-                        let bytes = UnsafePointer<UInt16>((buffer+offset))
-                        dataLength = UInt64(bytes[0].byteSwapped)
-                        offset += sizeof(UInt16)
+                    isNew = true
+                    response = WSResponse()
+                    response!.code = OpCode.fromRaw(receivedOpcode)!
+                    response!.bytesLeft = Int(dataLength)
+                    response!.buffer = NSMutableData(data: data)
+                } else {
+                     if receivedOpcode == OpCode.ContinueFrame.toRaw()  {
+                        response!.bytesLeft = Int(dataLength)
+                    } else {
+                        let errCode = CloseCode.ProtocolError.toRaw()
+                        self.delegate?.websocketDidDisconnect(self.errorWithDetail("second and beyond of fragment message must be a continue frame",
+                            code: errCode))
+                        writeError(errCode)
+                        return
                     }
+                    response!.buffer!.appendData(data)
+                }
+                response!.bytesLeft -= Int(len)
+                response!.frameCount++
+                response!.isFin = isFin > 0 ? true : false
+                if(isNew && response) {
+                    _readStack.append(response!)
+                }
+                if response {
+                    processResponse(response!)
+                }
+                
+                let step = Int(offset+len)
+                let extra = bufferLen-step
+                if(extra > 0) {
+                    processExtra((buffer+step), bufferLen: extra)
                 }
             }
         }
