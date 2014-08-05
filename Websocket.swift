@@ -295,7 +295,7 @@ class Websocket : NSObject, NSStreamDelegate {
     
     ///process the websocket data
     func processRawMessage(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
-        var response: WSResponse? =  nil
+        var response: WSResponse? = nil
         if _readStack.count > 0 {
             response = _readStack[_readStack.count-1]
         }
@@ -444,13 +444,13 @@ class Websocket : NSObject, NSStreamDelegate {
                 }
                 response!.buffer!.appendData(data)
             }
-            response!.bytesLeft -= Int(len)
-            response!.frameCount++
-            response!.isFin = isFin > 0 ? true : false
-            if(isNew && response != nil) {
-                _readStack.append(response!)
-            }
             if response != nil {
+                response!.bytesLeft -= Int(len)
+                response!.frameCount++
+                response!.isFin = isFin > 0 ? true : false
+                if(isNew) {
+                    _readStack.append(response!)
+                }
                 processResponse(response!)
             }
             

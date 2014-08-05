@@ -7,10 +7,37 @@ starscream conforms to all of the base [Autobahn test suite](http://autobahn.ws/
 
 starscream also has a Objective-C counter part here: [jetfire](https://github.com/acmacalister/jetfire)
 
+
 ## Example ##
 
+Open a connection to your websocket server. `socket` is a property, so it can stick around.
+
+```swift
+var socket = Websocket(url: NSURL.URLWithString("ws://localhost:8080"))
+socket.delegate = self
+socket.connect()
 ```
-Coming shortly....
+
+Now for the delegate methods.
+
+```swift
+func websocketDidConnect() {
+    println("websocket is connected")
+}
+func websocketDidDisconnect(error: NSError?) {
+	println("websocket is disconnected: \(error!.localizedDescription)")
+}
+func websocketDidWriteError(error: NSError?) {
+    println("wez got an error from the websocket: \(error!.localizedDescription)")
+}
+func websocketDidReceiveMessage(text: String) {
+	println("got some text: \(text)")
+	//self.socket.writeString(text) //example on how to write a string the socket
+}
+func websocketDidReceiveData(data: NSData) {
+	println("got some data: \(data.length)")
+    //self.socket.writeData(data) //example on how to write binary data to the socket
+}
 ```
 
 ## Requirements ##
