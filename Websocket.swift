@@ -142,10 +142,12 @@ class Websocket : NSObject, NSStreamDelegate {
         var key = ""
         let seed = 16
         for (var i = 0; i < seed; i++) {
-            let c: unichar =  (97 + UInt16(arc4random_uniform(25)))
-            key += "\(c)"
+            let uni = UnicodeScalar(UInt32(97 + arc4random_uniform(25)))
+            key += "\(Character(uni))"
         }
-        return key
+        var data = key.dataUsingEncoding(NSUTF8StringEncoding)
+        var baseKey = data?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions(0))
+        return baseKey!
     }
     //Start the stream connection and write the data to the output stream
     func initStreamsWithData(data: NSData) {
@@ -182,7 +184,9 @@ class Websocket : NSObject, NSStreamDelegate {
     }
     //disconnect the stream object
     func disconnectStream(error: NSError?) {
-        _writeQueue!.waitUntilAllOperationsAreFinished()
+        if _writeQueue != nil {
+            _writeQueue!.waitUntilAllOperationsAreFinished()
+        }
         _inputStream!.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         _outputStream!.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         _inputStream!.close()
@@ -199,7 +203,8 @@ class Websocket : NSObject, NSStreamDelegate {
     
     ///handles the incoming bytes and sending them to the proper processing method
     func processInputStream() {
-        let buffer = UnsafePointer<UInt8>(BUFFER_MAX)
+        let buf = NSMutableData(capacity: BUFFER_MAX)
+        var buffer = UnsafeMutablePointer<UInt8>(buf.bytes)
         let length = _inputStream!.read(buffer, maxLength: BUFFER_MAX)
         if length > 0 {
             if !_isConnected {
@@ -227,7 +232,7 @@ class Websocket : NSObject, NSStreamDelegate {
         if _inputQueue.count > 0 {
             let data = _inputQueue[0]
             var work = data
-            if _fragBuffer {
+            if (_fragBuffer != nil) {
                 var combine = NSMutableData(data: _fragBuffer!)
                 combine.appendData(data)
                 work = combine
@@ -290,169 +295,172 @@ class Websocket : NSObject, NSStreamDelegate {
     
     ///process the websocket data
     func processRawMessage(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
+        var response: WSResponse? =  nil
         if _readStack.count > 0 {
-            if bufferLen < 2 {
-                _fragBuffer = NSData(bytes: buffer, length: bufferLen)
+            response = _readStack[_readStack.count-1]
+        }
+        if response != nil && bufferLen < 2 {
+            _fragBuffer = NSData(bytes: buffer, length: bufferLen)
+            return
+        }
+        if response != nil && response!.bytesLeft > 0 {
+            let resp = response!
+            var len = resp.bytesLeft
+            var extra = bufferLen - resp.bytesLeft
+            if resp.bytesLeft > bufferLen {
+                len = bufferLen
+                extra = 0
+            }
+            resp.bytesLeft -= len
+            resp.buffer?.appendData(NSData(bytes: buffer, length: len))
+            processResponse(resp)
+            var offset = bufferLen - extra
+            if extra > 0 {
+                processExtra((buffer+offset), bufferLen: extra)
+            }
+            return
+        } else {
+            let isFin = (FinMask & buffer[0])
+            let receivedOpcode = (OpCodeMask & buffer[0])
+            let isMasked = (MaskMask & buffer[1])
+            let payloadLen = (PayloadLenMask & buffer[1])
+            var offset = 2
+            if((isMasked > 0 || (RSVMask & buffer[0]) > 0) && receivedOpcode != OpCode.Pong.toRaw()) {
+                let errCode = CloseCode.ProtocolError.toRaw()
+                self.delegate?.websocketDidDisconnect(self.errorWithDetail("masked and rsv data is not currently supported",
+                    code: errCode))
+                writeError(errCode)
                 return
             }
-            var response = _readStack[_readStack.count-1]
-            if response.bytesLeft > 0 {
-                var len = response.bytesLeft
-                var extra = bufferLen - response.bytesLeft
-                if response.bytesLeft > bufferLen {
-                    len = bufferLen
-                    extra = 0
-                }
-                response.bytesLeft -= len
-                response.buffer?.appendData(NSData(bytes: buffer, length: len))
-                processResponse(response)
-                var offset = bufferLen - extra
-                if extra > 0 {
-                    processExtra((buffer+offset), bufferLen: extra)
-                }
+            let isControlFrame = (receivedOpcode == OpCode.ConnectionClose.toRaw() || receivedOpcode == OpCode.Ping.toRaw())
+            if !isControlFrame && (receivedOpcode != OpCode.BinaryFrame.toRaw() && receivedOpcode != OpCode.ContinueFrame.toRaw() &&
+                receivedOpcode != OpCode.TextFrame.toRaw() && receivedOpcode != OpCode.Pong.toRaw()) {
+                    let errCode = CloseCode.ProtocolError.toRaw()
+                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("unknown opcode: \(receivedOpcode)",
+                        code: errCode))
+                    writeError(errCode)
+                    return
+            }
+            if isControlFrame && isFin == 0 {
+                let errCode = CloseCode.ProtocolError.toRaw()
+                self.delegate?.websocketDidDisconnect(self.errorWithDetail("control frames can't be fragmented",
+                    code: errCode))
+                writeError(errCode)
                 return
-            } else {
-                let isFin = (FinMask & buffer[0])
-                let receivedOpcode = (OpCodeMask & buffer[0])
-                let isMasked = (MaskMask & buffer[1])
-                let payloadLen = (PayloadLenMask & buffer[1])
-                var offset = 2
-                if((isMasked > 0 || (RSVMask & buffer[0]) > 0) && receivedOpcode != OpCode.Pong.toRaw()) {
-                    let errCode = CloseCode.ProtocolError.toRaw()
-                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("masked and rsv data is not currently supported",
-                        code: errCode))
-                    writeError(errCode)
-                    return
-                }
-                let isControlFrame = (receivedOpcode == OpCode.ConnectionClose.toRaw() || receivedOpcode == OpCode.Ping.toRaw())
-                if !isControlFrame && (receivedOpcode != OpCode.BinaryFrame.toRaw() && receivedOpcode != OpCode.ContinueFrame.toRaw() &&
-                    receivedOpcode != OpCode.TextFrame.toRaw() && receivedOpcode != OpCode.Pong.toRaw()) {
-                        let errCode = CloseCode.ProtocolError.toRaw()
-                        self.delegate?.websocketDidDisconnect(self.errorWithDetail("unknown opcode: \(receivedOpcode)",
-                            code: errCode))
-                        writeError(errCode)
-                        return
-                }
-                if isControlFrame && isFin == 0 {
-                    let errCode = CloseCode.ProtocolError.toRaw()
-                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("control frames can't be fragmented",
-                        code: errCode))
-                    writeError(errCode)
-                    return
-                }
-                if receivedOpcode == OpCode.ConnectionClose.toRaw() {
-                    var code = CloseCode.Normal.toRaw()
-                    if payloadLen == 1 {
+            }
+            if receivedOpcode == OpCode.ConnectionClose.toRaw() {
+                var code = CloseCode.Normal.toRaw()
+                if payloadLen == 1 {
+                    code = CloseCode.ProtocolError.toRaw()
+                } else if payloadLen > 1 {
+                    var codeBuffer = UnsafePointer<UInt16>((buffer+offset))
+                    code = codeBuffer[0].byteSwapped
+                    if code < 1000 || (code > 1003 && code < 1007) || (code > 1011 && code < 3000) {
                         code = CloseCode.ProtocolError.toRaw()
-                    } else if payloadLen > 1 {
-                        var codeBuffer = UnsafePointer<UInt16>((buffer+offset))
-                        code = codeBuffer[0].byteSwapped
-                        if code < 1000 || (code > 1003 && code < 1007) || (code > 1011 && code < 3000) {
-                            code = CloseCode.ProtocolError.toRaw()
-                        }
-                        offset += 2
                     }
-                    let len = Int(payloadLen-2)
-                    if len > 0 {
-                        let bytes = UnsafePointer<UInt8>((buffer+offset))
-                        var str: NSString? = NSString(data: NSData(bytesNoCopy: bytes, length: len), encoding: NSUTF8StringEncoding)
-                        if !str {
-                            code = CloseCode.ProtocolError.toRaw()
-                        }
-                        writeError(code)
-                        return
+                    offset += 2
+                }
+                let len = Int(payloadLen-2)
+                if len > 0 {
+                    let bytes = UnsafePointer<UInt8>((buffer+offset))
+                    var str: NSString? = NSString(data: NSData(bytes: bytes, length: len), encoding: NSUTF8StringEncoding)
+                    if str == nil {
+                        code = CloseCode.ProtocolError.toRaw()
                     }
                 }
-                if isControlFrame && payloadLen > 125 {
-                    writeError(CloseCode.ProtocolError.toRaw())
-                    return
-                }
-                var dataLength = UInt64(payloadLen)
-                if dataLength == 127 {
-                    let bytes = UnsafePointer<UInt64>((buffer+offset))
-                    dataLength = bytes[0].byteSwapped
-                    offset += sizeof(UInt64)
-                } else if dataLength == 126 {
-                    let bytes = UnsafePointer<UInt16>((buffer+offset))
-                    dataLength = UInt64(bytes[0].byteSwapped)
-                    offset += sizeof(UInt16)
-                }
-                var len = dataLength
-                if dataLength > UInt64(bufferLen) {
-                    len = UInt64(bufferLen-offset)
-                }
-                var data: NSData!
-                if len < 0 {
-                    len = 0
-                    data = NSData()
-                } else {
-                    data = NSData(bytes: UnsafePointer<UInt8>((buffer+offset)), length: Int(len))
-                }
-                if receivedOpcode == OpCode.Pong.toRaw() {
-                    let step = Int(offset+len)
-                    let extra = bufferLen-step
-                    if extra > 0 {
-                        processRawMessage((buffer+step), bufferLen: extra)
-                    }
-                    return
-                }
-                var response: WSResponse? = nil
-                if _readStack.count > 0 {
-                    response = _readStack[_readStack.count-1]
-                }
-                if isControlFrame {
-                    response = nil //don't append pings
-                }
-                if isFin == 0 && receivedOpcode == OpCode.ContinueFrame.toRaw() && !response {
-                    let errCode = CloseCode.ProtocolError.toRaw()
-                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("continue frame before a binary or text frame",
-                        code: errCode))
-                    writeError(errCode)
-                    return
-                }
-                var isNew = false
-                if(!response) {
-                    if receivedOpcode == OpCode.ContinueFrame.toRaw()  {
-                        let errCode = CloseCode.ProtocolError.toRaw()
-                        self.delegate?.websocketDidDisconnect(self.errorWithDetail("first frame can't be a continue frame",
-                            code: errCode))
-                        writeError(errCode)
-                        return
-                    }
-                    isNew = true
-                    response = WSResponse()
-                    response!.code = OpCode.fromRaw(receivedOpcode)!
-                    response!.bytesLeft = Int(dataLength)
-                    response!.buffer = NSMutableData(data: data)
-                } else {
-                     if receivedOpcode == OpCode.ContinueFrame.toRaw()  {
-                        response!.bytesLeft = Int(dataLength)
-                    } else {
-                        let errCode = CloseCode.ProtocolError.toRaw()
-                        self.delegate?.websocketDidDisconnect(self.errorWithDetail("second and beyond of fragment message must be a continue frame",
-                            code: errCode))
-                        writeError(errCode)
-                        return
-                    }
-                    response!.buffer!.appendData(data)
-                }
-                response!.bytesLeft -= Int(len)
-                response!.frameCount++
-                response!.isFin = isFin > 0 ? true : false
-                if(isNew && response) {
-                    _readStack.append(response!)
-                }
-                if response {
-                    processResponse(response!)
-                }
-                
+                writeError(code)
+                return
+            }
+            if isControlFrame && payloadLen > 125 {
+                writeError(CloseCode.ProtocolError.toRaw())
+                return
+            }
+            var dataLength = UInt64(payloadLen)
+            if dataLength == 127 {
+                let bytes = UnsafePointer<UInt64>((buffer+offset))
+                dataLength = bytes[0].byteSwapped
+                offset += sizeof(UInt64)
+            } else if dataLength == 126 {
+                let bytes = UnsafePointer<UInt16>((buffer+offset))
+                dataLength = UInt64(bytes[0].byteSwapped)
+                offset += sizeof(UInt16)
+            }
+            var len = dataLength
+            if dataLength > UInt64(bufferLen) {
+                len = UInt64(bufferLen-offset)
+            }
+            var data: NSData!
+            if len < 0 {
+                len = 0
+                data = NSData()
+            } else {
+                data = NSData(bytes: UnsafePointer<UInt8>((buffer+offset)), length: Int(len))
+            }
+            if receivedOpcode == OpCode.Pong.toRaw() {
                 let step = Int(offset+len)
                 let extra = bufferLen-step
-                if(extra > 0) {
-                    processExtra((buffer+step), bufferLen: extra)
+                if extra > 0 {
+                    processRawMessage((buffer+step), bufferLen: extra)
                 }
+                return
+            }
+            var response: WSResponse? = nil
+            if _readStack.count > 0 {
+                response = _readStack[_readStack.count-1]
+            }
+            if isControlFrame {
+                response = nil //don't append pings
+            }
+            if isFin == 0 && receivedOpcode == OpCode.ContinueFrame.toRaw() && response == nil {
+                let errCode = CloseCode.ProtocolError.toRaw()
+                self.delegate?.websocketDidDisconnect(self.errorWithDetail("continue frame before a binary or text frame",
+                    code: errCode))
+                writeError(errCode)
+                return
+            }
+            var isNew = false
+            if(response == nil) {
+                if receivedOpcode == OpCode.ContinueFrame.toRaw()  {
+                    let errCode = CloseCode.ProtocolError.toRaw()
+                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("first frame can't be a continue frame",
+                        code: errCode))
+                    writeError(errCode)
+                    return
+                }
+                isNew = true
+                response = WSResponse()
+                response!.code = OpCode.fromRaw(receivedOpcode)!
+                response!.bytesLeft = Int(dataLength)
+                response!.buffer = NSMutableData(data: data)
+            } else {
+                if receivedOpcode == OpCode.ContinueFrame.toRaw()  {
+                    response!.bytesLeft = Int(dataLength)
+                } else {
+                    let errCode = CloseCode.ProtocolError.toRaw()
+                    self.delegate?.websocketDidDisconnect(self.errorWithDetail("second and beyond of fragment message must be a continue frame",
+                        code: errCode))
+                    writeError(errCode)
+                    return
+                }
+                response!.buffer!.appendData(data)
+            }
+            response!.bytesLeft -= Int(len)
+            response!.frameCount++
+            response!.isFin = isFin > 0 ? true : false
+            if(isNew && response != nil) {
+                _readStack.append(response!)
+            }
+            if response != nil {
+                processResponse(response!)
+            }
+            
+            let step = Int(offset+len)
+            let extra = bufferLen-step
+            if(extra > 0) {
+                processExtra((buffer+step), bufferLen: extra)
             }
         }
+
     }
     
     ///process the extra of a buffer
@@ -472,7 +480,7 @@ class Websocket : NSObject, NSStreamDelegate {
                 dequeueWrite(data, code: OpCode.Pong)
             } else if response.code == .TextFrame {
                 var str: NSString? = NSString(data: response.buffer!, encoding: NSUTF8StringEncoding)
-                if !str {
+                if str == nil {
                     writeError(CloseCode.Encoding.toRaw())
                     return false
                 }
@@ -502,38 +510,39 @@ class Websocket : NSObject, NSStreamDelegate {
     
     ///write a an error to the socket
     func writeError(code: UInt16) {
-        var buffer = UnsafePointer<UInt16>(sizeof(UInt16))
+        let buf = NSMutableData(capacity: sizeof(UInt16))
+        var buffer = UnsafeMutablePointer<UInt16>(buf.bytes)
         buffer[0] = code.byteSwapped
         dequeueWrite(NSData(bytes: buffer, length: sizeof(UInt16)), code: .ConnectionClose)
     }
     ///used to write things to the stream in a
     func dequeueWrite(data: NSData, code: OpCode) {
-        if !_writeQueue {
+        if _writeQueue == nil {
             _writeQueue = NSOperationQueue()
             _writeQueue!.maxConcurrentOperationCount = 1
         }
         _writeQueue!.addOperationWithBlock {
             var offset = 2
-            let bytes = UnsafePointer<UInt8>(data.bytes)
+            let bytes = UnsafeMutablePointer<UInt8>(data.bytes)
             let dataLength = data.length
             let frame = NSMutableData(capacity: dataLength + self.MaxFrameSize)
-            let buffer = UnsafePointer<UInt8>(frame.mutableBytes)
+            let buffer = UnsafeMutablePointer<UInt8>(frame.mutableBytes)
             buffer[0] = self.FinMask | code.toRaw()
             if dataLength < 126 {
                 buffer[1] = CUnsignedChar(dataLength)
             } else if dataLength <= Int(Int16.max) {
                 buffer[1] = 126
-                var sizeBuffer = UnsafePointer<UInt16>((buffer+offset))
+                var sizeBuffer = UnsafeMutablePointer<UInt16>((buffer+offset))
                 sizeBuffer[0] = UInt16(dataLength).byteSwapped
                 offset += sizeof(UInt16)
             } else {
                 buffer[1] = 127
-                var sizeBuffer = UnsafePointer<UInt64>((buffer+offset))
+                var sizeBuffer = UnsafeMutablePointer<UInt64>((buffer+offset))
                 sizeBuffer[0] = UInt64(dataLength).byteSwapped
                 offset += sizeof(UInt64)
             }
             buffer[1] |= self.MaskMask
-            var maskKey = UnsafePointer<UInt8>(buffer + offset)
+            var maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
             SecRandomCopyBytes(kSecRandomDefault, UInt(sizeof(UInt32)), maskKey)
             offset += sizeof(UInt32)
             
@@ -543,7 +552,7 @@ class Websocket : NSObject, NSStreamDelegate {
             }
             var total = 0
             while true {
-                if !self._outputStream {
+                if self._outputStream == nil {
                     break
                 }
                 let writeBuffer = UnsafePointer<UInt8>(frame.bytes+total)
