@@ -295,10 +295,7 @@ class Websocket : NSObject, NSStreamDelegate {
     
     ///process the websocket data
     func processRawMessage(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
-        var response: WSResponse? = nil
-        if _readStack.count > 0 {
-            response = _readStack[_readStack.count-1]
-        }
+        var response = _readStack.last
         if response != nil && bufferLen < 2 {
             _fragBuffer = NSData(bytes: buffer, length: bufferLen)
             return
@@ -404,10 +401,7 @@ class Websocket : NSObject, NSStreamDelegate {
                 }
                 return
             }
-            var response: WSResponse? = nil
-            if _readStack.count > 0 {
-                response = _readStack[_readStack.count-1]
-            }
+            var response = _readStack.last
             if isControlFrame {
                 response = nil //don't append pings
             }
@@ -523,6 +517,7 @@ class Websocket : NSObject, NSStreamDelegate {
         }
         _writeQueue!.addOperationWithBlock {
             var offset = 2
+            UINT16_MAX
             let bytes = UnsafeMutablePointer<UInt8>(data.bytes)
             let dataLength = data.length
             let frame = NSMutableData(capacity: dataLength + self.MaxFrameSize)
@@ -530,7 +525,7 @@ class Websocket : NSObject, NSStreamDelegate {
             buffer[0] = self.FinMask | code.toRaw()
             if dataLength < 126 {
                 buffer[1] = CUnsignedChar(dataLength)
-            } else if dataLength <= Int(Int16.max) {
+            } else if dataLength <= Int(UInt16.max) {
                 buffer[1] = 126
                 var sizeBuffer = UnsafeMutablePointer<UInt16>((buffer+offset))
                 sizeBuffer[0] = UInt16(dataLength).byteSwapped
