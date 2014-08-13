@@ -50,7 +50,7 @@ class Websocket : NSObject, NSStreamDelegate {
     let headerWSConnectionValue = "Upgrade"
     let headerWSProtocolName    = "Sec-WebSocket-Protocol"
     let headerWSProtocolValue   = "chat, superchat"
-    let headerWSVersionName     = "Sec-Websocket-Version"
+    let headerWSVersionName     = "Sec-WebSocket-Version"
     let headerWSVersionValue    = "13"
     let headerWSKeyName         = "Sec-WebSocket-Key"
     let headerOriginName        = "Origin"
