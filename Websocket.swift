@@ -154,6 +154,10 @@ class Websocket : NSObject, NSStreamDelegate {
         NSStream.getStreamsToHostWithName(_url.host, port: _url.port.integerValue, inputStream: &_inputStream, outputStream: &_outputStream)
         _inputStream!.delegate = self
         _outputStream!.delegate = self
+        if _url.scheme == "wss" {
+            _inputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+            _outputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+        }
         _inputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         _outputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         _inputStream!.open()
