@@ -9,12 +9,13 @@
 import Foundation
 import CoreFoundation
 
-protocol WebsocketDelegate {
+@objc protocol WebsocketDelegate {
     func websocketDidConnect()
     func websocketDidDisconnect(error: NSError?)
     func websocketDidWriteError(error: NSError?)
     func websocketDidReceiveMessage(text: String)
     func websocketDidReceiveData(data: NSData)
+    optional func websocketProtocolValue() -> String
 }
 
 class Websocket : NSObject, NSStreamDelegate {
@@ -118,16 +119,29 @@ class Websocket : NSObject, NSStreamDelegate {
         let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "GET",
             url, kCFHTTPVersion1_1)
         
+        var port = _url.port
+        if port == nil || !port == 0 {
+            if _url.scheme == "wss" {
+                port = 443
+            } else {
+                port = 80
+            }
+        }
+        var protoVal = headerWSProtocolValue
+        var proVal = self.delegate?.websocketProtocolValue!()
+        if proVal != nil {
+            protoVal = proVal!
+        }
         self.addHeader(urlRequest, key: headerWSUpgradeName, val: headerWSUpgradeValue)
         self.addHeader(urlRequest, key: headerWSConnectionName, val: headerWSConnectionValue)
-        self.addHeader(urlRequest, key: headerWSProtocolName, val: headerWSProtocolValue)
+        self.addHeader(urlRequest, key: headerWSProtocolName, val: protoVal)
         self.addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         self.addHeader(urlRequest, key: headerWSKeyName, val: self.generateWebSocketKey())
         self.addHeader(urlRequest, key: headerOriginName, val: _url.absoluteString)
-        self.addHeader(urlRequest, key: headerWSHostName, val: "\(_url.host):\(_url.port)")
+        self.addHeader(urlRequest, key: headerWSHostName, val: "\(_url.host):\(port)")
         
         let serializedRequest: NSData = CFHTTPMessageCopySerializedMessage(urlRequest.takeUnretainedValue()).takeUnretainedValue()
-        self.initStreamsWithData(serializedRequest)
+        self.initStreamsWithData(serializedRequest,port)
     }
     //Add a header to the CFHTTPMessage by using the NSString bridges to CFString
     func addHeader(urlRequest: Unmanaged<CFHTTPMessage>,key: String, val: String) {
@@ -150,8 +164,17 @@ class Websocket : NSObject, NSStreamDelegate {
         return baseKey!
     }
     //Start the stream connection and write the data to the output stream
-    func initStreamsWithData(data: NSData) {
-        NSStream.getStreamsToHostWithName(_url.host, port: _url.port.integerValue, inputStream: &_inputStream, outputStream: &_outputStream)
+    func initStreamsWithData(data: NSData, _ port: Int) {
+        //higher level API we will cut over to at some point
+        //NSStream.getStreamsToHostWithName(_url.host, port: _url.port.integerValue, inputStream: &_inputStream, outputStream: &_outputStream)
+        
+        var readStream: Unmanaged<CFReadStream>?
+        var writeStream: Unmanaged<CFWriteStream>?
+        let h: NSString = _url.host
+        CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
+        _inputStream = readStream!.takeUnretainedValue()
+        _outputStream = writeStream!.takeUnretainedValue()
+        
         _inputStream!.delegate = self
         _outputStream!.delegate = self
         if _url.scheme == "wss" {
