@@ -9,13 +9,12 @@
 import Foundation
 import CoreFoundation
 
-@objc protocol WebsocketDelegate {
+protocol WebsocketDelegate {
     func websocketDidConnect()
     func websocketDidDisconnect(error: NSError?)
     func websocketDidWriteError(error: NSError?)
     func websocketDidReceiveMessage(text: String)
     func websocketDidReceiveData(data: NSData)
-    optional func websocketProtocolValue() -> String
 }
 
 class Websocket : NSObject, NSStreamDelegate {
@@ -82,6 +81,7 @@ class Websocket : NSObject, NSStreamDelegate {
     var _readStack = Array<WSResponse>()
     var _inputQueue = Array<NSData>()
     var _fragBuffer: NSData?
+    var headers = Dictionary<String,String>()
     
     //init the websocket with a url
     init(url: NSURL) {
@@ -120,25 +120,23 @@ class Websocket : NSObject, NSStreamDelegate {
             url, kCFHTTPVersion1_1)
         
         var port = _url.port
-        if port == nil || !port == 0 {
+        if port == nil {
             if _url.scheme == "wss" {
                 port = 443
             } else {
                 port = 80
             }
         }
-        var protoVal = headerWSProtocolValue
-        var proVal = self.delegate?.websocketProtocolValue!()
-        if proVal != nil {
-            protoVal = proVal!
-        }
         self.addHeader(urlRequest, key: headerWSUpgradeName, val: headerWSUpgradeValue)
         self.addHeader(urlRequest, key: headerWSConnectionName, val: headerWSConnectionValue)
-        self.addHeader(urlRequest, key: headerWSProtocolName, val: protoVal)
+        self.addHeader(urlRequest, key: headerWSProtocolName, val: headerWSProtocolValue)
         self.addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         self.addHeader(urlRequest, key: headerWSKeyName, val: self.generateWebSocketKey())
         self.addHeader(urlRequest, key: headerOriginName, val: _url.absoluteString)
         self.addHeader(urlRequest, key: headerWSHostName, val: "\(_url.host):\(port)")
+        for (key,value) in headers {
+            self.addHeader(urlRequest, key: key, val: value)
+        }
         
         let serializedRequest: NSData = CFHTTPMessageCopySerializedMessage(urlRequest.takeUnretainedValue()).takeUnretainedValue()
         self.initStreamsWithData(serializedRequest,port)
