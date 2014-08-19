@@ -114,7 +114,7 @@ class Websocket : NSObject, NSStreamDelegate {
     //private method that starts the connection
     func createHTTPRequest() {
         
-        let str: NSString = _url.absoluteString
+        let str: NSString = _url.absoluteString!
         let url = CFURLCreateWithString(kCFAllocatorDefault, str, nil)
         let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "GET",
             url, kCFHTTPVersion1_1)
@@ -132,14 +132,14 @@ class Websocket : NSObject, NSStreamDelegate {
         self.addHeader(urlRequest, key: headerWSProtocolName, val: headerWSProtocolValue)
         self.addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         self.addHeader(urlRequest, key: headerWSKeyName, val: self.generateWebSocketKey())
-        self.addHeader(urlRequest, key: headerOriginName, val: _url.absoluteString)
+        self.addHeader(urlRequest, key: headerOriginName, val: _url.absoluteString!)
         self.addHeader(urlRequest, key: headerWSHostName, val: "\(_url.host):\(port)")
         for (key,value) in headers {
             self.addHeader(urlRequest, key: key, val: value)
         }
         
         let serializedRequest: NSData = CFHTTPMessageCopySerializedMessage(urlRequest.takeUnretainedValue()).takeUnretainedValue()
-        self.initStreamsWithData(serializedRequest,port)
+        self.initStreamsWithData(serializedRequest,port!)
     }
     //Add a header to the CFHTTPMessage by using the NSString bridges to CFString
     func addHeader(urlRequest: Unmanaged<CFHTTPMessage>,key: String, val: String) {
@@ -168,7 +168,7 @@ class Websocket : NSObject, NSStreamDelegate {
         
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
-        let h: NSString = _url.host
+        let h: NSString = _url.host!
         CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
         _inputStream = readStream!.takeUnretainedValue()
         _outputStream = writeStream!.takeUnretainedValue()
