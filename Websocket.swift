@@ -81,6 +81,7 @@ class Websocket : NSObject, NSStreamDelegate {
     var _readStack = Array<WSResponse>()
     var _inputQueue = Array<NSData>()
     var _fragBuffer: NSData?
+    var headers = Dictionary<String,String>()
     
     //init the websocket with a url
     init(url: NSURL) {
@@ -113,21 +114,32 @@ class Websocket : NSObject, NSStreamDelegate {
     //private method that starts the connection
     func createHTTPRequest() {
         
-        let str: NSString = _url.absoluteString
+        let str: NSString = _url.absoluteString!
         let url = CFURLCreateWithString(kCFAllocatorDefault, str, nil)
         let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "GET",
             url, kCFHTTPVersion1_1)
         
+        var port = _url.port
+        if port == nil {
+            if _url.scheme == "wss" {
+                port = 443
+            } else {
+                port = 80
+            }
+        }
         self.addHeader(urlRequest, key: headerWSUpgradeName, val: headerWSUpgradeValue)
         self.addHeader(urlRequest, key: headerWSConnectionName, val: headerWSConnectionValue)
         self.addHeader(urlRequest, key: headerWSProtocolName, val: headerWSProtocolValue)
         self.addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         self.addHeader(urlRequest, key: headerWSKeyName, val: self.generateWebSocketKey())
-        self.addHeader(urlRequest, key: headerOriginName, val: _url.absoluteString)
-        self.addHeader(urlRequest, key: headerWSHostName, val: "\(_url.host):\(_url.port)")
+        self.addHeader(urlRequest, key: headerOriginName, val: _url.absoluteString!)
+        self.addHeader(urlRequest, key: headerWSHostName, val: "\(_url.host):\(port)")
+        for (key,value) in headers {
+            self.addHeader(urlRequest, key: key, val: value)
+        }
         
         let serializedRequest: NSData = CFHTTPMessageCopySerializedMessage(urlRequest.takeUnretainedValue()).takeUnretainedValue()
-        self.initStreamsWithData(serializedRequest)
+        self.initStreamsWithData(serializedRequest,port!)
     }
     //Add a header to the CFHTTPMessage by using the NSString bridges to CFString
     func addHeader(urlRequest: Unmanaged<CFHTTPMessage>,key: String, val: String) {
@@ -150,10 +162,23 @@ class Websocket : NSObject, NSStreamDelegate {
         return baseKey!
     }
     //Start the stream connection and write the data to the output stream
-    func initStreamsWithData(data: NSData) {
-        NSStream.getStreamsToHostWithName(_url.host, port: _url.port.integerValue, inputStream: &_inputStream, outputStream: &_outputStream)
+    func initStreamsWithData(data: NSData, _ port: Int) {
+        //higher level API we will cut over to at some point
+        //NSStream.getStreamsToHostWithName(_url.host, port: _url.port.integerValue, inputStream: &_inputStream, outputStream: &_outputStream)
+        
+        var readStream: Unmanaged<CFReadStream>?
+        var writeStream: Unmanaged<CFWriteStream>?
+        let h: NSString = _url.host!
+        CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
+        _inputStream = readStream!.takeUnretainedValue()
+        _outputStream = writeStream!.takeUnretainedValue()
+        
         _inputStream!.delegate = self
         _outputStream!.delegate = self
+        if _url.scheme == "wss" {
+            _inputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+            _outputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+        }
         _inputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         _outputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         _inputStream!.open()
