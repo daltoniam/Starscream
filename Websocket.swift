@@ -133,7 +133,7 @@ class Websocket : NSObject, NSStreamDelegate {
         self.addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         self.addHeader(urlRequest, key: headerWSKeyName, val: self.generateWebSocketKey())
         self.addHeader(urlRequest, key: headerOriginName, val: _url.absoluteString!)
-        self.addHeader(urlRequest, key: headerWSHostName, val: "\(_url.host):\(port)")
+        self.addHeader(urlRequest, key: headerWSHostName, val: "\(_url.host!):\(port!)")
         for (key,value) in headers {
             self.addHeader(urlRequest, key: key, val: value)
         }
