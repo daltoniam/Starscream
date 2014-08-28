@@ -17,7 +17,7 @@ protocol WebsocketDelegate {
     func websocketDidReceiveData(data: NSData)
 }
 
-class Websocket : NSObject, NSStreamDelegate {
+public class Websocket : NSObject, NSStreamDelegate {
     
     enum OpCode : UInt8 {
         case ContinueFrame = 0x0
@@ -88,31 +88,30 @@ class Websocket : NSObject, NSStreamDelegate {
         _url = url
     }
     ///Connect to the websocket server on a background thread
-    func connect() {
+    public func connect() {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), {
             self.createHTTPRequest()
             })
     }
     
     ///disconnect from the websocket server
-    func disconnect() {
+    public func disconnect() {
         writeError(CloseCode.Normal.toRaw())
     }
     
     ///write a string to the websocket. This sends it as a text frame.
-    func writeString(str: String) {
+    public func writeString(str: String) {
         dequeueWrite(str.dataUsingEncoding(NSUTF8StringEncoding)!, code: .TextFrame)
     }
     
     ///write binary data to the websocket. This sends it as a binary frame.
-    func writeData(data: NSData) {
+    public func writeData(data: NSData) {
         dequeueWrite(data, code: .BinaryFrame)
     }
-    
     //private methods below!
     
     //private method that starts the connection
-    func createHTTPRequest() {
+    private func createHTTPRequest() {
         
         let str: NSString = _url.absoluteString!
         let url = CFURLCreateWithString(kCFAllocatorDefault, str, nil)
@@ -142,7 +141,7 @@ class Websocket : NSObject, NSStreamDelegate {
         self.initStreamsWithData(serializedRequest,port!)
     }
     //Add a header to the CFHTTPMessage by using the NSString bridges to CFString
-    func addHeader(urlRequest: Unmanaged<CFHTTPMessage>,key: String, val: String) {
+    private func addHeader(urlRequest: Unmanaged<CFHTTPMessage>,key: String, val: String) {
         let nsKey: NSString = key
         let nsVal: NSString = val
         CFHTTPMessageSetHeaderFieldValue(urlRequest.takeUnretainedValue(),
@@ -150,7 +149,7 @@ class Websocket : NSObject, NSStreamDelegate {
             nsVal)
     }
     //generate a websocket key as needed in rfc
-    func generateWebSocketKey() -> String {
+    private func generateWebSocketKey() -> String {
         var key = ""
         let seed = 16
         for (var i = 0; i < seed; i++) {
@@ -162,7 +161,7 @@ class Websocket : NSObject, NSStreamDelegate {
         return baseKey!
     }
     //Start the stream connection and write the data to the output stream
-    func initStreamsWithData(data: NSData, _ port: Int) {
+    private func initStreamsWithData(data: NSData, _ port: Int) {
         //higher level API we will cut over to at some point
         //NSStream.getStreamsToHostWithName(_url.host, port: _url.port.integerValue, inputStream: &_inputStream, outputStream: &_outputStream)
         
@@ -191,7 +190,7 @@ class Websocket : NSObject, NSStreamDelegate {
         }
     }
     //delegate for the stream methods. Processes incoming bytes
-    func stream(aStream: NSStream!, handleEvent eventCode: NSStreamEvent) {
+    private func stream(aStream: NSStream!, handleEvent eventCode: NSStreamEvent) {
         
         if eventCode == .HasBytesAvailable {
             if(aStream == _inputStream) {
@@ -208,7 +207,7 @@ class Websocket : NSObject, NSStreamDelegate {
         //does nothing, but fixes bug in swift
     }
     //disconnect the stream object
-    func disconnectStream(error: NSError?) {
+    private func disconnectStream(error: NSError?) {
         if _writeQueue != nil {
             _writeQueue!.waitUntilAllOperationsAreFinished()
         }
@@ -227,7 +226,7 @@ class Websocket : NSObject, NSStreamDelegate {
     }
     
     ///handles the incoming bytes and sending them to the proper processing method
-    func processInputStream() {
+    private func processInputStream() {
         let buf = NSMutableData(capacity: BUFFER_MAX)
         var buffer = UnsafeMutablePointer<UInt8>(buf.bytes)
         let length = _inputStream!.read(buffer, maxLength: BUFFER_MAX)
@@ -253,7 +252,7 @@ class Websocket : NSObject, NSStreamDelegate {
         }
     }
     ///dequeue the incoming input so it is processed in order
-    func dequeueInput() {
+    private func dequeueInput() {
         if _inputQueue.count > 0 {
             let data = _inputQueue[0]
             var work = data
@@ -270,7 +269,7 @@ class Websocket : NSObject, NSStreamDelegate {
         }
     }
     ///Finds the HTTP Packet in the TCP stream, by looking for the CRLF.
-    func processHTTP(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
+    private func processHTTP(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
         let CRLFBytes = [UInt8("\r"), UInt8("\n"), UInt8("\r"), UInt8("\n")]
         var k = 0
         var totalSize = 0
@@ -303,7 +302,7 @@ class Websocket : NSObject, NSStreamDelegate {
     }
     
     ///validates the HTTP is a 101 as per the RFC spec
-    func validateResponse(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
+    private func validateResponse(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
         let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, 0)
         CFHTTPMessageAppendBytes(response.takeUnretainedValue(), buffer, bufferLen)
         if CFHTTPMessageGetResponseStatusCode(response.takeUnretainedValue()) != 101 {
@@ -319,7 +318,7 @@ class Websocket : NSObject, NSStreamDelegate {
     }
     
     ///process the websocket data
-    func processRawMessage(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
+    private func processRawMessage(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
         var response = _readStack.last
         if response != nil && bufferLen < 2 {
             _fragBuffer = NSData(bytes: buffer, length: bufferLen)
@@ -483,7 +482,7 @@ class Websocket : NSObject, NSStreamDelegate {
     }
     
     ///process the extra of a buffer
-    func processExtra(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
+    private func processExtra(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
         if bufferLen < 2 {
             _fragBuffer = NSData(bytes: buffer, length: bufferLen)
         } else {
@@ -492,7 +491,7 @@ class Websocket : NSObject, NSStreamDelegate {
     }
     
     ///process the finished response of a buffer
-    func processResponse(response: WSResponse) -> Bool {
+    private func processResponse(response: WSResponse) -> Bool {
         if response.isFin && response.bytesLeft <= 0 {
             if response.code == .Ping {
                 let data = response.buffer! //local copy so it is perverse for writing
@@ -521,26 +520,36 @@ class Websocket : NSObject, NSStreamDelegate {
     }
     
     ///Create an error
-    func errorWithDetail(detail: String, code: UInt16) -> NSError {
+    private func errorWithDetail(detail: String, code: UInt16) -> NSError {
         var details = Dictionary<String,String>()
         details[NSLocalizedDescriptionKey] =  detail
         return NSError(domain: "Websocket", code: Int(code), userInfo: details)
     }
     
     ///write a an error to the socket
-    func writeError(code: UInt16) {
+    private func writeError(code: UInt16) {
         let buf = NSMutableData(capacity: sizeof(UInt16))
         var buffer = UnsafeMutablePointer<UInt16>(buf.bytes)
         buffer[0] = code.byteSwapped
         dequeueWrite(NSData(bytes: buffer, length: sizeof(UInt16)), code: .ConnectionClose)
     }
     ///used to write things to the stream in a
-    func dequeueWrite(data: NSData, code: OpCode) {
+    private func dequeueWrite(data: NSData, code: OpCode) {
         if _writeQueue == nil {
             _writeQueue = NSOperationQueue()
             _writeQueue!.maxConcurrentOperationCount = 1
         }
         _writeQueue!.addOperationWithBlock {
+            //stream isn't ready, let's wait
+            var tries = 0;
+            while self._outputStream == nil {
+                if(tries < 5) {
+                    sleep(1);
+                } else {
+                    break;
+                }
+                tries++;
+            }
             var offset = 2
             UINT16_MAX
             let bytes = UnsafeMutablePointer<UInt8>(data.bytes)
