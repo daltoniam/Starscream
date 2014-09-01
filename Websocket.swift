@@ -502,13 +502,13 @@ public class Websocket : NSObject, NSStreamDelegate {
                     writeError(CloseCode.Encoding.toRaw())
                     return false
                 }
-                dispatch_async(dispatch_get_main_queue(),{
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),{
                     self.workaroundMethod()
                     self.delegate?.websocketDidReceiveMessage(str!)
                     })
             } else if response.code == .BinaryFrame {
                 let data = response.buffer! //local copy so it is perverse for writing
-                dispatch_async(dispatch_get_main_queue(),{
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),{
                     self.workaroundMethod()
                     self.delegate?.websocketDidReceiveData(data)
                     })
