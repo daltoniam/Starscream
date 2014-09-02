@@ -91,7 +91,7 @@ public class Websocket : NSObject, NSStreamDelegate {
     public func connect() {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), {
             self.createHTTPRequest()
-            })
+        })
     }
     
     ///disconnect from the websocket server
@@ -190,7 +190,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         }
     }
     //delegate for the stream methods. Processes incoming bytes
-    private func stream(aStream: NSStream!, handleEvent eventCode: NSStreamEvent) {
+    func stream(aStream: NSStream!, handleEvent eventCode: NSStreamEvent) {
         
         if eventCode == .HasBytesAvailable {
             if(aStream == _inputStream) {
@@ -222,7 +222,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         dispatch_async(dispatch_get_main_queue(),{
             self.workaroundMethod()
             self.delegate?.websocketDidDisconnect(error)
-            })
+        })
     }
     
     ///handles the incoming bytes and sending them to the proper processing method
@@ -237,7 +237,7 @@ public class Websocket : NSObject, NSStreamDelegate {
                     dispatch_async(dispatch_get_main_queue(),{
                         self.workaroundMethod()
                         self.delegate?.websocketDidDisconnect(self.errorWithDetail("Invalid HTTP upgrade", code: 1))
-                        })
+                    })
                 }
             } else {
                 var process = false
@@ -289,7 +289,7 @@ public class Websocket : NSObject, NSStreamDelegate {
                 dispatch_async(dispatch_get_main_queue(),{
                     self.workaroundMethod()
                     self.delegate?.websocketDidConnect()
-                    })
+                })
                 totalSize += 1 //skip the last \n
                 let restSize = bufferLen - totalSize
                 if restSize > 0 {
@@ -478,7 +478,7 @@ public class Websocket : NSObject, NSStreamDelegate {
                 processExtra((buffer+step), bufferLen: extra)
             }
         }
-
+        
     }
     
     ///process the extra of a buffer
@@ -505,13 +505,13 @@ public class Websocket : NSObject, NSStreamDelegate {
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),{
                     self.workaroundMethod()
                     self.delegate?.websocketDidReceiveMessage(str!)
-                    })
+                })
             } else if response.code == .BinaryFrame {
                 let data = response.buffer! //local copy so it is perverse for writing
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),{
                     self.workaroundMethod()
                     self.delegate?.websocketDidReceiveData(data)
-                    })
+                })
             }
             _readStack.removeLast()
             return true
@@ -542,7 +542,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         _writeQueue!.addOperationWithBlock {
             //stream isn't ready, let's wait
             var tries = 0;
-            while self._outputStream == nil {
+            while self._outputStream == nil || !self._isConnected {
                 if(tries < 5) {
                     sleep(1);
                 } else {
@@ -597,7 +597,7 @@ public class Websocket : NSObject, NSStreamDelegate {
                 }
             }
             
-            }
+        }
     }
     
 }
