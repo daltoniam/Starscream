@@ -120,7 +120,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         
         var port = _url.port
         if port == nil {
-            if _url.scheme == "wss" {
+            if _url.scheme == "wss" || _url.scheme == "https" {
                 port = 443
             } else {
                 port = 80
@@ -174,7 +174,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         
         _inputStream!.delegate = self
         _outputStream!.delegate = self
-        if _url.scheme == "wss" {
+        if _url.scheme == "wss" || _url.scheme == "https" {
             _inputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
             _outputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
         }
