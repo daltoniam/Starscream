@@ -1,4 +1,5 @@
 require 'em-websocket'
+require 'faker'
 
 EM.run {
   EM::WebSocket.run(:host => "0.0.0.0", :port => 8080) do |ws|
@@ -17,8 +18,8 @@ EM.run {
     ws.onclose { puts "Connection closed" }
 
     ws.onmessage { |msg|
-      puts "Recieved message: #{msg}"
-      ws.send "Pong: #{msg}"
+      puts "message from client: #{msg}"
+      ws.send Faker::Hacker.say_something_smart
     }
   end
 }

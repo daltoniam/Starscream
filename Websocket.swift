@@ -9,7 +9,7 @@
 import Foundation
 import CoreFoundation
 
-protocol WebsocketDelegate {
+public protocol WebsocketDelegate {
     func websocketDidConnect()
     func websocketDidDisconnect(error: NSError?)
     func websocketDidWriteError(error: NSError?)
@@ -71,7 +71,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         var buffer: NSMutableData?
     }
     
-    var delegate: WebsocketDelegate?
+    public var delegate: WebsocketDelegate?
     var _url: NSURL
     var _inputStream: NSInputStream?
     var _outputStream: NSOutputStream?
@@ -81,10 +81,10 @@ public class Websocket : NSObject, NSStreamDelegate {
     var _readStack = Array<WSResponse>()
     var _inputQueue = Array<NSData>()
     var _fragBuffer: NSData?
-    var headers = Dictionary<String,String>()
+    public var headers = Dictionary<String,String>()
     
     //init the websocket with a url
-    init(url: NSURL) {
+    public init(url: NSURL) {
         _url = url
     }
     ///Connect to the websocket server on a background thread

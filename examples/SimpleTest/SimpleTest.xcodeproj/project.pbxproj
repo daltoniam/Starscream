@@ -11,8 +11,25 @@
 		5C765AE3199A6DAA003D9110 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C765AE2199A6DAA003D9110 /* ViewController.swift */; };
 		5C765AE6199A6DAA003D9110 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5C765AE4199A6DAA003D9110 /* Main.storyboard */; };
 		5C765AE8199A6DAA003D9110 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5C765AE7199A6DAA003D9110 /* Images.xcassets */; };
-		5C765AFE199A6DF8003D9110 /* Websocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C765AFD199A6DF8003D9110 /* Websocket.swift */; };
+		6B3E7A1119D48D17006071F7 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B3E7A0E19D48D00006071F7 /* Starscream.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6B3E7A0D19D48D00006071F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6B3E7A0819D48D00006071F7 /* Starscream.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6B3E79E619D48B7F006071F7;
+			remoteInfo = Starscream;
+		};
+		6B3E7A0F19D48D00006071F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6B3E7A0819D48D00006071F7 /* Starscream.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6B3E79F119D48B7F006071F7;
+			remoteInfo = StarscreamTests;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		5C765ADB199A6DAA003D9110 /* SimpleTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -21,7 +38,7 @@
 		5C765AE2199A6DAA003D9110 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		5C765AE5199A6DAA003D9110 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		5C765AE7199A6DAA003D9110 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		5C765AFD199A6DF8003D9110 /* Websocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Websocket.swift; path = ../../../Websocket.swift; sourceTree = "<group>"; };
+		6B3E7A0819D48D00006071F7 /* Starscream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Starscream.xcodeproj; path = ../../Starscream.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B3E7A1119D48D17006071F7 /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +58,7 @@
 			children = (
 				5C765ADD199A6DAA003D9110 /* SimpleTest */,
 				5C765ADC199A6DAA003D9110 /* Products */,
+				6B3E7A0819D48D00006071F7 /* Starscream.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -56,7 +75,6 @@
 			children = (
 				5C765AE0199A6DAA003D9110 /* AppDelegate.swift */,
 				5C765AE2199A6DAA003D9110 /* ViewController.swift */,
-				5C765AFD199A6DF8003D9110 /* Websocket.swift */,
 				5C765AE4199A6DAA003D9110 /* Main.storyboard */,
 				5C765AE7199A6DAA003D9110 /* Images.xcassets */,
 				5C765ADE199A6DAA003D9110 /* Supporting Files */,
@@ -70,6 +88,15 @@
 				5C765ADF199A6DAA003D9110 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6B3E7A0919D48D00006071F7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6B3E7A0E19D48D00006071F7 /* Starscream.framework */,
+				6B3E7A1019D48D00006071F7 /* StarscreamTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -117,12 +144,35 @@
 			mainGroup = 5C765AD2199A6DAA003D9110;
 			productRefGroup = 5C765ADC199A6DAA003D9110 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 6B3E7A0919D48D00006071F7 /* Products */;
+					ProjectRef = 6B3E7A0819D48D00006071F7 /* Starscream.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				5C765ADA199A6DAA003D9110 /* SimpleTest */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		6B3E7A0E19D48D00006071F7 /* Starscream.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Starscream.framework;
+			remoteRef = 6B3E7A0D19D48D00006071F7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		6B3E7A1019D48D00006071F7 /* StarscreamTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = StarscreamTests.xctest;
+			remoteRef = 6B3E7A0F19D48D00006071F7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5C765AD9199A6DAA003D9110 /* Resources */ = {
@@ -142,7 +192,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C765AE3199A6DAA003D9110 /* ViewController.swift in Sources */,
-				5C765AFE199A6DF8003D9110 /* Websocket.swift in Sources */,
 				5C765AE1199A6DAA003D9110 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -281,6 +330,7 @@
 				5C765AF9199A6DAA003D9110 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

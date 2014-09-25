@@ -1,15 +1,17 @@
 # Simple Test
 
-This is a very simple example on how to use starscream.
+This is a very simple example on how to use Starscream.
 
 # Usage
 
-First make sure you have the `em-websocket` gem install as it is a dependency of websocket server.
+First make sure you have the gem dependencies of websocket server.
+
 ```
 gem install em-websocket
+gem install faker
 ```
 
-Next simple run 
+Next simply run:
 
 ```
 ruby ws-server.rb
