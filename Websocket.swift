@@ -42,6 +42,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         case PolicyViolated         = 1008
         case MessageTooBig          = 1009
     }
+    var optionalProtocols       : Array<String>?
     //Constant Values.
     let headerWSUpgradeName     = "Upgrade"
     let headerWSUpgradeValue    = "websocket"
@@ -49,7 +50,6 @@ public class Websocket : NSObject, NSStreamDelegate {
     let headerWSConnectionName  = "Connection"
     let headerWSConnectionValue = "Upgrade"
     let headerWSProtocolName    = "Sec-WebSocket-Protocol"
-    let headerWSProtocolValue   = "chat, superchat"
     let headerWSVersionName     = "Sec-WebSocket-Version"
     let headerWSVersionValue    = "13"
     let headerWSKeyName         = "Sec-WebSocket-Key"
@@ -87,6 +87,12 @@ public class Websocket : NSObject, NSStreamDelegate {
     public init(url: NSURL) {
         _url = url
     }
+
+    convenience init(url: NSURL, protocols: Array<String>) {
+        self.init(url: url)
+        optionalProtocols = protocols
+    }
+
     ///Connect to the websocket server on a background thread
     public func connect() {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), {
@@ -128,7 +134,9 @@ public class Websocket : NSObject, NSStreamDelegate {
         }
         self.addHeader(urlRequest, key: headerWSUpgradeName, val: headerWSUpgradeValue)
         self.addHeader(urlRequest, key: headerWSConnectionName, val: headerWSConnectionValue)
-        self.addHeader(urlRequest, key: headerWSProtocolName, val: headerWSProtocolValue)
+        if let protocols = optionalProtocols {
+            self.addHeader(urlRequest, key: headerWSProtocolName, val: ",".join(protocols))
+        }
         self.addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         self.addHeader(urlRequest, key: headerWSKeyName, val: self.generateWebSocketKey())
         self.addHeader(urlRequest, key: headerOriginName, val: _url.absoluteString!)
