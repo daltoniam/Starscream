@@ -109,6 +109,17 @@ socket.headers["Sec-WebSocket-Version"] = "14"
 socket.headers["My-Awesome-Header"] = "Everything is Awesome!"
 ```
 
+### Protocols
+
+If you need to specify a protocol, simple add it to the init:
+
+```swift
+//chat and superchat are the example protocols here
+var socket = Websocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"), protocols: ["chat","superchat"])
+socket.delegate = self
+socket.connect()
+```
+
 ## Example Project
 
 Check out the SimpleTest project in the examples directory to see how to setup a simple connection to a websocket server.
