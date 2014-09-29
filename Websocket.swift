@@ -88,7 +88,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         _url = url
     }
 
-    convenience init(url: NSURL, protocols: Array<String>) {
+    public convenience init(url: NSURL, protocols: Array<String>) {
         self.init(url: url)
         optionalProtocols = protocols
     }
