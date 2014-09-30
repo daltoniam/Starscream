@@ -9,9 +9,10 @@
 /* Begin PBXBuildFile section */
 		5C765AE1199A6DAA003D9110 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C765AE0199A6DAA003D9110 /* AppDelegate.swift */; };
 		5C765AE3199A6DAA003D9110 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C765AE2199A6DAA003D9110 /* ViewController.swift */; };
-		5C765AE6199A6DAA003D9110 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5C765AE4199A6DAA003D9110 /* Main.storyboard */; };
 		5C765AE8199A6DAA003D9110 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5C765AE7199A6DAA003D9110 /* Images.xcassets */; };
 		6B3E7A1119D48D17006071F7 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B3E7A0E19D48D00006071F7 /* Starscream.framework */; };
+		6B76EA9D19DB0BE600E49C70 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5C765AE4199A6DAA003D9110 /* Main.storyboard */; };
+		6B76EAA119DB0DAF00E49C70 /* Starscream.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6B3E7A0E19D48D00006071F7 /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,6 +31,19 @@
 			remoteInfo = StarscreamTests;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6B76EAA019DB0D9A00E49C70 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6B76EAA119DB0DAF00E49C70 /* Starscream.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		5C765ADB199A6DAA003D9110 /* SimpleTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -109,6 +123,7 @@
 				5C765AD7199A6DAA003D9110 /* Sources */,
 				5C765AD8199A6DAA003D9110 /* Frameworks */,
 				5C765AD9199A6DAA003D9110 /* Resources */,
+				6B76EAA019DB0D9A00E49C70 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -179,7 +194,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5C765AE6199A6DAA003D9110 /* Main.storyboard in Resources */,
+				6B76EA9D19DB0BE600E49C70 /* Main.storyboard in Resources */,
 				5C765AE8199A6DAA003D9110 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

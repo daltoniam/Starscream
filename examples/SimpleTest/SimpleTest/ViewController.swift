@@ -10,7 +10,7 @@ import UIKit
 import Starscream
 
 class ViewController: UIViewController, WebsocketDelegate {
-    var socket = Websocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"))
+    var socket = Websocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"), protocols: ["chat", "superchat"])
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +49,12 @@ class ViewController: UIViewController, WebsocketDelegate {
     @IBAction func writeText(sender: UIBarButtonItem) {
         socket.writeString("hello there!")
     }
-
+    
+    // MARK: Disconnect Action
+    
+    @IBAction func disconnect(sender: UIBarButtonItem) {
+        socket.disconnect()
+    }
+    
 }
 
