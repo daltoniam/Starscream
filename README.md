@@ -99,6 +99,14 @@ The writeString method is the same as writeData, but sends text/string.
 self.socket.writeString("Hi Server!") //example on how to write text over the socket!
 ```
 
+### disconnect
+
+The disconnect method does what you would expect and closes the socket.
+
+```swift
+self.socket.disconnect()
+```
+
 ### Custom Headers
 
 You can also override the default websocket headers with your own custom ones like so:
