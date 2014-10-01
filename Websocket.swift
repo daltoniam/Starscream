@@ -82,6 +82,7 @@ public class Websocket : NSObject, NSStreamDelegate {
     private var inputQueue = Array<NSData>()
     private var fragBuffer: NSData?
     public var headers = Dictionary<String,String>()
+    public var voipEnabled = false
     public var isConnected :Bool {
         return connected
     }
@@ -187,6 +188,10 @@ public class Websocket : NSObject, NSStreamDelegate {
         if url.scheme == "wss" || url.scheme == "https" {
             inputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
             outputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+        }
+        if self.voipEnabled {
+            inputStream!.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
+            outputStream!.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
         }
         inputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         outputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
