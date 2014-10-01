@@ -107,6 +107,16 @@ The disconnect method does what you would expect and closes the socket.
 self.socket.disconnect()
 ```
 
+### isConnected
+
+Returns if the socket is connected or not.
+
+```swift
+if self.socket.isConnected {
+  // do cool stuff.
+}
+```
+
 ### Custom Headers
 
 You can also override the default websocket headers with your own custom ones like so:

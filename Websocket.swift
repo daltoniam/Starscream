@@ -76,12 +76,15 @@ public class Websocket : NSObject, NSStreamDelegate {
     private var inputStream: NSInputStream?
     private var outputStream: NSOutputStream?
     private var isRunLoop = false
-    private var isConnected = false
+    private var connected = false
     private var writeQueue: NSOperationQueue?
     private var readStack = Array<WSResponse>()
     private var inputQueue = Array<NSData>()
     private var fragBuffer: NSData?
     public var headers = Dictionary<String,String>()
+    public var isConnected :Bool {
+        return connected
+    }
     
     //init the websocket with a url
     public init(url: NSURL) {
@@ -225,7 +228,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         inputStream = nil
         outputStream = nil
         isRunLoop = false
-        isConnected = false
+        connected = false
         dispatch_async(dispatch_get_main_queue(),{
             self.workaroundMethod()
             self.delegate?.websocketDidDisconnect(error)
@@ -238,9 +241,9 @@ public class Websocket : NSObject, NSStreamDelegate {
         var buffer = UnsafeMutablePointer<UInt8>(buf.bytes)
         let length = inputStream!.read(buffer, maxLength: BUFFER_MAX)
         if length > 0 {
-            if !isConnected {
-                isConnected = processHTTP(buffer, bufferLen: length)
-                if !isConnected {
+            if !connected {
+                connected = processHTTP(buffer, bufferLen: length)
+                if !connected {
                     dispatch_async(dispatch_get_main_queue(),{
                         self.workaroundMethod()
                         self.delegate?.websocketDidDisconnect(self.errorWithDetail("Invalid HTTP upgrade", code: 1))
@@ -551,7 +554,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         writeQueue!.addOperationWithBlock {
             //stream isn't ready, let's wait
             var tries = 0;
-            while self.outputStream == nil || !self.isConnected {
+            while self.outputStream == nil || !self.connected {
                 if(tries < 5) {
                     sleep(1);
                 } else {
