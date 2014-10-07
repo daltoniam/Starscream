@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Vluxe. All rights reserved.
 //
 
-import UIKit
 import XCTest
 
 class StarscreamTests: XCTestCase {
