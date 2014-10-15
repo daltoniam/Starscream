@@ -154,7 +154,7 @@ Add the `starscream.xcodeproj` to your Xcode project. Once that is complete, in 
 
 - [ ] Complete Docs
 - [ ] Add Unit Tests
-- [ ] Add Swallow Installation Docs
+- [ ] Add Rouge Installation Docs
 
 ## License
 
