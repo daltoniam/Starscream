@@ -9,7 +9,7 @@
 import Foundation
 import CoreFoundation
 
-public protocol WebsocketDelegate {
+public protocol WebsocketDelegate: class {
     func websocketDidConnect()
     func websocketDidDisconnect(error: NSError?)
     func websocketDidWriteError(error: NSError?)
@@ -71,7 +71,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         var buffer: NSMutableData?
     }
     
-    public var delegate: WebsocketDelegate?
+    public weak var delegate: WebsocketDelegate?
     private var url: NSURL
     private var inputStream: NSInputStream?
     private var outputStream: NSOutputStream?
@@ -519,13 +519,13 @@ public class Websocket : NSObject, NSStreamDelegate {
                     writeError(CloseCode.Encoding.toRaw())
                     return false
                 }
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),{
+                dispatch_async(dispatch_get_main_queue(),{
                     self.workaroundMethod()
                     self.delegate?.websocketDidReceiveMessage(str!)
                 })
             } else if response.code == .BinaryFrame {
                 let data = response.buffer! //local copy so it is perverse for writing
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),{
+                dispatch_async(dispatch_get_main_queue(),{
                     self.workaroundMethod()
                     self.delegate?.websocketDidReceiveData(data)
                 })
