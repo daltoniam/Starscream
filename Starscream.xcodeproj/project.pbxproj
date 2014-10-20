@@ -10,7 +10,21 @@
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		6B3E7A0519D48C41006071F7 /* Websocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* Websocket.swift */; };
 		6B3E7A0719D48C5F006071F7 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9C3E36A19E48FF1009FC285 /* StarscreamOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */; };
+		D9C3E37819E4903F009FC285 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
+		D9C3E37919E49051009FC285 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D9C3E37A19E49058009FC285 /* Websocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* Websocket.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D9C3E36B19E48FF1009FC285 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6B3E79DD19D48B7F006071F7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D9C3E35E19E48FF1009FC285;
+			remoteInfo = StarscreamOSX;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		6B3E79E619D48B7F006071F7 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -20,6 +34,8 @@
 		6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarscreamTests.swift; sourceTree = "<group>"; };
 		6B3E7A0419D48C41006071F7 /* Websocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Websocket.swift; sourceTree = SOURCE_ROOT; };
 		6B3E7A0619D48C5F006071F7 /* Starscream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Starscream.h; sourceTree = SOURCE_ROOT; };
+		D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = StarscreamOSX.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamOSXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +50,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9C3E35B19E48FF1009FC285 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9C3E36619E48FF1009FC285 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9C3E36A19E48FF1009FC285 /* StarscreamOSX.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,6 +85,8 @@
 			children = (
 				6B3E79E619D48B7F006071F7 /* Starscream.framework */,
 				6B3E79F119D48B7F006071F7 /* StarscreamTests.xctest */,
+				D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */,
+				D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,6 +129,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D9C3E35C19E48FF1009FC285 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9C3E37919E49051009FC285 /* Starscream.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -134,6 +175,42 @@
 			productReference = 6B3E79F119D48B7F006071F7 /* StarscreamTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		D9C3E35E19E48FF1009FC285 /* StarscreamOSX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D9C3E37619E48FF1009FC285 /* Build configuration list for PBXNativeTarget "StarscreamOSX" */;
+			buildPhases = (
+				D9C3E35A19E48FF1009FC285 /* Sources */,
+				D9C3E35B19E48FF1009FC285 /* Frameworks */,
+				D9C3E35C19E48FF1009FC285 /* Headers */,
+				D9C3E35D19E48FF1009FC285 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StarscreamOSX;
+			productName = StarscreamOSX;
+			productReference = D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		D9C3E36819E48FF1009FC285 /* StarscreamOSXTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D9C3E37719E48FF1009FC285 /* Build configuration list for PBXNativeTarget "StarscreamOSXTests" */;
+			buildPhases = (
+				D9C3E36519E48FF1009FC285 /* Sources */,
+				D9C3E36619E48FF1009FC285 /* Frameworks */,
+				D9C3E36719E48FF1009FC285 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D9C3E36C19E48FF1009FC285 /* PBXTargetDependency */,
+			);
+			name = StarscreamOSXTests;
+			productName = StarscreamOSXTests;
+			productReference = D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -145,9 +222,16 @@
 				TargetAttributes = {
 					6B3E79E519D48B7F006071F7 = {
 						CreatedOnToolsVersion = 6.0.1;
+						DevelopmentTeam = ZAGTUU2342;
 					};
 					6B3E79F019D48B7F006071F7 = {
 						CreatedOnToolsVersion = 6.0.1;
+					};
+					D9C3E35E19E48FF1009FC285 = {
+						CreatedOnToolsVersion = 6.1;
+					};
+					D9C3E36819E48FF1009FC285 = {
+						CreatedOnToolsVersion = 6.1;
 					};
 				};
 			};
@@ -165,6 +249,8 @@
 			targets = (
 				6B3E79E519D48B7F006071F7 /* Starscream */,
 				6B3E79F019D48B7F006071F7 /* StarscreamTests */,
+				D9C3E35E19E48FF1009FC285 /* StarscreamOSX */,
+				D9C3E36819E48FF1009FC285 /* StarscreamOSXTests */,
 			);
 		};
 /* End PBXProject section */
@@ -178,6 +264,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		6B3E79EF19D48B7F006071F7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9C3E35D19E48FF1009FC285 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9C3E36719E48FF1009FC285 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -203,7 +303,31 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D9C3E35A19E48FF1009FC285 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9C3E37A19E49058009FC285 /* Websocket.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9C3E36519E48FF1009FC285 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9C3E37819E4903F009FC285 /* StarscreamTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D9C3E36C19E48FF1009FC285 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D9C3E35E19E48FF1009FC285 /* StarscreamOSX */;
+			targetProxy = D9C3E36B19E48FF1009FC285 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		6B3E79F719D48B7F006071F7 /* Debug */ = {
@@ -295,6 +419,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -303,6 +429,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -312,6 +439,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -320,6 +449,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -354,6 +484,86 @@
 			};
 			name = Release;
 		};
+		D9C3E37219E48FF1009FC285 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		D9C3E37319E48FF1009FC285 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		D9C3E37419E48FF1009FC285 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D9C3E37519E48FF1009FC285 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -383,6 +593,22 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		D9C3E37619E48FF1009FC285 /* Build configuration list for PBXNativeTarget "StarscreamOSX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D9C3E37219E48FF1009FC285 /* Debug */,
+				D9C3E37319E48FF1009FC285 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		D9C3E37719E48FF1009FC285 /* Build configuration list for PBXNativeTarget "StarscreamOSXTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D9C3E37419E48FF1009FC285 /* Debug */,
+				D9C3E37519E48FF1009FC285 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

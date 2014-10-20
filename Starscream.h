@@ -6,7 +6,13 @@
 //  Copyright (c) 2014 Vluxe. All rights reserved.
 //
 
+#import <TargetConditionals.h>
+
+#ifdef TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
 #import <UIKit/UIKit.h>
+#else
+#import <Cocoa/Cocoa.h>
+#endif
 
 //! Project version number for Starscream.
 FOUNDATION_EXPORT double StarscreamVersionNumber;
