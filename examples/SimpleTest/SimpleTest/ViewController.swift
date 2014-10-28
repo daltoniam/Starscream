@@ -53,7 +53,13 @@ class ViewController: UIViewController, WebsocketDelegate {
     // MARK: Disconnect Action
     
     @IBAction func disconnect(sender: UIBarButtonItem) {
-        socket.disconnect()
+        if socket.isConnected {
+            sender.title = "Connect"
+            socket.disconnect()
+        } else {
+            sender.title = "Disconnect"
+            socket.connect()
+        }
     }
     
 }

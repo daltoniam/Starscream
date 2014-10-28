@@ -193,13 +193,13 @@ public class Websocket : NSObject, NSStreamDelegate {
             inputStream!.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
             outputStream!.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
         }
+        isRunLoop = true
         inputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         outputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         inputStream!.open()
         outputStream!.open()
         let bytes = UnsafePointer<UInt8>(data.bytes)
         outputStream!.write(bytes, maxLength: data.length)
-        isRunLoop = true
         while(isRunLoop) {
             NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode, beforeDate: NSDate.distantFuture() as NSDate)
         }
@@ -566,6 +566,9 @@ public class Websocket : NSObject, NSStreamDelegate {
                     break;
                 }
                 tries++;
+            }
+            if !self.connected {
+                return
             }
             var offset = 2
             UINT16_MAX
