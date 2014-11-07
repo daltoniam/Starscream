@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
-		6B3E7A0519D48C41006071F7 /* Websocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* Websocket.swift */; };
+		6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
 		6B3E7A0719D48C5F006071F7 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D9C3E36A19E48FF1009FC285 /* StarscreamOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */; };
 		D9C3E37819E4903F009FC285 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		D9C3E37919E49051009FC285 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D9C3E37A19E49058009FC285 /* Websocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* Websocket.swift */; };
+		D9C3E37A19E49058009FC285 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,7 +32,7 @@
 		6B3E79F119D48B7F006071F7 /* StarscreamTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B3E7A0019D48C2F006071F7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarscreamTests.swift; sourceTree = "<group>"; };
-		6B3E7A0419D48C41006071F7 /* Websocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Websocket.swift; sourceTree = SOURCE_ROOT; };
+		6B3E7A0419D48C41006071F7 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocket.swift; sourceTree = SOURCE_ROOT; };
 		6B3E7A0619D48C5F006071F7 /* Starscream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Starscream.h; sourceTree = SOURCE_ROOT; };
 		D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = StarscreamOSX.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamOSXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,7 +94,7 @@
 		6B3E79E819D48B7F006071F7 /* Starscream */ = {
 			isa = PBXGroup;
 			children = (
-				6B3E7A0419D48C41006071F7 /* Websocket.swift */,
+				6B3E7A0419D48C41006071F7 /* WebSocket.swift */,
 				6B3E7A0619D48C5F006071F7 /* Starscream.h */,
 				6B3E79E919D48B7F006071F7 /* Supporting Files */,
 			);
@@ -290,7 +290,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6B3E7A0519D48C41006071F7 /* Websocket.swift in Sources */,
+				6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,7 +306,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9C3E37A19E49058009FC285 /* Websocket.swift in Sources */,
+				D9C3E37A19E49058009FC285 /* WebSocket.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -610,6 +610,7 @@
 				D9C3E37319E48FF1009FC285 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D9C3E37719E48FF1009FC285 /* Build configuration list for PBXNativeTarget "StarscreamOSXTests" */ = {
 			isa = XCConfigurationList;
@@ -618,6 +619,7 @@
 				D9C3E37519E48FF1009FC285 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

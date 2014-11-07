@@ -9,7 +9,7 @@
 import Foundation
 import CoreFoundation
 
-public protocol WebsocketDelegate: class {
+public protocol WebSocketDelegate: class {
     func websocketDidConnect()
     func websocketDidDisconnect(error: NSError?)
     func websocketDidWriteError(error: NSError?)
@@ -17,7 +17,7 @@ public protocol WebsocketDelegate: class {
     func websocketDidReceiveData(data: NSData)
 }
 
-public class Websocket : NSObject, NSStreamDelegate {
+public class WebSocket : NSObject, NSStreamDelegate {
     
     enum OpCode : UInt8 {
         case ContinueFrame = 0x0
@@ -71,7 +71,7 @@ public class Websocket : NSObject, NSStreamDelegate {
         var buffer: NSMutableData?
     }
     
-    public weak var delegate: WebsocketDelegate?
+    public weak var delegate: WebSocketDelegate?
     private var url: NSURL
     private var inputStream: NSInputStream?
     private var outputStream: NSOutputStream?

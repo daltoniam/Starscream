@@ -21,10 +21,10 @@ First thing is to import the framework. See the Installation instructions on how
 import Starscream
 ```
 
-Once imported, you can open a connection to your websocket server. Note that `socket` is probably best as a property, so your delegate can stick around.
+Once imported, you can open a connection to your WebSocket server. Note that `socket` is probably best as a property, so your delegate can stick around.
 
 ```swift
-var socket = Websocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"))
+var socket = WebSocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"))
 socket.delegate = self
 socket.connect()
 ```
@@ -133,14 +133,14 @@ If you need to specify a protocol, simple add it to the init:
 
 ```swift
 //chat and superchat are the example protocols here
-var socket = Websocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"), protocols: ["chat","superchat"])
+var socket = WebSocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"), protocols: ["chat","superchat"])
 socket.delegate = self
 socket.connect()
 ```
 
 ## Example Project
 
-Check out the SimpleTest project in the examples directory to see how to setup a simple connection to a websocket server.
+Check out the SimpleTest project in the examples directory to see how to setup a simple connection to a WebSocket server.
 
 ## Requirements
 
