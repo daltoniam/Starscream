@@ -15,7 +15,7 @@ It's Objective-C counter part can be found here: [Jetfire](https://github.com/ac
 
 ## Example
 
-First thing is to import the framework. See the Installation instructions, on how to add the framework to your project.
+First thing is to import the framework. See the Installation instructions on how to add the framework to your project.
 
 ```swift
 import Starscream
@@ -29,7 +29,7 @@ socket.delegate = self
 socket.connect()
 ```
 
-After you are connected, we some delegate methods we need to implement.
+After you are connected, there are some delegate methods that we need to implement.
 
 ### websocketDidConnect
 
