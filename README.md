@@ -148,7 +148,7 @@ Starscream requires at least iOS 7/OSX 10.10 or above.
 
 ## Installation
 
-Add the `starscream.xcodeproj` to your Xcode project. Once that is complete, in your "Build Phases" add the `starscream.framework` to your "Link Binary with Libraries" phase.
+Add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in your "Build Phases" add the `Starscream.framework` to your "Link Binary with Libraries" phase.
 
 ## TODOs
 
