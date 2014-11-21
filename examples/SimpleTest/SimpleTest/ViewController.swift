@@ -9,8 +9,8 @@
 import UIKit
 import Starscream
 
-class ViewController: UIViewController, WebsocketDelegate {
-    var socket = Websocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/")!, protocols: ["chat", "superchat"])
+class ViewController: UIViewController, WebSocketDelegate {
+    var socket = WebSocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/")!, protocols: ["chat", "superchat"])
     
     override func viewDidLoad() {
         super.viewDidLoad()
