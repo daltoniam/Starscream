@@ -83,11 +83,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
     private var fragBuffer: NSData?
     public var headers = Dictionary<String,String>()
     public var voipEnabled = false
-    private var _connectedBlock: (() -> ())? = nil
-    private var _disconnectedBlock: (() -> ())? = nil
-    private var _failureBlock: ((NSError) -> ())? = nil
-    private var _receivedTextBlock: ((String) -> ())? = nil
-    private var _receivedDataBlock: ((NSData) -> ())? = nil
+    private var connectedBlock: ((Void) -> Void)? = nil
+    private var disconnectedBlock: ((NSError?) -> Void)? = nil
+    private var receivedTextBlock: ((String) -> Void)? = nil
+    private var receivedDataBlock: ((NSData) -> Void)? = nil
     public var isConnected :Bool {
         return connected
     }
@@ -96,49 +95,32 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public init(url: NSURL) {
         self.url = url
     }
-
+    //used for setting protocols.
     public convenience init(url: NSURL, protocols: Array<String>) {
         self.init(url: url)
         optionalProtocols = protocols
     }
-    
-    public convenience init(url: NSURL, connect:() -> (), disconnect:() -> (), failure:(error:NSError) -> (), text:(textReceived: String) -> (), data:(dataReceived: NSData) -> ()) {
-        self.init(url: url)
-        _connectedBlock = connect
-        _disconnectedBlock = disconnect
-        _failureBlock = failure
-        _receivedTextBlock = text
-        _receivedDataBlock = data
+    //closure based instead of the delegate
+    public convenience init(url: NSURL, protocols: Array<String>, connect:((Void) -> Void), disconnect:((NSError?) -> Void), text:((String) -> Void), data:(NSData) -> Void) {
+        self.init(url: url, protocols: protocols)
+        connectedBlock = connect
+        disconnectedBlock = disconnect
+        receivedTextBlock = text
+        receivedDataBlock = data
     }
-    
-    public convenience init(url: NSURL, connect:() -> (), disconnect:() -> (), failure:(error:NSError) -> (), text:(textReceived: String) -> ()) {
+    //same as above, just shorter
+    public convenience init(url: NSURL, connect:((Void) -> Void), disconnect:((NSError?) -> Void), text:((String) -> Void)) {
         self.init(url: url)
-        _connectedBlock = connect
-        _disconnectedBlock = disconnect
-        _failureBlock = failure
-        _receivedTextBlock = text
+        connectedBlock = connect
+        disconnectedBlock = disconnect
+        receivedTextBlock = text
     }
-    
-    public convenience init(url: NSURL, connect:() -> (), disconnect:() -> (), failure:(error:NSError) -> (), data:(dataReceived: NSData) -> ()) {
+    //same as above, just shorter
+    public convenience init(url: NSURL, connect:((Void) -> Void), disconnect:((NSError?) -> Void), data:((NSData) -> Void)) {
         self.init(url: url)
-        _connectedBlock = connect
-        _disconnectedBlock = disconnect
-        _failureBlock = failure
-        _receivedDataBlock = data
-    }
-    
-    public convenience init(url: NSURL, connect:() -> (), disconnect:() -> (), text:(textReceived: String) -> ()) {
-        self.init(url: url)
-        _connectedBlock = connect
-        _disconnectedBlock = disconnect
-        _receivedTextBlock = text
-    }
-    
-    public convenience init(url: NSURL, connect:() -> (), disconnect:() -> (), data:(dataReceived: NSData) -> ()) {
-        self.init(url: url)
-        _connectedBlock = connect
-        _disconnectedBlock = disconnect
-        _receivedDataBlock = data
+        connectedBlock = connect
+        disconnectedBlock = disconnect
+        receivedDataBlock = data
     }
 
     ///Connect to the websocket server on a background thread
@@ -261,10 +243,6 @@ public class WebSocket : NSObject, NSStreamDelegate {
             disconnectStream(nil)
         }
     }
-    //work around for a swift bug. BugID: 17712659
-    func workaroundMethod() {
-        //does nothing, but fixes bug in swift
-    }
     //disconnect the stream object
     private func disconnectStream(error: NSError?) {
         if writeQueue != nil {
@@ -279,13 +257,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
         isRunLoop = false
         connected = false
         dispatch_async(dispatch_get_main_queue(),{
-            //self.workaroundMethod()
-            if let disconnectBlock = self._disconnectedBlock{
-                disconnectBlock()
+            if let disconnectBlock = self.disconnectedBlock {
+                disconnectBlock(error)
             }
-            else{
-                self.delegate!.websocketDidDisconnect(error)
-            }
+            self.delegate?.websocketDidDisconnect(error)
         })
     }
     
@@ -301,12 +276,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     dispatch_async(dispatch_get_main_queue(),{
                         //self.workaroundMethod()
                         let error = self.errorWithDetail("Invalid HTTP upgrade", code: 1)
-                        if let failBlock = self._failureBlock{
-                            failBlock(error)
+                        if let disconnect = self.disconnectedBlock {
+                            disconnect(error)
                         }
-                        else{
-                            self.delegate!.websocketDidDisconnect(error)
-                        }
+                        self.delegate?.websocketDidDisconnect(error)
                     })
                 }
             } else {
@@ -358,12 +331,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
             if validateResponse(buffer, bufferLen: totalSize) {
                 dispatch_async(dispatch_get_main_queue(),{
                     //self.workaroundMethod()
-                    if let connectBlock = self._connectedBlock{
+                    if let connectBlock = self.connectedBlock {
                         connectBlock()
                     }
-                    else{
-                        self.delegate!.websocketDidConnect()
-                    }
+                    self.delegate?.websocketDidConnect()
                 })
                 totalSize += 1 //skip the last \n
                 let restSize = bufferLen - totalSize
@@ -424,12 +395,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
             if((isMasked > 0 || (RSVMask & buffer[0]) > 0) && receivedOpcode != OpCode.Pong.rawValue) {
                 let errCode = CloseCode.ProtocolError.rawValue
                 let error = self.errorWithDetail("masked and rsv data is not currently supported", code: errCode)
-                if let failBlock = self._failureBlock{
-                    failBlock(error)
+                if let disconnect = self.disconnectedBlock {
+                    disconnect(error)
                 }
-                else{
-                    self.delegate!.websocketDidDisconnect(error)
-                }
+                self.delegate?.websocketDidDisconnect(error)
                 writeError(errCode)
                     
                 return
@@ -439,24 +408,20 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 receivedOpcode != OpCode.TextFrame.rawValue && receivedOpcode != OpCode.Pong.rawValue) {
                     let errCode = CloseCode.ProtocolError.rawValue
                     let error = self.errorWithDetail("unknown opcode: \(receivedOpcode)", code: errCode)
-                    if let failBlock = self._failureBlock{
-                        failBlock(error)
+                    if let disconnect = self.disconnectedBlock {
+                        disconnect(error)
                     }
-                    else{
-                        self.delegate!.websocketDidDisconnect(error)
-                    }
+                    self.delegate?.websocketDidDisconnect(error)
                     writeError(errCode)
                     return
             }
             if isControlFrame && isFin == 0 {
                 let errCode = CloseCode.ProtocolError.rawValue
                 let error = self.errorWithDetail("control frames can't be fragmented", code: errCode)
-                 if let failBlock = self._failureBlock{
-                    failBlock(error)
-                 }
-                 else{
-                    self.delegate!.websocketDidDisconnect(error)
-                 }
+                if let disconnect = self.disconnectedBlock {
+                    disconnect(error)
+                }
+                self.delegate?.websocketDidDisconnect(error)
                 writeError(errCode)
                 return
             }
@@ -525,12 +490,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
             if isFin == 0 && receivedOpcode == OpCode.ContinueFrame.rawValue && response == nil {
                 let errCode = CloseCode.ProtocolError.rawValue
                 let error = self.errorWithDetail("continue frame before a binary or text frame", code: errCode)
-                if let failBlock = self._failureBlock{
-                    failBlock(error)
+                if let disconnect = self.disconnectedBlock {
+                    disconnect(error)
                 }
-                else{
-                    self.delegate!.websocketDidDisconnect(error)
-                }
+                self.delegate?.websocketDidDisconnect(error)
                 writeError(errCode)
                 return
             }
@@ -540,13 +503,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     let errCode = CloseCode.ProtocolError.rawValue
                     let error = self.errorWithDetail("first frame can't be a continue frame",
                         code: errCode)
-                    if let failBlock = self._failureBlock{
-                        failBlock(error)
+                    if let disconnect = self.disconnectedBlock {
+                        disconnect(error)
                     }
-                    else{
-                       self.delegate!.websocketDidDisconnect(error)
-                    }
-                    
+                    self.delegate?.websocketDidDisconnect(error)
                     writeError(errCode)
                     return
                 }
@@ -562,12 +522,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     let errCode = CloseCode.ProtocolError.rawValue
                     let error = self.errorWithDetail("second and beyond of fragment message must be a continue frame",
                         code: errCode)
-                    if let failBlock = self._failureBlock{
-                        failBlock(error)
+                    if let disconnect = self.disconnectedBlock {
+                        disconnect(error)
                     }
-                    else{
-                        self.delegate!.websocketDidDisconnect(error)
-                    }
+                    self.delegate?.websocketDidDisconnect(error)
                     writeError(errCode)
                     return
                 }
@@ -614,24 +572,19 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     return false
                 }
                 dispatch_async(dispatch_get_main_queue(),{
-                    //self.workaroundMethod()
-                    if let textBlock = self._receivedTextBlock{
+                    if let textBlock = self.receivedTextBlock{
                         textBlock(str!)
                     }
-                    else{
-                        self.delegate!.websocketDidReceiveMessage(str!)
-                    }
+                    self.delegate?.websocketDidReceiveMessage(str!)
                 })
             } else if response.code == .BinaryFrame {
                 let data = response.buffer! //local copy so it is perverse for writing
                 dispatch_async(dispatch_get_main_queue(),{
                     //self.workaroundMethod()
-                    if let dataBlock = self._receivedDataBlock{
+                    if let dataBlock = self.receivedDataBlock{
                         dataBlock(data)
                     }
-                    else{
-                        self.delegate!.websocketDidReceiveData(data)
-                    }
+                    self.delegate?.websocketDidReceiveData(data)
                 })
             }
             readStack.removeLast()
@@ -711,12 +664,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 let writeBuffer = UnsafePointer<UInt8>(frame!.bytes+total)
                 var len = self.outputStream!.write(writeBuffer, maxLength: offset-total)
                 if len < 0 {
-                    if let failBlock = self._failureBlock{
-                        failBlock(self.outputStream!.streamError!)
+                    if let disconnect = self.disconnectedBlock {
+                        disconnect(self.outputStream!.streamError!)
                     }
-                    else{
-                        self.delegate!.websocketDidDisconnect(self.outputStream!.streamError)
-                    }
+                    self.delegate?.websocketDidDisconnect(self.outputStream!.streamError)
                     break
                 } else {
                     total += len
