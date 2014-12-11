@@ -18,7 +18,10 @@ It's Objective-C counter part can be found here: [Jetfire](https://github.com/ac
 First thing is to import the framework. See the Installation instructions on how to add the framework to your project.
 
 ```swift
+//iOS
 import Starscream
+//OS X
+import StarscreamOSX
 ```
 
 Once imported, you can open a connection to your WebSocket server. Note that `socket` is probably best as a property, so your delegate can stick around.
