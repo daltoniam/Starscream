@@ -141,6 +141,20 @@ socket.delegate = self
 socket.connect()
 ```
 
+### Self Signed SSL and VOIP
+
+There are a couple of other properties that modify the stream:
+
+```swift
+var socket = WebSocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"), protocols: ["chat","superchat"])
+
+//set this if you are planning on using the socket in a VOIP background setting (using the background VOIP service).
+socket.voipEnabled = true
+
+//set this you want to ignore SSL cert validation, so a self signed SSL certificate can be used.
+socket.selfSignedSSL = true
+```
+
 ## Example Project
 
 Check out the SimpleTest project in the examples directory to see how to setup a simple connection to a WebSocket server.
@@ -151,13 +165,40 @@ Starscream requires at least iOS 7/OSX 10.10 or above.
 
 ## Installation
 
+### Cocoapods
+
+```
+Coming soon...(Hopefully!)
+```
+
+### Carthage
+
+Check out the [Carthage](https://github.com/Carthage/Carthage) docs on how to add a install. The `Starscream` framework is already setup with shared schemes.
+
+[Carthage Install](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application)
+
+### Rogue
+
+First see the [installation docs](https://github.com/acmacalister/Rogue) for how to install Rogue.
+
+To install Starscream run the command below in the directory you created the rogue file.
+
+```
+rogue add https://github.com/daltoniam/starscream
+```
+
+Next open the `libs` folder and add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in your "Build Phases" add the `Starscream.framework` to your "Link Binary with Libraries" phase. Make sure to add the `libs` folder to your `.gitignore` file.
+
+### Other
+
+Simply grab the framework (either via git submodule or another package manager).
+
 Add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in your "Build Phases" add the `Starscream.framework` to your "Link Binary with Libraries" phase.
 
 ## TODOs
 
 - [ ] Complete Docs
 - [ ] Add Unit Tests
-- [ ] Add [Rouge](https://github.com/acmacalister/Rouge) Installation Docs
 
 ## License
 
