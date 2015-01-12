@@ -165,11 +165,47 @@ Starscream requires at least iOS 7/OSX 10.10 or above.
 
 ## Installation
 
-### Cocoapods
+### [CocoaPods](http://cocoapods.org/) 
+At this time, Cocoapods support for Swift frameworks is supported in a [pre-release](http://blog.cocoapods.org/Pod-Authors-Guide-to-CocoaPods-Frameworks/).
 
-```
-Coming soon...(Hopefully!)
-```
+To use Starscream in your project add the following 'Podfile' to your project
+
+    source 'https://github.com/CocoaPods/Specs.git'
+
+    xcodeproj 'YourProjectName.xcodeproj'
+    platform :ios, '8.0'
+
+    pod 'Starscream', :git => "https://github.com/daltoniam/starscream.git", :branch => "cocoapods"
+
+    target 'YourProjectNameTests' do
+        pod 'Starscream', :git => "https://github.com/daltoniam/starscream.git", :branch => "cocoapods"
+    end
+
+Then run:
+
+    pod install
+
+#### Updating the Cocoapod
+You can validate Starscream.podspec using:
+
+    pod spec lint Starscream.podspec
+
+This should be tested with a sample project before releasing it. This can be done by adding the following line to a ```Podfile```:
+    
+    pod 'Starscream', :git => 'https://github.com/username/starscream.git'
+
+Then run:
+    
+    pod install
+
+If all goes well you are ready to release. First, create a tag and push:
+
+    git tag 'version'
+    git push --tags
+
+Once the tag is available you can send the library to the Specs repo. For this you'll have to follow the instructions in [Getting Setup with Trunk](http://guides.cocoapods.org/making/getting-setup-with-trunk.html).
+
+    pod trunk push Starscream.podspec
 
 ### Carthage
 
