@@ -175,10 +175,10 @@ To use Starscream in your project add the following 'Podfile' to your project
     xcodeproj 'YourProjectName.xcodeproj'
     platform :ios, '8.0'
 
-    pod 'Starscream', :git => "https://github.com/daltoniam/starscream.git", :branch => "cocoapods"
+    pod 'Starscream', :git => "https://github.com/daltoniam/starscream.git", :tag => "0.9.1"
 
     target 'YourProjectNameTests' do
-        pod 'Starscream', :git => "https://github.com/daltoniam/starscream.git", :branch => "cocoapods"
+        pod 'Starscream', :git => "https://github.com/daltoniam/starscream.git", :tag => "0.9.1"
     end
 
 Then run:
