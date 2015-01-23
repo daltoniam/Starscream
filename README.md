@@ -161,7 +161,7 @@ Check out the SimpleTest project in the examples directory to see how to setup a
 
 ## Requirements
 
-Starscream requires at least iOS 7/OSX 10.10 or above.
+Starscream works with iOS 7/OSX 10.9 or above. It is recommended to use iOS 8/10.10 or above for Cocoapods/framework support.
 
 ## Installation
 
