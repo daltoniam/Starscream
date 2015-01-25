@@ -10,11 +10,11 @@ import Foundation
 import CoreFoundation
 
 public protocol WebSocketDelegate: class {
-    func websocketDidConnect()
-    func websocketDidDisconnect(error: NSError?)
-    func websocketDidWriteError(error: NSError?)
-    func websocketDidReceiveMessage(text: String)
-    func websocketDidReceiveData(data: NSData)
+    func websocketDidConnect(socket: WebSocket)
+    func websocketDidDisconnect(socket: WebSocket, error: NSError?)
+    func websocketDidWriteError(socket: WebSocket, error: NSError?)
+    func websocketDidReceiveMessage(socket: WebSocket, text: String)
+    func websocketDidReceiveData(socket: WebSocket, data: NSData)
 }
 
 public class WebSocket : NSObject, NSStreamDelegate {
@@ -266,7 +266,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             if let disconnectBlock = self.disconnectedBlock {
                 disconnectBlock(error)
             }
-            self.delegate?.websocketDidDisconnect(error)
+            self.delegate?.websocketDidDisconnect(self, error: error)
         })
     }
     
@@ -285,7 +285,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                         if let disconnect = self.disconnectedBlock {
                             disconnect(error)
                         }
-                        self.delegate?.websocketDidDisconnect(error)
+                        self.delegate?.websocketDidDisconnect(self, error: error)
                     })
                 }
             } else {
@@ -340,7 +340,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     if let connectBlock = self.connectedBlock {
                         connectBlock()
                     }
-                    self.delegate?.websocketDidConnect()
+                    self.delegate?.websocketDidConnect(self)
                 })
                 totalSize += 1 //skip the last \n
                 let restSize = bufferLen - totalSize
@@ -404,9 +404,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 if let disconnect = self.disconnectedBlock {
                     disconnect(error)
                 }
-                self.delegate?.websocketDidDisconnect(error)
+                self.delegate?.websocketDidDisconnect(self, error: error)
                 writeError(errCode)
-                    
                 return
             }
             let isControlFrame = (receivedOpcode == OpCode.ConnectionClose.rawValue || receivedOpcode == OpCode.Ping.rawValue)
@@ -417,7 +416,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     if let disconnect = self.disconnectedBlock {
                         disconnect(error)
                     }
-                    self.delegate?.websocketDidDisconnect(error)
+                    self.delegate?.websocketDidDisconnect(self, error: error)
                     writeError(errCode)
                     return
             }
@@ -427,7 +426,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 if let disconnect = self.disconnectedBlock {
                     disconnect(error)
                 }
-                self.delegate?.websocketDidDisconnect(error)
+                self.delegate?.websocketDidDisconnect(self, error: error)
                 writeError(errCode)
                 return
             }
@@ -499,7 +498,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 if let disconnect = self.disconnectedBlock {
                     disconnect(error)
                 }
-                self.delegate?.websocketDidDisconnect(error)
+                self.delegate?.websocketDidDisconnect(self, error: error)
                 writeError(errCode)
                 return
             }
@@ -512,7 +511,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     if let disconnect = self.disconnectedBlock {
                         disconnect(error)
                     }
-                    self.delegate?.websocketDidDisconnect(error)
+                    self.delegate?.websocketDidDisconnect(self, error: error)
                     writeError(errCode)
                     return
                 }
@@ -531,7 +530,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     if let disconnect = self.disconnectedBlock {
                         disconnect(error)
                     }
-                    self.delegate?.websocketDidDisconnect(error)
+                    self.delegate?.websocketDidDisconnect(self, error: error)
                     writeError(errCode)
                     return
                 }
@@ -581,7 +580,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     if let textBlock = self.receivedTextBlock{
                         textBlock(str!)
                     }
-                    self.delegate?.websocketDidReceiveMessage(str!)
+                    self.delegate?.websocketDidReceiveMessage(self, text: str!)
                 })
             } else if response.code == .BinaryFrame {
                 let data = response.buffer! //local copy so it is perverse for writing
@@ -590,7 +589,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     if let dataBlock = self.receivedDataBlock{
                         dataBlock(data)
                     }
-                    self.delegate?.websocketDidReceiveData(data)
+                    self.delegate?.websocketDidReceiveData(self, data: data)
                 })
             }
             readStack.removeLast()
@@ -673,7 +672,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     if let disconnect = self.disconnectedBlock {
                         disconnect(self.outputStream!.streamError!)
                     }
-                    self.delegate?.websocketDidDisconnect(self.outputStream!.streamError)
+                    self.delegate?.websocketDidDisconnect(self, error: self.outputStream!.streamError)
                     break
                 } else {
                     total += len
