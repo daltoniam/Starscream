@@ -39,7 +39,7 @@ After you are connected, there are some delegate methods that we need to impleme
 websocketDidConnect is called as soon as the client connects to the server.
 
 ```swift
-func websocketDidConnect() {
+func websocketDidConnect(socket: WebSocket) {
     println("websocket is connected")
 }
 ```
@@ -49,7 +49,7 @@ func websocketDidConnect() {
 websocketDidDisconnect is called as soon as the client is disconnected from the server.
 
 ```swift
-func websocketDidDisconnect(error: NSError?) {
+func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
 	println("websocket is disconnected: \(error!.localizedDescription)")
 }
 ```
@@ -59,7 +59,7 @@ func websocketDidDisconnect(error: NSError?) {
 websocketDidWriteError is called when the client gets an error on websocket connection.
 
 ```swift
-func websocketDidWriteError(error: NSError?) {
+func websocketDidWriteError(socket: WebSocket, error: NSError?) {
     println("wez got an error from the websocket: \(error!.localizedDescription)")
 }
 ```
@@ -69,7 +69,7 @@ func websocketDidWriteError(error: NSError?) {
 websocketDidReceiveMessage is called when the client gets a text frame from the connection.
 
 ```swift
-func websocketDidReceiveMessage(text: String) {
+func websocketDidReceiveMessage(socket: WebSocket, text: String) {
 	println("got some text: \(text)")
 }
 ```
@@ -79,7 +79,7 @@ func websocketDidReceiveMessage(text: String) {
 websocketDidReceiveData is called when the client gets a binary frame from the connection.
 
 ```swift
-func websocketDidReceiveData(data: NSData) {
+func websocketDidReceiveData(socket: WebSocket, data: NSData) {
 	println("got some data: \(data.length)")
 }
 ```
