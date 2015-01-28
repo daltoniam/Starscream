@@ -12,7 +12,6 @@ import CoreFoundation
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocket)
     func websocketDidDisconnect(socket: WebSocket, error: NSError?)
-    func websocketDidWriteError(socket: WebSocket, error: NSError?)
     func websocketDidReceiveMessage(socket: WebSocket, text: String)
     func websocketDidReceiveData(socket: WebSocket, data: NSData)
 }

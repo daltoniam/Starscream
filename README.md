@@ -54,16 +54,6 @@ func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
 }
 ```
 
-### websocketDidWriteError
-
-websocketDidWriteError is called when the client gets an error on websocket connection.
-
-```swift
-func websocketDidWriteError(socket: WebSocket, error: NSError?) {
-    println("wez got an error from the websocket: \(error!.localizedDescription)")
-}
-```
-
 ### websocketDidReceiveMessage
 
 websocketDidReceiveMessage is called when the client gets a text frame from the connection.
