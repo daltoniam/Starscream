@@ -41,6 +41,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
         case PolicyViolated         = 1008
         case MessageTooBig          = 1009
     }
+
+    //Where the callback is executed. It defaults to the main UI thread queue.
+    var queue                   = dispatch_get_main_queue()
     var optionalProtocols       : Array<String>?
     //Constant Values.
     let headerWSUpgradeName     = "Upgrade"
@@ -261,7 +264,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         outputStream = nil
         isRunLoop = false
         connected = false
-        dispatch_async(dispatch_get_main_queue(),{
+        dispatch_async(queue,{
             if let disconnectBlock = self.disconnectedBlock {
                 disconnectBlock(error)
             }
@@ -278,7 +281,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             if !connected {
                 connected = processHTTP(buffer, bufferLen: length)
                 if !connected {
-                    dispatch_async(dispatch_get_main_queue(),{
+                    dispatch_async(queue,{
                         //self.workaroundMethod()
                         let error = self.errorWithDetail("Invalid HTTP upgrade", code: 1)
                         if let disconnect = self.disconnectedBlock {
@@ -334,7 +337,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
         if totalSize > 0 {
             if validateResponse(buffer, bufferLen: totalSize) {
-                dispatch_async(dispatch_get_main_queue(),{
+                dispatch_async(queue,{
                     //self.workaroundMethod()
                     if let connectBlock = self.connectedBlock {
                         connectBlock()
@@ -575,7 +578,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     writeError(CloseCode.Encoding.rawValue)
                     return false
                 }
-                dispatch_async(dispatch_get_main_queue(),{
+                dispatch_async(queue,{
                     if let textBlock = self.receivedTextBlock{
                         textBlock(str!)
                     }
@@ -583,7 +586,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 })
             } else if response.code == .BinaryFrame {
                 let data = response.buffer! //local copy so it is perverse for writing
-                dispatch_async(dispatch_get_main_queue(),{
+                dispatch_async(queue,{
                     //self.workaroundMethod()
                     if let dataBlock = self.receivedDataBlock{
                         dataBlock(data)
