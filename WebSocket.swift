@@ -43,7 +43,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
 
     //Where the callback is executed. It defaults to the main UI thread queue.
-    var queue                   = dispatch_get_main_queue()
+    public var queue            = dispatch_get_main_queue()
+
     var optionalProtocols       : Array<String>?
     //Constant Values.
     let headerWSUpgradeName     = "Upgrade"
