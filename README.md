@@ -152,7 +152,7 @@ A custom queue can be specified when delegate methods are called. By default `di
 ```swift
 var socket = WebSocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"), protocols: ["chat","superchat"])
 //create a custom queue
-socket.queue = dispatch_queue_create("com.github.starscream.socket", nil)
+socket.queue = dispatch_queue_create("com.vluxe.starscream.myapp", nil)
 ```
 
 ## Example Project
