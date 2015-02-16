@@ -245,14 +245,14 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
     }
     //delegate for the stream methods. Processes incoming bytes
-    public func stream(aStream: NSStream!, handleEvent eventCode: NSStreamEvent) {
+    public func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
         
         if eventCode == .HasBytesAvailable {
             if(aStream == inputStream) {
                 processInputStream()
             }
         } else if eventCode == .ErrorOccurred {
-            disconnectStream(aStream!.streamError)
+            disconnectStream(aStream.streamError)
         } else if eventCode == .EndEncountered {
             disconnectStream(nil)
         }
@@ -494,7 +494,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 data = NSData(bytes: UnsafePointer<UInt8>((buffer+offset)), length: Int(len))
             }
             if receivedOpcode == OpCode.Pong.rawValue {
-                let step = Int(offset+len)
+                let step = Int(offset+numericCast(len))
                 let extra = bufferLen-step
                 if extra > 0 {
                     processRawMessage((buffer+step), bufferLen: extra)
@@ -559,7 +559,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 processResponse(response!)
             }
             
-            let step = Int(offset+len)
+            let step = Int(offset+numericCast(len))
             let extra = bufferLen-step
             if(extra > 0) {
                 processExtra((buffer+step), bufferLen: extra)
