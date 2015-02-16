@@ -10,7 +10,7 @@
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
 		6B3E7A0719D48C5F006071F7 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D9C3E36A19E48FF1009FC285 /* StarscreamOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */; };
+		D9C3E36A19E48FF1009FC285 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C3E35F19E48FF1009FC285 /* Starscream.framework */; };
 		D9C3E37819E4903F009FC285 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		D9C3E37919E49051009FC285 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D9C3E37A19E49058009FC285 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
@@ -34,7 +34,7 @@
 		6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarscreamTests.swift; sourceTree = "<group>"; };
 		6B3E7A0419D48C41006071F7 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocket.swift; sourceTree = SOURCE_ROOT; };
 		6B3E7A0619D48C5F006071F7 /* Starscream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Starscream.h; sourceTree = SOURCE_ROOT; };
-		D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = StarscreamOSX.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9C3E35F19E48FF1009FC285 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamOSXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -64,7 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9C3E36A19E48FF1009FC285 /* StarscreamOSX.framework in Frameworks */,
+				D9C3E36A19E48FF1009FC285 /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,7 +85,7 @@
 			children = (
 				6B3E79E619D48B7F006071F7 /* Starscream.framework */,
 				6B3E79F119D48B7F006071F7 /* StarscreamTests.xctest */,
-				D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */,
+				D9C3E35F19E48FF1009FC285 /* Starscream.framework */,
 				D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */,
 			);
 			name = Products;
@@ -190,7 +190,7 @@
 			);
 			name = StarscreamOSX;
 			productName = StarscreamOSX;
-			productReference = D9C3E35F19E48FF1009FC285 /* StarscreamOSX.framework */;
+			productReference = D9C3E35F19E48FF1009FC285 /* Starscream.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		D9C3E36819E48FF1009FC285 /* StarscreamOSXTests */ = {
@@ -504,7 +504,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Starscream;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -524,7 +524,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Starscream;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
