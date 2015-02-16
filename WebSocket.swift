@@ -42,6 +42,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
         case MessageTooBig          = 1009
     }
 
+    enum InternalErrorCode : UInt16 {
+        // 0-999 WebSocket status codes not used
+        case OutputStreamWriteError  = 1
+    }
+
     //Where the callback is executed. It defaults to the main UI thread queue.
     public var queue            = dispatch_get_main_queue()
 
@@ -455,6 +460,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
                         }
                     }
                 }
+                let error = self.errorWithDetail("connection closed by server", code: code)
+                if let disconnect = self.disconnectedBlock {
+                    disconnect(error)
+                }
+                self.delegate?.websocketDidDisconnect(self, error: error)
                 writeError(code)
                 return
             }
@@ -670,15 +680,22 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     break
                 }
                 let writeBuffer = UnsafePointer<UInt8>(frame!.bytes+total)
-                var len = self.outputStream!.write(writeBuffer, maxLength: offset-total)
-                if len < 0 {
-                    if let disconnect = self.disconnectedBlock {
-                        disconnect(self.outputStream!.streamError!)
+                var len = self.outputStream?.write(writeBuffer, maxLength: offset-total)
+                if len == nil || len! < 0 {
+                    var error: NSError?
+                    if let streamError = self.outputStream?.streamError {
+                        error = streamError
+                    } else {
+                        let errCode = InternalErrorCode.OutputStreamWriteError.rawValue
+                        error = self.errorWithDetail("output stream error during write", code: errCode)
                     }
-                    self.delegate?.websocketDidDisconnect(self, error: self.outputStream!.streamError)
+                    if let disconnect = self.disconnectedBlock {
+                        disconnect(error)
+                    }
+                    self.delegate?.websocketDidDisconnect(self, error: error)
                     break
                 } else {
-                    total += len
+                    total += len!
                 }
                 if total >= offset {
                     break
