@@ -221,8 +221,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
         if self.selfSignedSSL {
             let settings: Dictionary<NSObject, NSObject> = [kCFStreamSSLValidatesCertificateChain: NSNumber(bool:false), kCFStreamSSLPeerName: kCFNull]
-            inputStream!.setProperty(settings, forKey: kCFStreamPropertySSLSettings)
-            outputStream!.setProperty(settings, forKey: kCFStreamPropertySSLSettings)
+            inputStream!.setProperty(settings, forKey: kCFStreamPropertySSLSettings as! String)
+            outputStream!.setProperty(settings, forKey: kCFStreamPropertySSLSettings as! String)
         }
         isRunLoop = true
         inputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
@@ -232,18 +232,18 @@ public class WebSocket : NSObject, NSStreamDelegate {
         let bytes = UnsafePointer<UInt8>(data.bytes)
         outputStream!.write(bytes, maxLength: data.length)
         while(isRunLoop) {
-            NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode, beforeDate: NSDate.distantFuture() as NSDate)
+            NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode, beforeDate: NSDate.distantFuture() as! NSDate)
         }
     }
     //delegate for the stream methods. Processes incoming bytes
-    func stream(aStream: NSStream!, handleEvent eventCode: NSStreamEvent) {
+    public func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
         
         if eventCode == .HasBytesAvailable {
             if(aStream == inputStream) {
                 processInputStream()
             }
         } else if eventCode == .ErrorOccurred {
-            disconnectStream(aStream!.streamError)
+            disconnectStream(aStream.streamError)
         } else if eventCode == .EndEncountered {
             disconnectStream(nil)
         }
@@ -361,7 +361,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
         let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response.takeUnretainedValue())
         let headers: NSDictionary = cfHeaders.takeUnretainedValue()
-        let acceptKey = headers[headerWSAcceptName] as NSString
+        let acceptKey = headers[headerWSAcceptName] as! NSString
         if acceptKey.length > 0 {
             return true
         }
@@ -480,7 +480,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 data = NSData(bytes: UnsafePointer<UInt8>((buffer+offset)), length: Int(len))
             }
             if receivedOpcode == OpCode.Pong.rawValue {
-                let step = Int(offset+len)
+                let step = Int(offset+Int(len))
                 let extra = bufferLen-step
                 if extra > 0 {
                     processRawMessage((buffer+step), bufferLen: extra)
@@ -545,7 +545,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 processResponse(response!)
             }
             
-            let step = Int(offset+len)
+            let step = Int(offset+Int(len))
             let extra = bufferLen-step
             if(extra > 0) {
                 processExtra((buffer+step), bufferLen: extra)
@@ -577,9 +577,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 }
                 dispatch_async(dispatch_get_main_queue(),{
                     if let textBlock = self.receivedTextBlock{
-                        textBlock(str!)
+                        textBlock(str! as! String)
                     }
-                    self.delegate?.websocketDidReceiveMessage(self, text: str!)
+                    self.delegate?.websocketDidReceiveMessage(self, text: str! as! String)
                 })
             } else if response.code == .BinaryFrame {
                 let data = response.buffer! //local copy so it is perverse for writing
