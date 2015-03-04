@@ -156,8 +156,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     
     //write a   ping   to the websocket. This sends it as a  control frame.
     //yodel a   sound  to the planet.    This sends it as an astroid. http://youtu.be/Eu5ZJELRiJ8?t=42s
-    public func writePing() {
-        dequeueWrite("".dataUsingEncoding(NSUTF8StringEncoding)!, code: .Ping)
+    public func writePing(data: NSData) {
+        dequeueWrite(data, code: .Ping)
     }
     //private methods below!
     
