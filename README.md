@@ -89,6 +89,14 @@ The writeString method is the same as writeData, but sends text/string.
 self.socket.writeString("Hi Server!") //example on how to write text over the socket!
 ```
 
+### writePing
+
+The writePing method is the same as writeData, but sends a ping control frame.
+
+```swift
+self.socket.writePing(NSData()) //example on how to write a ping control frame over the socket!
+```
+
 ### disconnect
 
 The disconnect method does what you would expect and closes the socket.
