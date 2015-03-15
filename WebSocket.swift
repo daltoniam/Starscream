@@ -333,7 +333,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     ///Finds the HTTP Packet in the TCP stream, by looking for the CRLF.
     private func processHTTP(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
-        let CRLFBytes = [UInt8("\r"), UInt8("\n"), UInt8("\r"), UInt8("\n")]
+        let CRLFBytes = [UInt8(ascii: "\r"), UInt8(ascii: "\n"), UInt8(ascii: "\r"), UInt8(ascii: "\n")]
         var k = 0
         var totalSize = 0
         for var i = 0; i < bufferLen; i++ {
@@ -673,7 +673,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             }
             buffer[1] |= self.MaskMask
             var maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
-            SecRandomCopyBytes(kSecRandomDefault, UInt(sizeof(UInt32)), maskKey)
+            SecRandomCopyBytes(kSecRandomDefault, Int(sizeof(UInt32)), maskKey)
             offset += sizeof(UInt32)
             
             for (var i = 0; i < dataLength; i++) {
