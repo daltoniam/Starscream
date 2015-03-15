@@ -174,7 +174,7 @@ Starscream works with iOS 7/OSX 10.9 or above. It is recommended to use iOS 8/10
 
 Check out [Get Started](http://cocoapods.org/) tab on [cocoapods.org](http://cocoapods.org/).
 
-To use SwiftHTTP in your project add the following 'Podfile' to your project
+To use Starscream in your project add the following 'Podfile' to your project
 
 	source 'https://github.com/CocoaPods/Specs.git'
 	platform :ios, '8.0'
