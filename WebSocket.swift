@@ -85,6 +85,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     private var outputStream: NSOutputStream?
     private var isRunLoop = false
     private var connected = false
+    private var isCreated = false
     private var writeQueue: NSOperationQueue?
     private var readStack = Array<WSResponse>()
     private var inputQueue = Array<NSData>()
@@ -134,8 +135,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
 
     ///Connect to the websocket server on a background thread
     public func connect() {
+        if isCreated {
+            return
+        }
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), {
+            self.isCreated = true
             self.createHTTPRequest()
+            self.isCreated = false
         })
     }
     
@@ -268,11 +274,14 @@ public class WebSocket : NSObject, NSStreamDelegate {
         if writeQueue != nil {
             writeQueue!.waitUntilAllOperationsAreFinished()
         }
-        inputStream!.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
-        outputStream!.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
-        inputStream!.close()
-        outputStream!.close()
-        inputStream = nil
+        if let stream = inputStream {
+            stream.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+            stream.close()
+        }
+        if let stream = outputStream {
+            stream.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+            stream.close()
+        }        
         outputStream = nil
         isRunLoop = false
         connected = false
