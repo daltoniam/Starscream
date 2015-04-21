@@ -378,13 +378,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
     
     ///validates the HTTP is a 101 as per the RFC spec
     private func validateResponse(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
-        let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, 0)
-        CFHTTPMessageAppendBytes(response.takeUnretainedValue(), buffer, bufferLen)
-        if CFHTTPMessageGetResponseStatusCode(response.takeUnretainedValue()) != 101 {
+        let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, 0).takeRetainedValue()
+        CFHTTPMessageAppendBytes(response, buffer, bufferLen)
+        if CFHTTPMessageGetResponseStatusCode(response) != 101 {
             return false
         }
-        let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response.takeUnretainedValue())
-        let headers: NSDictionary = cfHeaders.takeUnretainedValue()
+        let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response)
+        let headers: NSDictionary = cfHeaders.takeRetainedValue()
         let acceptKey = headers[headerWSAcceptName] as! NSString
         if acceptKey.length > 0 {
             return true
