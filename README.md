@@ -47,7 +47,7 @@ websocketDidDisconnect is called as soon as the client is disconnected from the 
 
 ```swift
 func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
-	println("websocket is disconnected: \(error!.localizedDescription)")
+	println("websocket is disconnected: \(error?.localizedDescription)")
 }
 ```
 
