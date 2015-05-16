@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5C06AE8F1B08050D00D41060 /* Security.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* Security.swift */; };
+		5C06AE901B08050D00D41060 /* Security.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* Security.swift */; };
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
 		6B3E7A0719D48C5F006071F7 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -27,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5C06AE8E1B08050D00D41060 /* Security.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Security.swift; sourceTree = SOURCE_ROOT; };
 		6B3E79E619D48B7F006071F7 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B3E79EA19D48B7F006071F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6B3E79F119D48B7F006071F7 /* StarscreamTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				6B3E7A0419D48C41006071F7 /* WebSocket.swift */,
+				5C06AE8E1B08050D00D41060 /* Security.swift */,
 				6B3E7A0619D48C5F006071F7 /* Starscream.h */,
 				6B3E79E919D48B7F006071F7 /* Supporting Files */,
 			);
@@ -291,6 +295,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */,
+				5C06AE8F1B08050D00D41060 /* Security.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,6 +312,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D9C3E37A19E49058009FC285 /* WebSocket.swift in Sources */,
+				5C06AE901B08050D00D41060 /* Security.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

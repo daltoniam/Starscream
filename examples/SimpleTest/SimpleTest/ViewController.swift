@@ -15,6 +15,7 @@ class ViewController: UIViewController, WebSocketDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         socket.delegate = self
+        socket.security = Security()
         socket.connect()
     }
     

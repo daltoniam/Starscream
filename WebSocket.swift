@@ -93,6 +93,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public var headers = Dictionary<String,String>()
     public var voipEnabled = false
     public var selfSignedSSL = false
+    public var security: Security?
+    private var certValidated = false
     private var connectedBlock: ((Void) -> Void)? = nil
     private var disconnectedBlock: ((NSError?) -> Void)? = nil
     private var receivedTextBlock: ((String) -> Void)? = nil
@@ -235,6 +237,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
         if url.scheme == "wss" || url.scheme == "https" {
             inputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
             outputStream!.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+        } else {
+            certValidated = true //not a https session, so no need to check SSL pinning
         }
         if self.voipEnabled {
             inputStream!.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
@@ -259,6 +263,20 @@ public class WebSocket : NSObject, NSStreamDelegate {
     //delegate for the stream methods. Processes incoming bytes
     public func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
         
+        if let sec = security where !certValidated && (eventCode == .HasBytesAvailable || eventCode == .HasSpaceAvailable) {
+            var possibleTrust: AnyObject? = aStream.propertyForKey(kCFStreamPropertySSLPeerTrust as! String)
+            if let trust: AnyObject = possibleTrust {
+                var domain: AnyObject? = aStream.propertyForKey(kCFStreamSSLPeerName as! String)
+                if sec.isValid(trust as! SecTrustRef, domain: domain as! String?) {
+                    certValidated = true
+                } else {
+                    let error = self.errorWithDetail("Invalid SSL certificate", code: 1)
+                    doDisconnect(error)
+                    disconnectStream(error)
+                    return
+                }
+            }
+        }
         if eventCode == .HasBytesAvailable {
             if(aStream == inputStream) {
                 processInputStream()
@@ -285,6 +303,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         outputStream = nil
         isRunLoop = false
         connected = false
+        certValidated = false
         self.doDisconnect(error)
     }
     
