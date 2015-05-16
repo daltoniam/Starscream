@@ -150,6 +150,18 @@ socket.voipEnabled = true
 socket.selfSignedSSL = true
 ```
 
+### SSL Pinning
+
+SSL Pinning is also supported in Starscream. 
+
+```swift
+var socket = WebSocket(url: NSURL(scheme: "ws", host: "localhost:8080", path: "/"), protocols: ["chat","superchat"])
+let data = ... //load your certificate from disk
+socket.security = Security(certs: [SSLCert(data: data)], usePublicKeys: true)
+//socket.security = Security() //uses the .cer files in your app's bundle
+```
+You load either a `NSData` blob of your certificate or you can use a `SecKeyRef` if you have a public key you want to use. The `usePublicKeys` bool is whether to use the certificates for validation or the public keys. The public keys will be extracted from the certificates automatically if `usePublicKeys` is choosen.
+
 ### Custom Queue
 
 A custom queue can be specified when delegate methods are called. By default `dispatch_get_main_queue` is used, thus making all delegate methods calls run on the main thread. It is important to note that all WebSocket processing is done on a background thread, only the delegate method calls are changed when modifying the queue. The actual processing is always on a background thread and will not pause your app.
