@@ -703,15 +703,14 @@ public class WebSocket : NSObject, NSStreamDelegate {
     
     ///used to preform the disconnect delegate
     private func doDisconnect(error: NSError?) {
-        dispatch_async(queue,{
-            if self.isConnected {
+        if self.isConnected {
+            dispatch_async(queue,{
                 if let disconnect = self.disconnectedBlock {
                     disconnect(error)
                 }
                 self.delegate?.websocketDidDisconnect(self, error: error)
-            }
-            self.connected = false
-        })
+            })
+        }
     }
     
 }
