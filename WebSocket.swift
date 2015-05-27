@@ -302,9 +302,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }        
         outputStream = nil
         isRunLoop = false
-        connected = false
         certValidated = false
         self.doDisconnect(error)
+        connected = false
     }
     
     ///handles the incoming bytes and sending them to the proper processing method
