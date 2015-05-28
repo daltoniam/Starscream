@@ -16,6 +16,10 @@ public protocol WebSocketDelegate: class {
     func websocketDidReceiveData(socket: WebSocket, data: NSData)
 }
 
+public protocol WebSocketPongDelegate: class {
+    func websocketDidReceivePong(socket: WebSocket)
+}
+
 public class WebSocket : NSObject, NSStreamDelegate {
     
     enum OpCode : UInt8 {
@@ -80,6 +84,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     
     public weak var delegate: WebSocketDelegate?
+    public weak var pongDelegate: WebSocketPongDelegate?
     private var url: NSURL
     private var inputStream: NSInputStream?
     private var outputStream: NSOutputStream?
@@ -503,6 +508,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 data = NSData(bytes: UnsafePointer<UInt8>((buffer+offset)), length: Int(len))
             }
             if receivedOpcode == OpCode.Pong.rawValue {
+                self.pongDelegate?.websocketDidReceivePong(self)
                 let step = Int(offset+numericCast(len))
                 let extra = bufferLen-step
                 if extra > 0 {
