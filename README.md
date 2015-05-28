@@ -71,7 +71,7 @@ func websocketDidReceiveData(socket: WebSocket, data: NSData) {
 }
 ```
 
-### Optional: websocketDidReceivePong (required protocol: WebSocketPongDelegate)
+### Optional: websocketDidReceivePong *(required protocol: WebSocketPongDelegate)*
 
 websocketDidReceivePong is called when the client gets a pong response from the connection. You need to implement the WebSocketPongDelegate protocol and set an additional delegate, eg: ` socket.pongDelegate = self`
 
@@ -81,7 +81,7 @@ func websocketDidReceivePong(socket: WebSocket) {
 }
 ```
 
-### The delegate methods give you a simple way to handle data from the server, but how do you send data?
+## The delegate methods give you a simple way to handle data from the server, but how do you send data?
 
 ### writeData
 
