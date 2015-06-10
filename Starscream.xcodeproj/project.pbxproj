@@ -221,6 +221,7 @@
 		6B3E79DD19D48B7F006071F7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = Vluxe;
 				TargetAttributes = {
@@ -513,6 +514,7 @@
 				PRODUCT_NAME = Starscream;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = x86_64;
 			};
 			name = Debug;
 		};
@@ -533,6 +535,7 @@
 				PRODUCT_NAME = Starscream;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = x86_64;
 			};
 			name = Release;
 		};
