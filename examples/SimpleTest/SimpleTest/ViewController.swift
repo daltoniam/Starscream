@@ -27,6 +27,8 @@ class ViewController: UIViewController, WebSocketDelegate {
     func websocketDidDisconnect(ws: WebSocket, error: NSError?) {
         if let e = error {
             println("websocket is disconnected: \(e.localizedDescription)")
+        } else {
+             println("websocket disconnected")
         }
     }
     
