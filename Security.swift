@@ -121,7 +121,7 @@ public class Security {
         }
         var policy: SecPolicyRef
         if self.validatedDN {
-            policy = SecPolicyCreateSSL(1, domain)
+            policy = SecPolicyCreateSSL(true, domain)
         } else {
             policy = SecPolicyCreateBasicX509()
         }
