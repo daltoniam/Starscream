@@ -479,7 +479,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 dataLength = UInt64(bytes[0].bigEndian)
                 offset += sizeof(UInt16)
             }
-            if bufferLen < offset {
+            if bufferLen < offset || UInt64(bufferLen - offset) < dataLength {
                 fragBuffer = NSData(bytes: buffer, length: bufferLen)
                 return
             }
