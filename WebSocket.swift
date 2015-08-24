@@ -276,7 +276,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
     }
     //disconnect the stream object
-    private func disconnectStream(error: NSError?) {
+    public func disconnectStream(error: NSError?) {
         if writeQueue != nil {
             writeQueue!.waitUntilAllOperationsAreFinished()
         }
