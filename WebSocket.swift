@@ -174,7 +174,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         self.addHeader(urlRequest, key: headerWSUpgradeName, val: headerWSUpgradeValue)
         self.addHeader(urlRequest, key: headerWSConnectionName, val: headerWSConnectionValue)
         if let protocols = optionalProtocols {
-            self.addHeader(urlRequest, key: headerWSProtocolName, val: ",".join(protocols))
+            self.addHeader(urlRequest, key: headerWSProtocolName, val: protocols.joinWithSeparator(","))
         }
         self.addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         self.addHeader(urlRequest, key: headerWSKeyName, val: self.generateWebSocketKey())
