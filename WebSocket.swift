@@ -174,7 +174,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         self.addHeader(urlRequest, key: headerWSUpgradeName, val: headerWSUpgradeValue)
         self.addHeader(urlRequest, key: headerWSConnectionName, val: headerWSConnectionValue)
         if let protocols = optionalProtocols {
-            self.addHeader(urlRequest, key: headerWSProtocolName, val: ",".join(protocols))
+            self.addHeader(urlRequest, key: headerWSProtocolName, val: protocols.joinWithSeparator(","))
         }
         self.addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         self.addHeader(urlRequest, key: headerWSKeyName, val: self.generateWebSocketKey())
@@ -444,7 +444,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 if payloadLen == 1 {
                     code = CloseCode.ProtocolError.rawValue
                 } else if payloadLen > 1 {
-                    var codeBuffer = UnsafePointer<UInt16>((buffer+offset))
+                    let codeBuffer = UnsafePointer<UInt16>((buffer+offset))
                     code = codeBuffer[0].bigEndian
                     if code < 1000 || (code > 1003 && code < 1007) || (code > 1011 && code < 3000) {
                         code = CloseCode.ProtocolError.rawValue
@@ -665,7 +665,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 offset += sizeof(UInt64)
             }
             buffer[1] |= self.MaskMask
-            var maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
+            let maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
             SecRandomCopyBytes(kSecRandomDefault, Int(sizeof(UInt32)), maskKey)
             offset += sizeof(UInt32)
             
