@@ -95,7 +95,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public var voipEnabled = false
     public var selfSignedSSL = false
     public var security: Security?
-    public var supportedSSLCypherSuites: [SSLCipherSuite]?
+    public var enabledSSLCipherSuites: [SSLCipherSuite]?
     public var isConnected :Bool {
         return connected
     }
@@ -239,11 +239,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
             inputStream!.setProperty(settings, forKey: kCFStreamPropertySSLSettings as! String)
             outputStream!.setProperty(settings, forKey: kCFStreamPropertySSLSettings as! String)
         }
-        if let cypherSuites = self.supportedSSLCypherSuites {
+        if let cipherSuites = self.enabledSSLCipherSuites {
             var sslContextIn: SSLContextRef = CFReadStreamCopyProperty(inputStream, kCFStreamPropertySSLContext) as! SSLContextRef
             var sslContextOut: SSLContextRef = CFWriteStreamCopyProperty(outputStream, kCFStreamPropertySSLContext) as! SSLContextRef
-            SSLSetEnabledCiphers(sslContextIn, cypherSuites, cypherSuites.count)
-            SSLSetEnabledCiphers(sslContextOut, cypherSuites, cypherSuites.count)
+            SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
+            SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
         }
         isRunLoop = true
         inputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
