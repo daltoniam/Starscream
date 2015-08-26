@@ -242,8 +242,20 @@ public class WebSocket : NSObject, NSStreamDelegate {
         if let cipherSuites = self.enabledSSLCipherSuites {
             var sslContextIn: SSLContextRef = CFReadStreamCopyProperty(inputStream, kCFStreamPropertySSLContext) as! SSLContextRef
             var sslContextOut: SSLContextRef = CFWriteStreamCopyProperty(outputStream, kCFStreamPropertySSLContext) as! SSLContextRef
-            SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
-            SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
+            let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
+            let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
+            if (resIn != errSecSuccess) {
+                NSLog("Error setting ingoing cipher suites (%d)", resIn)
+                let error = self.errorWithDetail("Error setting ingoing cypher suites", code: resIn)
+                doDisconnect(error)
+                disconnectStream(error)
+            }
+            if (resOut != errSecSuccess) {
+                NSLog("Error setting outgoing cipher suites (%d)", resOut)
+                let error = self.errorWithDetail("Error setting outgoing cypher suites", code: reOut)
+                doDisconnect(error)
+                disconnectStream(error)
+            }
         }
         isRunLoop = true
         inputStream!.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
