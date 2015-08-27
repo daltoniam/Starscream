@@ -246,13 +246,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
             let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
             if (resIn != errSecSuccess) {
                 NSLog("Error setting ingoing cipher suites (%d)", resIn)
-                let error = self.errorWithDetail("Error setting ingoing cypher suites", code: resIn)
+                let error = self.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
                 doDisconnect(error)
                 disconnectStream(error)
             }
             if (resOut != errSecSuccess) {
                 NSLog("Error setting outgoing cipher suites (%d)", resOut)
-                let error = self.errorWithDetail("Error setting outgoing cypher suites", code: reOut)
+                let error = self.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
                 doDisconnect(error)
                 disconnectStream(error)
             }
