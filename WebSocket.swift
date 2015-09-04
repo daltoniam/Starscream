@@ -638,7 +638,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             writeQueue = NSOperationQueue()
             writeQueue!.maxConcurrentOperationCount = 1
         }
-        writeQueue!.addOperationWithBlock {
+        writeQueue!.addOperationWithBlock { [unowned self] in
             //stream isn't ready, let's wait
             var tries = 0;
             while self.outputStream == nil || !self.connected {
@@ -653,7 +653,6 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 return
             }
             var offset = 2
-            UINT16_MAX
             let bytes = UnsafeMutablePointer<UInt8>(data.bytes)
             let dataLength = data.length
             let frame = NSMutableData(capacity: dataLength + self.MaxFrameSize)
