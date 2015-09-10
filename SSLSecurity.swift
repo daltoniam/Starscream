@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Security.swift
+//  SSLSecurity.swift
 //  Starscream
 //
 //  Created by Dalton Cherry on 5/16/15.
@@ -38,7 +38,7 @@ public class SSLCert {
     }
 }
 
-public class Security {
+public class SSLSecurity {
     public var validatedDN = true //should the domain name be validated?
     
     var isReady = false //is the key processing done?
