@@ -93,7 +93,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public var headers = Dictionary<String,String>()
     public var voipEnabled = false
     public var selfSignedSSL = false
-    public var security: Security?
+    public var security: SSLSecurity?
     public var isConnected :Bool {
         return connected
     }
