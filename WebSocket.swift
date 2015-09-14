@@ -277,8 +277,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     //disconnect the stream object
     private func disconnectStream(error: NSError?) {
-        if writeQueue != nil {
-            writeQueue!.waitUntilAllOperationsAreFinished()
+        if let queue = writeQueue {
+            queue.waitUntilAllOperationsAreFinished()
         }
         if let stream = inputStream {
             stream.removeFromRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
@@ -634,77 +634,69 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     ///used to write things to the stream
     private func dequeueWrite(data: NSData, code: OpCode) {
+        if !self.connected {
+            return
+        }
         if writeQueue == nil {
             writeQueue = NSOperationQueue()
             writeQueue!.maxConcurrentOperationCount = 1
         }
-        writeQueue!.addOperationWithBlock { [unowned self] in
-            //stream isn't ready, let's wait
-            var tries = 0;
-            while self.outputStream == nil || !self.connected {
-                if(tries < 5) {
-                    sleep(1);
+        writeQueue!.addOperationWithBlock { [weak self] in
+            if let s = self {
+                var offset = 2
+                let bytes = UnsafeMutablePointer<UInt8>(data.bytes)
+                let dataLength = data.length
+                let frame = NSMutableData(capacity: dataLength + s.MaxFrameSize)
+                let buffer = UnsafeMutablePointer<UInt8>(frame!.mutableBytes)
+                buffer[0] = s.FinMask | code.rawValue
+                if dataLength < 126 {
+                    buffer[1] = CUnsignedChar(dataLength)
+                } else if dataLength <= Int(UInt16.max) {
+                    buffer[1] = 126
+                    var sizeBuffer = UnsafeMutablePointer<UInt16>((buffer+offset))
+                    sizeBuffer[0] = UInt16(dataLength).bigEndian
+                    offset += sizeof(UInt16)
                 } else {
-                    break;
+                    buffer[1] = 127
+                    var sizeBuffer = UnsafeMutablePointer<UInt64>((buffer+offset))
+                    sizeBuffer[0] = UInt64(dataLength).bigEndian
+                    offset += sizeof(UInt64)
                 }
-                tries++;
-            }
-            if !self.connected {
-                return
-            }
-            var offset = 2
-            let bytes = UnsafeMutablePointer<UInt8>(data.bytes)
-            let dataLength = data.length
-            let frame = NSMutableData(capacity: dataLength + self.MaxFrameSize)
-            let buffer = UnsafeMutablePointer<UInt8>(frame!.mutableBytes)
-            buffer[0] = self.FinMask | code.rawValue
-            if dataLength < 126 {
-                buffer[1] = CUnsignedChar(dataLength)
-            } else if dataLength <= Int(UInt16.max) {
-                buffer[1] = 126
-                var sizeBuffer = UnsafeMutablePointer<UInt16>((buffer+offset))
-                sizeBuffer[0] = UInt16(dataLength).bigEndian
-                offset += sizeof(UInt16)
-            } else {
-                buffer[1] = 127
-                var sizeBuffer = UnsafeMutablePointer<UInt64>((buffer+offset))
-                sizeBuffer[0] = UInt64(dataLength).bigEndian
-                offset += sizeof(UInt64)
-            }
-            buffer[1] |= self.MaskMask
-            var maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
-            SecRandomCopyBytes(kSecRandomDefault, Int(sizeof(UInt32)), maskKey)
-            offset += sizeof(UInt32)
-            
-            for (var i = 0; i < dataLength; i++) {
-                buffer[offset] = bytes[i] ^ maskKey[i % sizeof(UInt32)]
-                offset += 1
-            }
-            var total = 0
-            while true {
-                if self.outputStream == nil {
-                    break
+                buffer[1] |= s.MaskMask
+                var maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
+                SecRandomCopyBytes(kSecRandomDefault, Int(sizeof(UInt32)), maskKey)
+                offset += sizeof(UInt32)
+                
+                for (var i = 0; i < dataLength; i++) {
+                    buffer[offset] = bytes[i] ^ maskKey[i % sizeof(UInt32)]
+                    offset += 1
                 }
-                let writeBuffer = UnsafePointer<UInt8>(frame!.bytes+total)
-                var len = self.outputStream?.write(writeBuffer, maxLength: offset-total)
-                if len == nil || len! < 0 {
-                    var error: NSError?
-                    if let streamError = self.outputStream?.streamError {
-                        error = streamError
-                    } else {
-                        let errCode = InternalErrorCode.OutputStreamWriteError.rawValue
-                        error = self.errorWithDetail("output stream error during write", code: errCode)
+                var total = 0
+                while true {
+                    if !s.isConnected || s.outputStream == nil {
+                        break
                     }
-                    self.doDisconnect(error)
-                    break
-                } else {
-                    total += len!
+                    let writeBuffer = UnsafePointer<UInt8>(frame!.bytes+total)
+                    var len = s.outputStream?.write(writeBuffer, maxLength: offset-total)
+                    if len == nil || len! < 0 {
+                        var error: NSError?
+                        if let streamError = s.outputStream?.streamError {
+                            error = streamError
+                        } else {
+                            let errCode = InternalErrorCode.OutputStreamWriteError.rawValue
+                            error = s.errorWithDetail("output stream error during write", code: errCode)
+                        }
+                        s.doDisconnect(error)
+                        break
+                    } else {
+                        total += len!
+                    }
+                    if total >= offset {
+                        break
+                    }
                 }
-                if total >= offset {
-                    break
-                }
+
             }
-            
         }
     }
     
