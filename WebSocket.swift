@@ -623,7 +623,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     ///used to write things to the stream
     private func dequeueWrite(data: NSData, code: OpCode) {
-        if !self.isConnected {
+        if !isConnected {
             return
         }
         writeQueue.addOperationWithBlock { [weak self] in
