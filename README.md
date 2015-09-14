@@ -4,6 +4,8 @@ Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6
 
 It's Objective-C counter part can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
 
+This is written Swift 2.0 (the latest). If you need older legecy support checkout the Swift-1.2 branch [here](https://github.com/daltoniam/Starscream/tree/swift-1.2).
+
 ## Features
 
 - Conforms to all of the base [Autobahn test suite](http://autobahn.ws/testsuite/).
@@ -226,7 +228,7 @@ To use Starscream in your project add the following 'Podfile' to your project
 	platform :ios, '8.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 0.9.7'
+	pod 'Starscream', '~> 0.9.4'
 
 Then run:
 
@@ -259,6 +261,11 @@ Add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in 
 ### Add Copy Frameworks Phase
 
 If you are running this in an OSX app or on a physical iOS device you will need to make sure you add the `Starscream.framework` to be included in your app bundle. To do this, in Xcode, navigate to the target configuration window by clicking on the blue project icon, and selecting the application target under the "Targets" heading in the sidebar. In the tab bar at the top of that window, open the "Build Phases" panel. Expand the "Link Binary with Libraries" group, and add `Starscream.framework`. Click on the + button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add `Starscream.framework` respectively.
+
+## TODOs
+
+- [ ] Complete Docs
+- [ ] Add Unit Tests
 
 ## License
 
