@@ -623,21 +623,12 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     ///used to write things to the stream
     private func dequeueWrite(data: NSData, code: OpCode) {
+        if !self.isConnected {
+            return
+        }
         writeQueue.addOperationWithBlock { [weak self] in
             //stream isn't ready, let's wait
             guard let s = self else { return }
-            var tries = 0
-            while s.outputStream == nil || !s.connected {
-                if(tries < 5) {
-                    sleep(1)
-                } else {
-                    break
-                }
-                tries++
-            }
-            if !s.connected {
-                return
-            }
             var offset = 2
             UINT16_MAX
             let bytes = UnsafeMutablePointer<UInt8>(data.bytes)
@@ -669,6 +660,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
             }
             var total = 0
             while true {
+                if !s.isConnected {
+                    break
+                }
                 guard let outStream = s.outputStream else { break }
                 let writeBuffer = UnsafePointer<UInt8>(frame!.bytes+total)
                 let len = outStream.write(writeBuffer, maxLength: offset-total)
