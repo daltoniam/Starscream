@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreFoundation
+import Security
 
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocket)
@@ -94,6 +95,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public var voipEnabled = false
     public var selfSignedSSL = false
     public var security: SSLSecurity?
+    public var enabledSSLCipherSuites: [SSLCipherSuite]?
     public var isConnected :Bool {
         return connected
     }
@@ -237,6 +239,25 @@ public class WebSocket : NSObject, NSStreamDelegate {
             let settings: Dictionary<NSObject, NSObject> = [kCFStreamSSLValidatesCertificateChain: NSNumber(bool:false), kCFStreamSSLPeerName: kCFNull]
             inStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as String)
             outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as String)
+        }
+        if let cipherSuites = self.enabledSSLCipherSuites {
+            if let sslContextIn = CFReadStreamCopyProperty(inputStream, kCFStreamPropertySSLContext) as! SSLContextRef?,
+                   sslContextOut = CFWriteStreamCopyProperty(outputStream, kCFStreamPropertySSLContext) as! SSLContextRef? {
+                let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
+                let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
+                if (resIn != errSecSuccess) {
+                    NSLog("Error setting ingoing cipher suites (%d)", resIn)
+                    let error = self.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
+                    doDisconnect(error)
+                    disconnectStream(error)
+                }
+                if (resOut != errSecSuccess) {
+                    NSLog("Error setting outgoing cipher suites (%d)", resOut)
+                    let error = self.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
+                    doDisconnect(error)
+                    disconnectStream(error)
+                }
+            }
         }
         isRunLoop = true
         inStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
