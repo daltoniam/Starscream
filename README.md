@@ -4,6 +4,7 @@ Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6
 
 It's Objective-C counter part can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
 
+This is written Swift 2.0 (the latest). If you need older legecy support checkout the Swift-1.2 branch [here](https://github.com/daltoniam/Starscream/tree/swift-1.2).
 
 ## Features
 
@@ -227,7 +228,7 @@ To use Starscream in your project add the following 'Podfile' to your project
 	platform :ios, '8.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 0.9.4'
+	pod 'Starscream', '~> 1.0.0'
 
 Then run:
 
@@ -238,6 +239,19 @@ Then run:
 Check out the [Carthage](https://github.com/Carthage/Carthage) docs on how to add a install. The `Starscream` framework is already setup with shared schemes.
 
 [Carthage Install](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application)
+
+You can install Carthage with [Homebrew](http://brew.sh/) using the following command:
+
+```bash
+$ brew update
+$ brew install carthage
+```
+
+To integrate Starscream into your Xcode project using Carthage, specify it in your `Cartfile`:
+
+```
+github "daltoniam/Starscream" >= 1.0.0
+```
 
 ### Rogue
 
@@ -263,7 +277,8 @@ If you are running this in an OSX app or on a physical iOS device you will need 
 
 ## TODOs
 
-- [ ] Complete Docs
+- [ ] WatchOS
+- [ ] TVOS?
 - [ ] Add Unit Tests
 
 ## License

@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>4D925893-CAFA-423E-A2A1-B4DD743323D3</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>SimpleTest</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>C86D95FCAEB1FEA0694B5D4AC7241D7E5F42F31D</key>
 		<string>https://github.com/daltoniam/Starscream</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>examples/SimpleTest/SimpleTest.xcodeproj/project.xcworkspace</string>
+	<string>examples/SimpleTest/SimpleTest.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>C86D95FCAEB1FEA0694B5D4AC7241D7E5F42F31D</key>

@@ -21,23 +21,23 @@ class ViewController: UIViewController, WebSocketDelegate {
     // MARK: Websocket Delegate Methods.
     
     func websocketDidConnect(ws: WebSocket) {
-        println("websocket is connected")
+        print("websocket is connected")
     }
     
     func websocketDidDisconnect(ws: WebSocket, error: NSError?) {
         if let e = error {
-            println("websocket is disconnected: \(e.localizedDescription)")
+            print("websocket is disconnected: \(e.localizedDescription)")
         } else {
-             println("websocket disconnected")
+             print("websocket disconnected")
         }
     }
     
     func websocketDidReceiveMessage(ws: WebSocket, text: String) {
-        println("Received text: \(text)")
+        print("Received text: \(text)")
     }
     
     func websocketDidReceiveData(ws: WebSocket, data: NSData) {
-        println("Received data: \(data.length)")
+        print("Received data: \(data.length)")
     }
     
     // MARK: Write Text Action
