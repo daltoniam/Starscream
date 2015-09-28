@@ -23,8 +23,8 @@ class ViewController: UIViewController {
     
     func getCaseCount() {
         socket.onText = {(text: String) in
-            if let c = text.toInt() {
-                println("number of cases is: \(c)")
+            if let c = Int(text) {
+                print("number of cases is: \(c)")
                 self.caseCount = c
             }
         }
@@ -37,17 +37,21 @@ class ViewController: UIViewController {
     func getTestInfo(caseNum: Int) {
         socket = createSocket("getCaseInfo",caseNum)
         socket.onText = {(text: String) in
-            var error: NSError?
-            let data = text.dataUsingEncoding(NSUTF8StringEncoding)
-            var resp: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!,
-                options: NSJSONReadingOptions(), error: &error)
-            if let dict = resp as? Dictionary<String,String> {
-                let num = dict["id"]
-                let summary = dict["description"]
-                if let n = num, let sum = summary {
-                    //println("running case:\(caseNum) id:\(n) summary: \(sum)")
-                }
-            }
+//            let data = text.dataUsingEncoding(NSUTF8StringEncoding)
+//            do {
+//                let resp: AnyObject? = try NSJSONSerialization.JSONObjectWithData(data!,
+//                    options: NSJSONReadingOptions())
+//                if let dict = resp as? Dictionary<String,String> {
+//                    let num = dict["id"]
+//                    let summary = dict["description"]
+//                    if let n = num, let sum = summary {
+//                        print("running case:\(caseNum) id:\(n) summary: \(sum)")
+//                    }
+//                }
+//            } catch {
+//                print("error parsing the json")
+//            }
+
         }
         var once = false
         socket.onDisconnect = {(error: NSError?) in
@@ -71,7 +75,7 @@ class ViewController: UIViewController {
         socket.onDisconnect = {(error: NSError?) in
             if !once {
                 once = true
-                println("case:\(caseNum) finished")
+                print("case:\(caseNum) finished")
                 self.verifyTest(caseNum)
             }
         }
@@ -81,18 +85,21 @@ class ViewController: UIViewController {
     func verifyTest(caseNum: Int) {
         socket = createSocket("getCaseStatus",caseNum)
         socket.onText = {(text: String) in
-            var error: NSError?
             let data = text.dataUsingEncoding(NSUTF8StringEncoding)
-            var resp: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!,
-                options: NSJSONReadingOptions(), error: &error)
-            if let dict = resp as? Dictionary<String,String> {
-                if let status = dict["behavior"] {
-                    if status == "OK" {
-                        println("SUCCESS: \(caseNum)")
-                        return
+            do {
+                let resp: AnyObject? = try NSJSONSerialization.JSONObjectWithData(data!,
+                    options: NSJSONReadingOptions())
+                if let dict = resp as? Dictionary<String,String> {
+                    if let status = dict["behavior"] {
+                        if status == "OK" {
+                            print("SUCCESS: \(caseNum)")
+                            return
+                        }
                     }
+                    print("FAILURE: \(caseNum)")
                 }
-                println("FAILURE: \(caseNum)")
+            } catch {
+               print("error parsing the json")
             }
         }
         var once = false
@@ -113,7 +120,7 @@ class ViewController: UIViewController {
     func finishReports() {
         socket = createSocket("updateReports",0)
         socket.onDisconnect = {(error: NSError?) in
-            println("finished all the tests!")
+            print("finished all the tests!")
         }
         socket.connect()
     }
