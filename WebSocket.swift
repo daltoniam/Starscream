@@ -319,9 +319,12 @@ public class WebSocket : NSObject, NSStreamDelegate {
         let length = inputStream!.read(buffer, maxLength: BUFFER_MAX)
         if length > 0 {
             if !connected {
-                let status = processHTTP(buffer, bufferLen: length)
-                if !status {
-                    doDisconnect(errorWithDetail("Invalid HTTP upgrade", code: 1))
+                connected = processHTTP(buffer, bufferLen: length)
+                if !connected {
+                    let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
+                    CFHTTPMessageAppendBytes(response, buffer, length)
+                    let code = CFHTTPMessageGetResponseStatusCode(response)
+                    doDisconnect(errorWithDetail("Invalid HTTP upgrade", code: UInt16(code)))
                 }
             } else {
                 var process = false
@@ -372,7 +375,6 @@ public class WebSocket : NSObject, NSStreamDelegate {
             if validateResponse(buffer, bufferLen: totalSize) {
                 dispatch_async(queue,{ [weak self] in
                     guard let s = self else { return }
-                    s.connected = true
                     if let connectBlock = s.onConnect {
                         connectBlock()
                     }
