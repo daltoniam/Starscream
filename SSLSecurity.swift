@@ -128,18 +128,13 @@ public class SSLSecurity {
         SecTrustSetPolicies(trust,policy)
         if self.usePublicKeys {
             if let keys = self.pubKeys {
-                var trustedCount = 0
                 let serverPubKeys = publicKeyChainForTrust(trust)
                 for serverKey in serverPubKeys as [AnyObject] {
                     for key in keys as [AnyObject] {
                         if serverKey.isEqual(key) {
-                            trustedCount++
-                            break
+                            return true
                         }
                     }
-                }
-                if trustedCount == serverPubKeys.count {
-                    return true
                 }
             }
         } else if let certs = self.certificates {
