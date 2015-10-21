@@ -139,8 +139,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     
     ///disconnect from the websocket server
-    public func disconnect() {
+    public func disconnect(forceTimeout: Int = 0) {
         writeError(CloseCode.Normal.rawValue)
+        if forceTimeout > 0 { //not needed most of the time, for an edge case
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(forceTimeout) * Int64(NSEC_PER_SEC)), queue, { [unowned self] in
+                self.disconnectStream(nil)
+            })
+        }
     }
     
     ///write a string to the websocket. This sends it as a text frame.
