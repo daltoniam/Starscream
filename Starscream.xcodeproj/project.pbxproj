@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		091277A11BD673A70003036D /* StarscreamTv.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 091277971BD673A70003036D /* StarscreamTv.framework */; };
 		5C06AE8F1B08050D00D41060 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
 		5C06AE901B08050D00D41060 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
@@ -19,6 +20,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		091277A21BD673A70003036D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6B3E79DD19D48B7F006071F7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 091277961BD673A70003036D;
+			remoteInfo = StarscreamTv;
+		};
 		D9C3E36B19E48FF1009FC285 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6B3E79DD19D48B7F006071F7 /* Project object */;
@@ -29,6 +37,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		091277971BD673A70003036D /* StarscreamTv.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = StarscreamTv.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		091277A01BD673A70003036D /* StarscreamTvTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamTvTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLSecurity.swift; sourceTree = SOURCE_ROOT; };
 		6B3E79E619D48B7F006071F7 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B3E79EA19D48B7F006071F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -42,6 +52,21 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		091277931BD673A70003036D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0912779D1BD673A70003036D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				091277A11BD673A70003036D /* StarscreamTv.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6B3E79E219D48B7F006071F7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -90,6 +115,8 @@
 				6B3E79F119D48B7F006071F7 /* StarscreamTests.xctest */,
 				D9C3E35F19E48FF1009FC285 /* Starscream.framework */,
 				D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */,
+				091277971BD673A70003036D /* StarscreamTv.framework */,
+				091277A01BD673A70003036D /* StarscreamTvTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -125,6 +152,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		091277941BD673A70003036D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6B3E79E319D48B7F006071F7 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -144,6 +178,42 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		091277961BD673A70003036D /* StarscreamTv */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 091277A81BD673A70003036D /* Build configuration list for PBXNativeTarget "StarscreamTv" */;
+			buildPhases = (
+				091277921BD673A70003036D /* Sources */,
+				091277931BD673A70003036D /* Frameworks */,
+				091277941BD673A70003036D /* Headers */,
+				091277951BD673A70003036D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StarscreamTv;
+			productName = StarscreamTv;
+			productReference = 091277971BD673A70003036D /* StarscreamTv.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		0912779F1BD673A70003036D /* StarscreamTvTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 091277AB1BD673A70003036D /* Build configuration list for PBXNativeTarget "StarscreamTvTests" */;
+			buildPhases = (
+				0912779C1BD673A70003036D /* Sources */,
+				0912779D1BD673A70003036D /* Frameworks */,
+				0912779E1BD673A70003036D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				091277A31BD673A70003036D /* PBXTargetDependency */,
+			);
+			name = StarscreamTvTests;
+			productName = StarscreamTvTests;
+			productReference = 091277A01BD673A70003036D /* StarscreamTvTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		6B3E79E519D48B7F006071F7 /* Starscream */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6B3E79F919D48B7F006071F7 /* Build configuration list for PBXNativeTarget "Starscream" */;
@@ -226,6 +296,12 @@
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = Vluxe;
 				TargetAttributes = {
+					091277961BD673A70003036D = {
+						CreatedOnToolsVersion = 7.1;
+					};
+					0912779F1BD673A70003036D = {
+						CreatedOnToolsVersion = 7.1;
+					};
 					6B3E79E519D48B7F006071F7 = {
 						CreatedOnToolsVersion = 6.0.1;
 					};
@@ -256,11 +332,27 @@
 				6B3E79F019D48B7F006071F7 /* StarscreamTests */,
 				D9C3E35E19E48FF1009FC285 /* StarscreamOSX */,
 				D9C3E36819E48FF1009FC285 /* StarscreamOSXTests */,
+				091277961BD673A70003036D /* StarscreamTv */,
+				0912779F1BD673A70003036D /* StarscreamTvTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		091277951BD673A70003036D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0912779E1BD673A70003036D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6B3E79E419D48B7F006071F7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -292,6 +384,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		091277921BD673A70003036D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0912779C1BD673A70003036D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6B3E79E119D48B7F006071F7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -329,6 +435,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		091277A31BD673A70003036D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 091277961BD673A70003036D /* StarscreamTv */;
+			targetProxy = 091277A21BD673A70003036D /* PBXContainerItemProxy */;
+		};
 		D9C3E36C19E48FF1009FC285 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D9C3E35E19E48FF1009FC285 /* StarscreamOSX */;
@@ -337,6 +448,78 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		091277A91BD673A70003036D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.Starscream;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		091277AA1BD673A70003036D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.Starscream;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
+		091277AC1BD673A70003036D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.StarscreamTvTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		091277AD1BD673A70003036D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.StarscreamTvTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
 		6B3E79F719D48B7F006071F7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -589,6 +772,22 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		091277A81BD673A70003036D /* Build configuration list for PBXNativeTarget "StarscreamTv" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				091277A91BD673A70003036D /* Debug */,
+				091277AA1BD673A70003036D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		091277AB1BD673A70003036D /* Build configuration list for PBXNativeTarget "StarscreamTvTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				091277AC1BD673A70003036D /* Debug */,
+				091277AD1BD673A70003036D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		6B3E79E019D48B7F006071F7 /* Build configuration list for PBXProject "Starscream" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
