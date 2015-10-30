@@ -127,11 +127,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
         dispatch_async(queue,{ [weak self] in
             self?.didDisconnect = false
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), { [weak self] in
-                self?.isCreated = true
-                self?.createHTTPRequest()
-                self?.isCreated = false
-            })
+        })
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), { [weak self] in
+            self?.isCreated = true
+            self?.createHTTPRequest()
+            self?.isCreated = false
         })
     }
     
