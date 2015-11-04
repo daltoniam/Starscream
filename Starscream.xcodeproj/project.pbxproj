@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		091277A11BD673A70003036D /* StarscreamTv.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 091277971BD673A70003036D /* StarscreamTv.framework */; };
+		091277A11BD673A70003036D /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 091277971BD673A70003036D /* Starscream.framework */; };
 		5C06AE8F1B08050D00D41060 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
 		5C06AE901B08050D00D41060 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
@@ -37,7 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		091277971BD673A70003036D /* StarscreamTv.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = StarscreamTv.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		091277971BD673A70003036D /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		091277A01BD673A70003036D /* StarscreamTvTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamTvTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLSecurity.swift; sourceTree = SOURCE_ROOT; };
 		6B3E79E619D48B7F006071F7 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -63,7 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				091277A11BD673A70003036D /* StarscreamTv.framework in Frameworks */,
+				091277A11BD673A70003036D /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,7 +115,7 @@
 				6B3E79F119D48B7F006071F7 /* StarscreamTests.xctest */,
 				D9C3E35F19E48FF1009FC285 /* Starscream.framework */,
 				D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */,
-				091277971BD673A70003036D /* StarscreamTv.framework */,
+				091277971BD673A70003036D /* Starscream.framework */,
 				091277A01BD673A70003036D /* StarscreamTvTests.xctest */,
 			);
 			name = Products;
@@ -193,7 +193,7 @@
 			);
 			name = StarscreamTv;
 			productName = StarscreamTv;
-			productReference = 091277971BD673A70003036D /* StarscreamTv.framework */;
+			productReference = 091277971BD673A70003036D /* Starscream.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		0912779F1BD673A70003036D /* StarscreamTvTests */ = {
@@ -461,7 +461,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.Starscream;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Starscream;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -483,7 +483,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.Starscream;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Starscream;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -609,6 +609,7 @@
 		6B3E79FA19D48B7F006071F7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BITCODE_GENERATION_MODE = marker;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -632,6 +633,7 @@
 		6B3E79FB19D48B7F006071F7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BITCODE_GENERATION_MODE = bitcode;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -779,6 +781,7 @@
 				091277AA1BD673A70003036D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		091277AB1BD673A70003036D /* Build configuration list for PBXNativeTarget "StarscreamTvTests" */ = {
 			isa = XCConfigurationList;
@@ -787,6 +790,7 @@
 				091277AD1BD673A70003036D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6B3E79E019D48B7F006071F7 /* Build configuration list for PBXProject "Starscream" */ = {
 			isa = XCConfigurationList;
