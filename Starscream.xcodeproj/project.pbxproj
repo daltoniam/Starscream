@@ -10,6 +10,9 @@
 		091277A11BD673A70003036D /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 091277971BD673A70003036D /* Starscream.framework */; };
 		5C06AE8F1B08050D00D41060 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
 		5C06AE901B08050D00D41060 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
+		5CADAB2A1BEAC5CF005DE2F0 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
+		5CADAB2B1BEAC5CF005DE2F0 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
+		5CADAB2C1BEAC5DA005DE2F0 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
 		6B3E7A0719D48C5F006071F7 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -156,6 +159,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CADAB2C1BEAC5DA005DE2F0 /* Starscream.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -388,6 +392,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CADAB2A1BEAC5CF005DE2F0 /* WebSocket.swift in Sources */,
+				5CADAB2B1BEAC5CF005DE2F0 /* SSLSecurity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +457,8 @@
 		091277A91BD673A70003036D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -472,6 +480,8 @@
 		091277AA1BD673A70003036D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;

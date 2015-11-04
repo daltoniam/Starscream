@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "091277961BD673A70003036D"
-               BuildableName = "StarscreamTv.framework"
+               BuildableName = "Starscream.framework"
                BlueprintName = "StarscreamTv"
                ReferencedContainer = "container:Starscream.xcodeproj">
             </BuildableReference>
@@ -57,7 +57,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "091277961BD673A70003036D"
-            BuildableName = "StarscreamTv.framework"
+            BuildableName = "Starscream.framework"
             BlueprintName = "StarscreamTv"
             ReferencedContainer = "container:Starscream.xcodeproj">
          </BuildableReference>
@@ -79,7 +79,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "091277961BD673A70003036D"
-            BuildableName = "StarscreamTv.framework"
+            BuildableName = "Starscream.framework"
             BlueprintName = "StarscreamTv"
             ReferencedContainer = "container:Starscream.xcodeproj">
          </BuildableReference>
@@ -97,7 +97,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "091277961BD673A70003036D"
-            BuildableName = "StarscreamTv.framework"
+            BuildableName = "Starscream.framework"
             BlueprintName = "StarscreamTv"
             ReferencedContainer = "container:Starscream.xcodeproj">
          </BuildableReference>
