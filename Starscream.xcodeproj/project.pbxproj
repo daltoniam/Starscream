@@ -13,6 +13,7 @@
 		5CADAB2A1BEAC5CF005DE2F0 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
 		5CADAB2B1BEAC5CF005DE2F0 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
 		5CADAB2C1BEAC5DA005DE2F0 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5CADAB511BEBD068005DE2F0 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
 		6B3E7A0719D48C5F006071F7 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -401,6 +402,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CADAB511BEBD068005DE2F0 /* StarscreamTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +460,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				BITCODE_GENERATION_MODE = marker;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
@@ -481,6 +484,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				BITCODE_GENERATION_MODE = bitcode;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
