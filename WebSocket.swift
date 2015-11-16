@@ -150,14 +150,29 @@ public class WebSocket : NSObject, NSStreamDelegate {
             self?.isCreated = false
         })
     }
-    
-    ///disconnect from the websocket server
-    public func disconnect(forceTimeout: Int = 0) {
-        writeError(CloseCode.Normal.rawValue)
-        if forceTimeout > 0 { //not needed most of the time, for an edge case
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(forceTimeout) * Int64(NSEC_PER_SEC)), queue, { [unowned self] in
+
+    /**
+     Disconnect from the server. I send a Close control frame to the server, then expect the server to respond with a Close control frame and close the socket from its end. I notify my delegate once the socket has been closed.
+     
+     If you supply a non-nil `forceTimeout`, I wait at most that long (in seconds) for the server to close the socket. After the timeout expires, I close the socket and notify my delegate.
+     
+     If you supply a zero (or negative) `forceTimeout`, I immediately close the socket (without sending a Close control frame) and notify my delegate.
+     
+     - Parameter forceTimeout: Maximum time to wait for the server to close the socket.
+    */
+    public func disconnect(forceTimeout forceTimeout: NSTimeInterval? = nil) {
+        switch forceTimeout {
+            case .Some(let seconds) where seconds > 0:
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(seconds * Double(NSEC_PER_SEC))), queue, { [unowned self] in
+                    self.disconnectStream(nil)
+                    })
+                fallthrough
+            case .None:
+                writeError(CloseCode.Normal.rawValue)
+
+            default:
                 self.disconnectStream(nil)
-            })
+                break
         }
     }
     
