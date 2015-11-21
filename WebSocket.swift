@@ -47,7 +47,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         //B-F reserved.
     }
     
-    enum CloseCode : UInt16 {
+    public enum CloseCode : UInt16 {
         case Normal                 = 1000
         case GoingAway              = 1001
         case ProtocolError          = 1002
