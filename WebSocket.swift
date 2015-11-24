@@ -47,7 +47,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         //B-F reserved.
     }
     
-    enum CloseCode : UInt16 {
+    public enum CloseCode : UInt16 {
         case Normal                 = 1000
         case GoingAway              = 1001
         case ProtocolError          = 1002
@@ -59,6 +59,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
         case PolicyViolated         = 1008
         case MessageTooBig          = 1009
     }
+
+    public static let ErrorDomain = "WebSocket"
 
     enum InternalErrorCode : UInt16 {
         // 0-999 WebSocket status codes not used
@@ -665,7 +667,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     private func errorWithDetail(detail: String, code: UInt16) -> NSError {
         var details = Dictionary<String,String>()
         details[NSLocalizedDescriptionKey] =  detail
-        return NSError(domain: "Websocket", code: Int(code), userInfo: details)
+        return NSError(domain: WebSocket.ErrorDomain, code: Int(code), userInfo: details)
     }
     
     ///write a an error to the socket
