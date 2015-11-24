@@ -435,9 +435,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
         if let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response) {
             let headers = cfHeaders.takeRetainedValue() as NSDictionary
-            let acceptKey = headers[headerWSAcceptName] as! NSString
-            if acceptKey.length > 0 {
-                return true
+            if let acceptKey = headers[headerWSAcceptName] as? NSString {
+                if acceptKey.length > 0 {
+                    return true
+                }
             }
         }
         return false
