@@ -222,12 +222,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
     }
     //Add a header to the CFHTTPMessage by using the NSString bridges to CFString
-    private func addHeader(urlRequest: CFHTTPMessage,key: String, val: String) {
-        let nsKey: NSString = key
-        let nsVal: NSString = val
-        CFHTTPMessageSetHeaderFieldValue(urlRequest,
-            nsKey,
-            nsVal)
+    private func addHeader(urlRequest: CFHTTPMessage, key: NSString, val: NSString) {
+        CFHTTPMessageSetHeaderFieldValue(urlRequest, key, val)
     }
     //generate a websocket key as needed in rfc
     private func generateWebSocketKey() -> String {
