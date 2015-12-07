@@ -127,14 +127,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
     private var certValidated = false
     private var didDisconnect = false
     
-    //init the websocket with a url
-    public init(url: NSURL) {
+    //used for setting protocols.
+    public init(url: NSURL, protocols: [String]? = nil) {
         self.url = url
         writeQueue.maxConcurrentOperationCount = 1
-    }
-    //used for setting protocols.
-    public convenience init(url: NSURL, protocols: [String]) {
-        self.init(url: url)
         optionalProtocols = protocols
     }
     
