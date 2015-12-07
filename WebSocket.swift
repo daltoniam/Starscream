@@ -374,11 +374,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
         if inputQueue.count > 0 {
             let data = inputQueue[0]
             var work = data
-            if fragBuffer != nil {
-                let combine = NSMutableData(data: fragBuffer!)
+            if let fragBuffer = fragBuffer {
+                let combine = NSMutableData(data: fragBuffer)
                 combine.appendData(data)
                 work = combine
-                fragBuffer = nil
+                self.fragBuffer = nil
             }
             let buffer = UnsafePointer<UInt8>(work.bytes)
             processRawMessage(buffer, bufferLen: work.length)
@@ -445,17 +445,16 @@ public class WebSocket : NSObject, NSStreamDelegate {
             fragBuffer = NSData(bytes: buffer, length: bufferLen)
             return
         }
-        if response != nil && response!.bytesLeft > 0 {
-            let resp = response!
-            var len = resp.bytesLeft
-            var extra = bufferLen - resp.bytesLeft
-            if resp.bytesLeft > bufferLen {
+        if let response = response where response.bytesLeft > 0 {
+            var len = response.bytesLeft
+            var extra = bufferLen - response.bytesLeft
+            if response.bytesLeft > bufferLen {
                 len = bufferLen
                 extra = 0
             }
-            resp.bytesLeft -= len
-            resp.buffer?.appendData(NSData(bytes: buffer, length: len))
-            processResponse(resp)
+            response.bytesLeft -= len
+            response.buffer?.appendData(NSData(bytes: buffer, length: len))
+            processResponse(response)
             let offset = bufferLen - extra
             if extra > 0 {
                 processExtra((buffer+offset), bufferLen: extra)
@@ -592,14 +591,14 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 }
                 response!.buffer!.appendData(data)
             }
-            if response != nil {
-                response!.bytesLeft -= Int(len)
-                response!.frameCount++
-                response!.isFin = isFin > 0 ? true : false
+            if let response = response {
+                response.bytesLeft -= Int(len)
+                response.frameCount++
+                response.isFin = isFin > 0 ? true : false
                 if isNew {
-                    readStack.append(response!)
+                    readStack.append(response)
                 }
-                processResponse(response!)
+                processResponse(response)
             }
             
             let step = Int(offset+numericCast(len))
