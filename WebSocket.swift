@@ -463,19 +463,19 @@ public class WebSocket : NSObject, NSStreamDelegate {
             return
         } else {
             let isFin = (FinMask & buffer[0])
-            let receivedOpcode = (OpCodeMask & buffer[0])
+            let receivedOpcode = OpCode(rawValue: (OpCodeMask & buffer[0]))
             let isMasked = (MaskMask & buffer[1])
             let payloadLen = (PayloadLenMask & buffer[1])
             var offset = 2
-            if (isMasked > 0 || (RSVMask & buffer[0]) > 0) && receivedOpcode != OpCode.Pong.rawValue {
+            if (isMasked > 0 || (RSVMask & buffer[0]) > 0) && receivedOpcode != .Pong {
                 let errCode = CloseCode.ProtocolError.rawValue
                 doDisconnect(errorWithDetail("masked and rsv data is not currently supported", code: errCode))
                 writeError(errCode)
                 return
             }
-            let isControlFrame = (receivedOpcode == OpCode.ConnectionClose.rawValue || receivedOpcode == OpCode.Ping.rawValue)
-            if !isControlFrame && (receivedOpcode != OpCode.BinaryFrame.rawValue && receivedOpcode != OpCode.ContinueFrame.rawValue &&
-                receivedOpcode != OpCode.TextFrame.rawValue && receivedOpcode != OpCode.Pong.rawValue) {
+            let isControlFrame = (receivedOpcode == .ConnectionClose || receivedOpcode == .Ping)
+            if !isControlFrame && (receivedOpcode != .BinaryFrame && receivedOpcode != .ContinueFrame &&
+                receivedOpcode != .TextFrame && receivedOpcode != .Pong) {
                     let errCode = CloseCode.ProtocolError.rawValue
                     doDisconnect(errorWithDetail("unknown opcode: \(receivedOpcode)", code: errCode))
                     writeError(errCode)
@@ -487,7 +487,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 writeError(errCode)
                 return
             }
-            if receivedOpcode == OpCode.ConnectionClose.rawValue {
+            if receivedOpcode == .ConnectionClose {
                 var code = CloseCode.Normal.rawValue
                 if payloadLen == 1 {
                     code = CloseCode.ProtocolError.rawValue
@@ -542,7 +542,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             } else {
                 data = NSData(bytes: UnsafePointer<UInt8>((buffer+offset)), length: Int(len))
             }
-            if receivedOpcode == OpCode.Pong.rawValue {
+            if receivedOpcode == .Pong {
                 dispatch_async(queue) { [weak self] in
                     guard let s = self else { return }
                     s.onPong?()
@@ -560,7 +560,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             if isControlFrame {
                 response = nil //don't append pings
             }
-            if isFin == 0 && receivedOpcode == OpCode.ContinueFrame.rawValue && response == nil {
+            if isFin == 0 && receivedOpcode == .ContinueFrame && response == nil {
                 let errCode = CloseCode.ProtocolError.rawValue
                 doDisconnect(errorWithDetail("continue frame before a binary or text frame", code: errCode))
                 writeError(errCode)
@@ -568,7 +568,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             }
             var isNew = false
             if response == nil {
-                if receivedOpcode == OpCode.ContinueFrame.rawValue  {
+                if receivedOpcode == .ContinueFrame  {
                     let errCode = CloseCode.ProtocolError.rawValue
                     doDisconnect(errorWithDetail("first frame can't be a continue frame",
                         code: errCode))
@@ -577,11 +577,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 }
                 isNew = true
                 response = WSResponse()
-                response!.code = OpCode(rawValue: receivedOpcode)!
+                response!.code = receivedOpcode!
                 response!.bytesLeft = Int(dataLength)
                 response!.buffer = NSMutableData(data: data)
             } else {
-                if receivedOpcode == OpCode.ContinueFrame.rawValue  {
+                if receivedOpcode == .ContinueFrame  {
                     response!.bytesLeft = Int(dataLength)
                 } else {
                     let errCode = CloseCode.ProtocolError.rawValue
