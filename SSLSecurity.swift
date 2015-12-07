@@ -67,13 +67,15 @@ public class SSLSecurity {
     */
     public convenience init(usePublicKeys: Bool = false) {
         let paths = NSBundle.mainBundle().pathsForResourcesOfType("cer", inDirectory: ".")
-        var collect = [SSLCert]()
-        for path in paths {
-            if let d = NSData(contentsOfFile: path as String) {
-                collect.append(SSLCert(data: d))
+        
+        let certs = paths.reduce([SSLCert]()) { (var certs: [SSLCert], path: String) -> [SSLCert] in
+            if let data = NSData(contentsOfFile: path) {
+                certs.append(SSLCert(data: data))
             }
+            return certs
         }
-        self.init(certs:collect, usePublicKeys: usePublicKeys)
+        
+        self.init(certs: certs, usePublicKeys: usePublicKeys)
     }
     
     /**
@@ -89,26 +91,27 @@ public class SSLSecurity {
         
         if self.usePublicKeys {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0)) {
-                var collect = [SecKeyRef]()
-                for cert in certs {
-                    if let data = cert.certData where cert.key == nil  {
+                let pubKeys = certs.reduce([SecKeyRef]()) { (var pubKeys: [SecKeyRef], cert: SSLCert) -> [SecKeyRef] in
+                    if let data = cert.certData where cert.key == nil {
                         cert.key = self.extractPublicKey(data)
                     }
-                    if let k = cert.key {
-                        collect.append(k)
+                    if let key = cert.key {
+                        pubKeys.append(key)
                     }
+                    return pubKeys
                 }
-                self.pubKeys = collect
+                
+                self.pubKeys = pubKeys
                 self.isReady = true
             }
         } else {
-            var collect = [NSData]()
-            for cert in certs {
-                if let d = cert.certData {
-                    collect.append(d)
+            let certificates = certs.reduce([NSData]()) { (var certificates: [NSData], cert: SSLCert) -> [NSData] in
+                if let data = cert.certData {
+                    certificates.append(data)
                 }
+                return certificates
             }
-            self.certificates = collect
+            self.certificates = certificates
             self.isReady = true
         }
     }
@@ -218,12 +221,13 @@ public class SSLSecurity {
     - returns: the certificate chain for the trust
     */
     func certificateChainForTrust(trust: SecTrustRef) -> [NSData] {
-        var collect = [NSData]()
-        for var i = 0; i < SecTrustGetCertificateCount(trust); i++ {
-            let cert = SecTrustGetCertificateAtIndex(trust,i)
-            collect.append(SecCertificateCopyData(cert!))
+        let certificates = (0..<SecTrustGetCertificateCount(trust)).reduce([NSData]()) { (var certificates: [NSData], index: Int) -> [NSData] in
+            let cert = SecTrustGetCertificateAtIndex(trust, index)
+            certificates.append(SecCertificateCopyData(cert!))
+            return certificates
         }
-        return collect
+        
+        return certificates
     }
     
     /**
@@ -234,15 +238,17 @@ public class SSLSecurity {
     - returns: the public keys from the certifcate chain for the trust
     */
     func publicKeyChainForTrust(trust: SecTrustRef) -> [SecKeyRef] {
-        var collect = [SecKeyRef]()
         let policy = SecPolicyCreateBasicX509()
-        for var i = 0; i < SecTrustGetCertificateCount(trust); i++ {
-            let cert = SecTrustGetCertificateAtIndex(trust,i)
+        let keys = (0..<SecTrustGetCertificateCount(trust)).reduce([SecKeyRef]()) { (var keys: [SecKeyRef], index: Int) -> [SecKeyRef] in
+            let cert = SecTrustGetCertificateAtIndex(trust, index)
             if let key = extractPublicKeyFromCert(cert!, policy: policy) {
-                collect.append(key)
+                keys.append(key)
             }
+            
+            return keys
         }
-        return collect
+        
+        return keys
     }
     
     
