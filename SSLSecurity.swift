@@ -88,7 +88,7 @@ public class SSLSecurity {
         self.usePublicKeys = usePublicKeys
         
         if self.usePublicKeys {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0)) {
                 var collect = [SecKeyRef]()
                 for cert in certs {
                     if let data = cert.certData where cert.key == nil  {
@@ -100,7 +100,7 @@ public class SSLSecurity {
                 }
                 self.pubKeys = collect
                 self.isReady = true
-            })
+            }
         } else {
             var collect = [NSData]()
             for cert in certs {

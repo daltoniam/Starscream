@@ -143,14 +143,14 @@ public class WebSocket : NSObject, NSStreamDelegate {
         if isCreated {
             return
         }
-        dispatch_async(queue,{ [weak self] in
+        dispatch_async(queue) { [weak self] in
             self?.didDisconnect = false
-        })
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), { [weak self] in
+        }
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0)) { [weak self] in
             self?.isCreated = true
             self?.createHTTPRequest()
             self?.isCreated = false
-        })
+        }
     }
 
     /**
@@ -165,9 +165,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public func disconnect(forceTimeout forceTimeout: NSTimeInterval? = nil) {
         switch forceTimeout {
             case .Some(let seconds) where seconds > 0:
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(seconds * Double(NSEC_PER_SEC))), queue, { [unowned self] in
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(seconds * Double(NSEC_PER_SEC))), queue) { [unowned self] in
                     self.disconnectStream(nil)
-                    })
+                    }
                 fallthrough
             case .None:
                 writeError(CloseCode.Normal.rawValue)
@@ -408,13 +408,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
         if totalSize > 0 {
             if validateResponse(buffer, bufferLen: totalSize) {
-                dispatch_async(queue,{ [weak self] in
+                dispatch_async(queue) { [weak self] in
                     guard let s = self else { return }
                     if let connectBlock = s.onConnect {
                         connectBlock()
                     }
                     s.delegate?.websocketDidConnect(s)
-                })
+                }
                 totalSize += 1 //skip the last \n
                 let restSize = bufferLen - totalSize
                 if restSize > 0 {
@@ -549,13 +549,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 data = NSData(bytes: UnsafePointer<UInt8>((buffer+offset)), length: Int(len))
             }
             if receivedOpcode == OpCode.Pong.rawValue {
-                dispatch_async(queue,{ [weak self] in
+                dispatch_async(queue) { [weak self] in
                     guard let s = self else { return }
                     if let pongBlock = s.onPong {
                         pongBlock()
                     }
                     s.pongDelegate?.websocketDidReceivePong(s)
-                })
+                }
                 
                 let step = Int(offset+numericCast(len))
                 let extra = bufferLen-step
@@ -641,22 +641,22 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     return false
                 }
 
-                dispatch_async(queue,{ [weak self] in
+                dispatch_async(queue) { [weak self] in
                     guard let s = self else { return }
                     if let textBlock = s.onText {
                         textBlock(str! as String)
                     }
                     s.delegate?.websocketDidReceiveMessage(s, text: str! as String)
-                })
+                }
             } else if response.code == .BinaryFrame {
                 let data = response.buffer! //local copy so it is perverse for writing
-                dispatch_async(queue,{ [weak self] in
+                dispatch_async(queue) { [weak self] in
                     guard let s = self else { return }
                     if let dataBlock = s.onData {
                         dataBlock(data)
                     }
                     s.delegate?.websocketDidReceiveData(s, data: data)
-                })
+                }
             }
             readStack.removeLast()
             return true
@@ -746,14 +746,14 @@ public class WebSocket : NSObject, NSStreamDelegate {
     ///used to preform the disconnect delegate
     private func doDisconnect(error: NSError?) {
         if !didDisconnect {
-            dispatch_async(queue,{ [weak self] in
+            dispatch_async(queue) { [weak self] in
                 guard let s = self else { return }
                 s.didDisconnect = true
                 if let disconnect = s.onDisconnect {
                     disconnect(error)
                 }
                 s.delegate?.websocketDidDisconnect(s, error: error)
-            })
+            }
         }
     }
     
