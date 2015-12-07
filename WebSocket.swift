@@ -276,12 +276,12 @@ public class WebSocket : NSObject, NSStreamDelegate {
                    sslContextOut = CFWriteStreamCopyProperty(outputStream, kCFStreamPropertySSLContext) as! SSLContextRef? {
                 let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
                 let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
-                if (resIn != errSecSuccess) {
+                if resIn != errSecSuccess {
                     let error = self.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
                     disconnectStream(error)
                     return
                 }
-                if (resOut != errSecSuccess) {
+                if resOut != errSecSuccess {
                     let error = self.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
                     disconnectStream(error)
                     return
@@ -316,7 +316,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             }
         }
         if eventCode == .HasBytesAvailable {
-            if(aStream == inputStream) {
+            if aStream == inputStream {
                 processInputStream()
             }
         } else if eventCode == .ErrorOccurred {
@@ -467,7 +467,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             let isMasked = (MaskMask & buffer[1])
             let payloadLen = (PayloadLenMask & buffer[1])
             var offset = 2
-            if((isMasked > 0 || (RSVMask & buffer[0]) > 0) && receivedOpcode != OpCode.Pong.rawValue) {
+            if (isMasked > 0 || (RSVMask & buffer[0]) > 0) && receivedOpcode != OpCode.Pong.rawValue {
                 let errCode = CloseCode.ProtocolError.rawValue
                 doDisconnect(errorWithDetail("masked and rsv data is not currently supported", code: errCode))
                 writeError(errCode)
@@ -567,7 +567,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 return
             }
             var isNew = false
-            if(response == nil) {
+            if response == nil {
                 if receivedOpcode == OpCode.ContinueFrame.rawValue  {
                     let errCode = CloseCode.ProtocolError.rawValue
                     doDisconnect(errorWithDetail("first frame can't be a continue frame",
@@ -596,7 +596,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 response!.bytesLeft -= Int(len)
                 response!.frameCount++
                 response!.isFin = isFin > 0 ? true : false
-                if(isNew) {
+                if isNew {
                     readStack.append(response!)
                 }
                 processResponse(response!)
@@ -604,7 +604,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             
             let step = Int(offset+numericCast(len))
             let extra = bufferLen-step
-            if(extra > 0) {
+            if extra > 0 {
                 processExtra((buffer+step), bufferLen: extra)
             }
         }
