@@ -70,7 +70,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     //Where the callback is executed. It defaults to the main UI thread queue.
     public var queue            = dispatch_get_main_queue()
 
-    var optionalProtocols       : Array<String>?
+    var optionalProtocols       : [String]?
     //Constant Values.
     let headerWSUpgradeName     = "Upgrade"
     let headerWSUpgradeValue    = "websocket"
@@ -106,7 +106,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public var onText: ((String) -> Void)?
     public var onData: ((NSData) -> Void)?
     public var onPong: ((Void) -> Void)?
-    public var headers = Dictionary<String,String>()
+    public var headers = [String: String]()
     public var voipEnabled = false
     public var selfSignedSSL = false
     public var security: SSLSecurity?
@@ -121,8 +121,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     private var connected = false
     private var isCreated = false
     private var writeQueue = NSOperationQueue()
-    private var readStack = Array<WSResponse>()
-    private var inputQueue = Array<NSData>()
+    private var readStack = [WSResponse]()
+    private var inputQueue = [NSData]()
     private var fragBuffer: NSData?
     private var certValidated = false
     private var didDisconnect = false
@@ -133,7 +133,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         writeQueue.maxConcurrentOperationCount = 1
     }
     //used for setting protocols.
-    public convenience init(url: NSURL, protocols: Array<String>) {
+    public convenience init(url: NSURL, protocols: [String]) {
         self.init(url: url)
         optionalProtocols = protocols
     }
@@ -271,7 +271,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             outStream.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
         }
         if selfSignedSSL {
-            let settings: Dictionary<NSObject, NSObject> = [kCFStreamSSLValidatesCertificateChain: NSNumber(bool:false), kCFStreamSSLPeerName: kCFNull]
+            let settings: [NSObject: NSObject] = [kCFStreamSSLValidatesCertificateChain: NSNumber(bool:false), kCFStreamSSLPeerName: kCFNull]
             inStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as String)
             outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as String)
         }
@@ -666,7 +666,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     
     ///Create an error
     private func errorWithDetail(detail: String, code: UInt16) -> NSError {
-        var details = Dictionary<String,String>()
+        var details = [String: String]()
         details[NSLocalizedDescriptionKey] =  detail
         return NSError(domain: WebSocket.ErrorDomain, code: Int(code), userInfo: details)
     }
