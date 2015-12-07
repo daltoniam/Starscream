@@ -188,11 +188,9 @@ public class SSLSecurity {
     - returns: a public key
     */
     func extractPublicKey(data: NSData) -> SecKeyRef? {
-        let possibleCert = SecCertificateCreateWithData(nil,data)
-        if let cert = possibleCert {
-            return extractPublicKeyFromCert(cert, policy: SecPolicyCreateBasicX509())
-        }
-        return nil
+        guard let cert = SecCertificateCreateWithData(nil, data) else { return nil }
+        
+        return extractPublicKeyFromCert(cert, policy: SecPolicyCreateBasicX509())
     }
     
     /**
@@ -205,12 +203,12 @@ public class SSLSecurity {
     func extractPublicKeyFromCert(cert: SecCertificate, policy: SecPolicy) -> SecKeyRef? {
         var possibleTrust: SecTrust?
         SecTrustCreateWithCertificates(cert, policy, &possibleTrust)
-        if let trust = possibleTrust {
-            var result: SecTrustResultType = 0
-            SecTrustEvaluate(trust, &result)
-            return SecTrustCopyPublicKey(trust)
-        }
-        return nil
+        
+        guard let trust = possibleTrust else { return nil }
+        
+        var result: SecTrustResultType = 0
+        SecTrustEvaluate(trust, &result)
+        return SecTrustCopyPublicKey(trust)
     }
     
     /**

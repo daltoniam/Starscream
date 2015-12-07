@@ -136,9 +136,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     
     ///Connect to the websocket server on a background thread
     public func connect() {
-        if isCreated {
-            return
-        }
+        guard !isCreated else { return }
+        
         dispatch_async(queue) { [weak self] in
             self?.didDisconnect = false
         }
@@ -348,43 +347,44 @@ public class WebSocket : NSObject, NSStreamDelegate {
         let buf = NSMutableData(capacity: BUFFER_MAX)
         let buffer = UnsafeMutablePointer<UInt8>(buf!.bytes)
         let length = inputStream!.read(buffer, maxLength: BUFFER_MAX)
-        if length > 0 {
+        
+        guard length > 0 else { return }
+        
+        if !connected {
+            connected = processHTTP(buffer, bufferLen: length)
             if !connected {
-                connected = processHTTP(buffer, bufferLen: length)
-                if !connected {
-                    let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
-                    CFHTTPMessageAppendBytes(response, buffer, length)
-                    let code = CFHTTPMessageGetResponseStatusCode(response)
-                    doDisconnect(errorWithDetail("Invalid HTTP upgrade", code: UInt16(code)))
-                }
-            } else {
-                var process = false
-                if inputQueue.count == 0 {
-                    process = true
-                }
-                inputQueue.append(NSData(bytes: buffer, length: length))
-                if process {
-                    dequeueInput()
-                }
+                let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
+                CFHTTPMessageAppendBytes(response, buffer, length)
+                let code = CFHTTPMessageGetResponseStatusCode(response)
+                doDisconnect(errorWithDetail("Invalid HTTP upgrade", code: UInt16(code)))
+            }
+        } else {
+            var process = false
+            if inputQueue.count == 0 {
+                process = true
+            }
+            inputQueue.append(NSData(bytes: buffer, length: length))
+            if process {
+                dequeueInput()
             }
         }
     }
     ///dequeue the incoming input so it is processed in order
     private func dequeueInput() {
-        if inputQueue.count > 0 {
-            let data = inputQueue[0]
-            var work = data
-            if let fragBuffer = fragBuffer {
-                let combine = NSMutableData(data: fragBuffer)
-                combine.appendData(data)
-                work = combine
-                self.fragBuffer = nil
-            }
-            let buffer = UnsafePointer<UInt8>(work.bytes)
-            processRawMessage(buffer, bufferLen: work.length)
-            inputQueue = inputQueue.filter{$0 != data}
-            dequeueInput()
+        guard !inputQueue.isEmpty else { return }
+        
+        let data = inputQueue[0]
+        var work = data
+        if let fragBuffer = fragBuffer {
+            let combine = NSMutableData(data: fragBuffer)
+            combine.appendData(data)
+            work = combine
+            self.fragBuffer = nil
         }
+        let buffer = UnsafePointer<UInt8>(work.bytes)
+        processRawMessage(buffer, bufferLen: work.length)
+        inputQueue = inputQueue.filter{$0 != data}
+        dequeueInput()
     }
     ///Finds the HTTP Packet in the TCP stream, by looking for the CRLF.
     private func processHTTP(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
@@ -667,9 +667,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     ///used to write things to the stream
     private func dequeueWrite(data: NSData, code: OpCode) {
-        if !isConnected {
-            return
-        }
+        guard isConnected else { return }
+        
         writeQueue.addOperationWithBlock { [weak self] in
             //stream isn't ready, let's wait
             guard let s = self else { return }
@@ -732,13 +731,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
     
     ///used to preform the disconnect delegate
     private func doDisconnect(error: NSError?) {
-        if !didDisconnect {
-            dispatch_async(queue) { [weak self] in
-                guard let s = self else { return }
-                s.didDisconnect = true
-                s.onDisconnect?(error)
-                s.delegate?.websocketDidDisconnect(s, error: error)
-            }
+        guard !didDisconnect else { return }
+        
+        dispatch_async(queue) { [weak self] in
+            guard let s = self else { return }
+            s.didDisconnect = true
+            s.onDisconnect?(error)
+            s.delegate?.websocketDidDisconnect(s, error: error)
         }
     }
     
