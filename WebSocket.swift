@@ -199,7 +199,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         
         var port = url.port
         if port == nil {
-            if url.scheme == "wss" || url.scheme == "https" {
+            if ["wss", "https"].contains(url.scheme) {
                 port = 443
             } else {
                 port = 80
@@ -256,7 +256,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         guard let inStream = inputStream, let outStream = outputStream else { return }
         inStream.delegate = self
         outStream.delegate = self
-        if url.scheme == "wss" || url.scheme == "https" {
+        if ["wss", "https"].contains(url.scheme) {
             inStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
             outStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
         } else {
@@ -302,7 +302,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     //delegate for the stream methods. Processes incoming bytes
     public func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
         
-        if let sec = security where !certValidated && (eventCode == .HasBytesAvailable || eventCode == .HasSpaceAvailable) {
+        if let sec = security where !certValidated && [.HasBytesAvailable, .HasSpaceAvailable].contains(eventCode) {
             let possibleTrust: AnyObject? = aStream.propertyForKey(kCFStreamPropertySSLPeerTrust as String)
             if let trust: AnyObject = possibleTrust {
                 let domain: AnyObject? = aStream.propertyForKey(kCFStreamSSLPeerName as String)
