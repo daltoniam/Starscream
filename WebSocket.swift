@@ -23,6 +23,7 @@ import Foundation
 import CoreFoundation
 import Security
 
+@objc
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocket)
     func websocketDidDisconnect(socket: WebSocket, error: NSError?)
@@ -30,6 +31,7 @@ public protocol WebSocketDelegate: class {
     func websocketDidReceiveData(socket: WebSocket, data: NSData)
 }
 
+@objc
 public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocket)
 }
