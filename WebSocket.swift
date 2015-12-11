@@ -174,6 +174,16 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 break
         }
     }
+
+    /**
+    Disconnect from the server.
+    Objective-C valid selector.
+
+    - Parameter forceTimeout: Maximum time to wait for the server to close the socket.
+    */
+    public func disconnect(forceTimeout: NSNumber? = nil) {
+        disconnect(forceTimeout?.doubleValue)
+    }
     
     ///write a string to the websocket. This sends it as a text frame.
     public func writeString(str: String) {
