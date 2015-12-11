@@ -182,7 +182,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     - Parameter forceTimeout: Maximum time to wait for the server to close the socket.
     */
     public func disconnect(forceTimeout: NSNumber? = nil) {
-        disconnect(forceTimeout?.doubleValue)
+        disconnect(forceTimeout: forceTimeout?.doubleValue)
     }
     
     ///write a string to the websocket. This sends it as a text frame.
