@@ -434,6 +434,33 @@ public class WebSocket : NSObject, NSStreamDelegate {
         return false
     }
     
+    ///read a 16 bit big endian value from a buffer
+    private static func readUint16(buffer: UnsafePointer<UInt8>, offset: Int) -> UInt16 {
+        return (UInt16(buffer[offset + 0]) << 8) | UInt16(buffer[offset + 1])
+    }
+    
+    ///read a 64 bit big endian value from a buffer
+    private static func readUint64(buffer: UnsafePointer<UInt8>, offset: Int) -> UInt64 {
+        var value = UInt64(0)
+        for i in 0...7 {
+            value = (value << 8) | UInt64(buffer[offset + i])
+        }
+        return value
+    }
+    
+    ///write a 16 bit big endian value to a buffer
+    private static func writeUint16(buffer: UnsafeMutablePointer<UInt8>, offset: Int, value: UInt16) {
+        buffer[offset + 0] = UInt8(value >> 8)
+        buffer[offset + 1] = UInt8(value & 0xff)
+    }
+    
+    ///write a 64 bit big endian value to a buffer
+    private static func writeUint64(buffer: UnsafeMutablePointer<UInt8>, offset: Int, value: UInt64) {
+        for i in 0...7 {
+            buffer[offset + i] = UInt8((value >> (8*UInt64(7 - i))) & 0xff)
+        }
+    }
+    
     ///process the websocket data
     private func processRawMessage(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
         let response = readStack.last
@@ -487,8 +514,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 if payloadLen == 1 {
                     code = CloseCode.ProtocolError.rawValue
                 } else if payloadLen > 1 {
-                    let codeBuffer = UnsafePointer<UInt16>((buffer+offset))
-                    code = codeBuffer[0].bigEndian
+                    code = WebSocket.readUint16(buffer, offset: offset)
                     if code < 1000 || (code > 1003 && code < 1007) || (code > 1011 && code < 3000) {
                         code = CloseCode.ProtocolError.rawValue
                     }
@@ -514,12 +540,10 @@ public class WebSocket : NSObject, NSStreamDelegate {
             }
             var dataLength = UInt64(payloadLen)
             if dataLength == 127 {
-                let bytes = UnsafePointer<UInt64>((buffer+offset))
-                dataLength = bytes[0].bigEndian
+                dataLength = WebSocket.readUint64(buffer, offset: offset)
                 offset += sizeof(UInt64)
             } else if dataLength == 126 {
-                let bytes = UnsafePointer<UInt16>((buffer+offset))
-                dataLength = UInt64(bytes[0].bigEndian)
+                dataLength = UInt64(WebSocket.readUint16(buffer, offset: offset))
                 offset += sizeof(UInt16)
             }
             if bufferLen < offset || UInt64(bufferLen - offset) < dataLength {
@@ -657,8 +681,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     ///write a an error to the socket
     private func writeError(code: UInt16) {
         let buf = NSMutableData(capacity: sizeof(UInt16))
-        let buffer = UnsafeMutablePointer<UInt16>(buf!.bytes)
-        buffer[0] = code.bigEndian
+        let buffer = UnsafeMutablePointer<UInt8>(buf!.bytes)
+        WebSocket.writeUint16(buffer, offset: 0, value: code)
         dequeueWrite(NSData(bytes: buffer, length: sizeof(UInt16)), code: .ConnectionClose)
     }
     ///used to write things to the stream
@@ -678,13 +702,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 buffer[1] = CUnsignedChar(dataLength)
             } else if dataLength <= Int(UInt16.max) {
                 buffer[1] = 126
-                let sizeBuffer = UnsafeMutablePointer<UInt16>((buffer+offset))
-                sizeBuffer[0] = UInt16(dataLength).bigEndian
+                WebSocket.writeUint16(buffer, offset: offset, value: UInt16(dataLength))
                 offset += sizeof(UInt16)
             } else {
                 buffer[1] = 127
-                let sizeBuffer = UnsafeMutablePointer<UInt64>((buffer+offset))
-                sizeBuffer[0] = UInt64(dataLength).bigEndian
+                WebSocket.writeUint64(buffer, offset: offset, value: UInt64(dataLength))
                 offset += sizeof(UInt64)
             }
             buffer[1] |= s.MaskMask
