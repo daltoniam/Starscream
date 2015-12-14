@@ -23,6 +23,7 @@ import Foundation
 import CoreFoundation
 import Security
 
+@objc
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocket)
     func websocketDidDisconnect(socket: WebSocket, error: NSError?)
@@ -30,6 +31,7 @@ public protocol WebSocketDelegate: class {
     func websocketDidReceiveData(socket: WebSocket, data: NSData)
 }
 
+@objc
 public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocket)
 }
@@ -171,6 +173,16 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 self.disconnectStream(nil)
                 break
         }
+    }
+
+    /**
+    Disconnect from the server.
+    Objective-C valid selector.
+
+    - Parameter forceTimeout: Maximum time to wait for the server to close the socket.
+    */
+    public func disconnect(forceTimeout: NSNumber? = nil) {
+        disconnect(forceTimeout: forceTimeout?.doubleValue)
     }
     
     ///write a string to the websocket. This sends it as a text frame.
