@@ -348,7 +348,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
         
         if !connected {
             connected = processHTTP(buffer, bufferLen: length)
-            if !connected {
+            if connected {
+                dispatch_async(queue) { [weak self] in
+                    guard let s = self else { return }
+                    s.onConnect?()
+                    s.delegate?.websocketDidConnect(s)
+                }
+            } else {
                 let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
                 CFHTTPMessageAppendBytes(response, buffer, length)
                 let code = CFHTTPMessageGetResponseStatusCode(response)
@@ -400,11 +406,6 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
         if totalSize > 0 {
             if validateResponse(buffer, bufferLen: totalSize) {
-                dispatch_async(queue) { [weak self] in
-                    guard let s = self else { return }
-                    s.onConnect?()
-                    s.delegate?.websocketDidConnect(s)
-                }
                 totalSize += 1 //skip the last \n
                 let restSize = bufferLen - totalSize
                 if restSize > 0 {
