@@ -339,36 +339,59 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     
     ///handles the incoming bytes and sending them to the proper processing method
+    private var buf:NSMutableData!;
+    private var buffer:UnsafeMutablePointer<UInt8>!;
+    private var bufferLen = 0;
     private func processInputStream() {
-        let buf = NSMutableData(capacity: BUFFER_MAX)
-        let buffer = UnsafeMutablePointer<UInt8>(buf!.bytes)
-        let length = inputStream!.read(buffer, maxLength: BUFFER_MAX)
+        if buffer == nil {
+            buf = NSMutableData(capacity: BUFFER_MAX)
+            buffer = UnsafeMutablePointer<UInt8>(buf!.bytes)
+            bufferLen = 0
+        } else {
+            let buf2 = NSMutableData(capacity: BUFFER_MAX+bufferLen)
+            let buffer2 = UnsafeMutablePointer<UInt8>(buf!.bytes)
+            memcpy(buffer2, buffer, bufferLen)
+            buf = buf2
+            buffer = buffer2
+        }
+        let length = inputStream!.read(buffer.advancedBy(bufferLen), maxLength: BUFFER_MAX)
+        bufferLen += length
         
-        guard length > 0 else { return }
+        guard bufferLen > 0 else { return }
         
         if !connected {
-            connected = processHTTP(buffer, bufferLen: length)
-            if connected {
+            let result = processHTTP(buffer, bufferLen: bufferLen)
+            switch(result) {
+            case .SUCCESS:
+                connected = true
+                buffer = nil
                 dispatch_async(queue) { [weak self] in
                     guard let s = self else { return }
                     s.onConnect?()
                     s.delegate?.websocketDidConnect(s)
                 }
-            } else {
+                break
+            case .FAIL:
                 let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
-                CFHTTPMessageAppendBytes(response, buffer, length)
+                CFHTTPMessageAppendBytes(response, buffer, bufferLen)
                 let code = CFHTTPMessageGetResponseStatusCode(response)
                 doDisconnect(errorWithDetail("Invalid HTTP upgrade", code: UInt16(code)))
+                buffer = nil
+                break
+            case .UNKNOWN:
+                // noop
+                break
             }
         } else {
             var process = false
             if inputQueue.count == 0 {
                 process = true
             }
-            inputQueue.append(NSData(bytes: buffer, length: length))
+            inputQueue.append(NSData(bytes: buffer, length: bufferLen))
             if process {
                 dequeueInput()
             }
+            buffer = nil
         }
     }
     ///dequeue the incoming input so it is processed in order
@@ -388,8 +411,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
         inputQueue = inputQueue.filter{$0 != data}
         dequeueInput()
     }
+    enum ProcessHTTPResult {
+        case SUCCESS, FAIL, UNKNOWN
+    }
     ///Finds the HTTP Packet in the TCP stream, by looking for the CRLF.
-    private func processHTTP(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Bool {
+    private func processHTTP(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> ProcessHTTPResult {
         let CRLFBytes = [UInt8(ascii: "\r"), UInt8(ascii: "\n"), UInt8(ascii: "\r"), UInt8(ascii: "\n")]
         var k = 0
         var totalSize = 0
@@ -411,10 +437,12 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 if restSize > 0 {
                     processRawMessage((buffer+totalSize),bufferLen: restSize)
                 }
-                return true
+                return .SUCCESS
             }
+            return .FAIL
         }
-        return false
+        // end of the header is not found
+        return .UNKNOWN
     }
     
     ///validates the HTTP is a 101 as per the RFC spec
