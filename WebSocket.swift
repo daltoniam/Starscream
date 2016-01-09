@@ -131,6 +131,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     //used for setting protocols.
     public init(url: NSURL, protocols: [String]? = nil) {
         self.url = url
+        self.origin = url.absoluteString
         writeQueue.maxConcurrentOperationCount = 1
         optionalProtocols = protocols
     }
