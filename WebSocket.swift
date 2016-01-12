@@ -398,10 +398,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
         var k = 0
         var totalSize = 0
         for i in 0..<bufferLen {
+            totalSize = i
             if buffer[i] == CRLFBytes[k] {
                 k++
                 if k == 3 {
-                    totalSize = i + 1
+                    totalSize += 1
                     break
                 }
             } else {
