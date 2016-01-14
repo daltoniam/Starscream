@@ -8,20 +8,19 @@
 
 /* Begin PBXBuildFile section */
 		091277A11BD673A70003036D /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 091277971BD673A70003036D /* Starscream.framework */; };
-		5C06AE8F1B08050D00D41060 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
-		5C06AE901B08050D00D41060 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
-		5CADAB2A1BEAC5CF005DE2F0 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
-		5CADAB2B1BEAC5CF005DE2F0 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */; };
-		5CADAB2C1BEAC5DA005DE2F0 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5C1360021C473BEF00AA3A01 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
+		5C1360031C473BEF00AA3A01 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
+		5C1360041C473BEF00AA3A01 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
+		5C1360051C473BEF00AA3A01 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5C1360061C473BEF00AA3A01 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5C1360071C473BEF00AA3A01 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5C1360081C473BEF00AA3A01 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1360011C473BEF00AA3A01 /* WebSocket.swift */; };
+		5C1360091C473BEF00AA3A01 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1360011C473BEF00AA3A01 /* WebSocket.swift */; };
+		5C13600A1C473BEF00AA3A01 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1360011C473BEF00AA3A01 /* WebSocket.swift */; };
 		5CADAB511BEBD068005DE2F0 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
 		6B3E7A0319D48C2F006071F7 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
-		6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
-		6B3E7A0719D48C5F006071F7 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		72F288E31BFA4EF10067F7F6 /* Info-tvOS.plist in Resources */ = {isa = PBXBuildFile; fileRef = 72F288E21BFA4EF10067F7F6 /* Info-tvOS.plist */; };
 		D9C3E36A19E48FF1009FC285 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C3E35F19E48FF1009FC285 /* Starscream.framework */; };
 		D9C3E37819E4903F009FC285 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */; };
-		D9C3E37919E49051009FC285 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 6B3E7A0619D48C5F006071F7 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D9C3E37A19E49058009FC285 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3E7A0419D48C41006071F7 /* WebSocket.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,15 +43,15 @@
 /* Begin PBXFileReference section */
 		091277971BD673A70003036D /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		091277A01BD673A70003036D /* StarscreamTvTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamTvTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLSecurity.swift; sourceTree = SOURCE_ROOT; };
+		5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SSLSecurity.swift; path = Source/SSLSecurity.swift; sourceTree = SOURCE_ROOT; };
+		5C1360001C473BEF00AA3A01 /* Starscream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Starscream.h; path = Source/Starscream.h; sourceTree = SOURCE_ROOT; };
+		5C1360011C473BEF00AA3A01 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WebSocket.swift; path = Source/WebSocket.swift; sourceTree = SOURCE_ROOT; };
+		5C13600B1C473BFE00AA3A01 /* Info-tvOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-tvOS.plist"; path = "Source/Info-tvOS.plist"; sourceTree = SOURCE_ROOT; };
+		5C13600C1C473BFE00AA3A01 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Source/Info.plist; sourceTree = SOURCE_ROOT; };
 		6B3E79E619D48B7F006071F7 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6B3E79EA19D48B7F006071F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6B3E79F119D48B7F006071F7 /* StarscreamTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B3E7A0019D48C2F006071F7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6B3E7A0119D48C2F006071F7 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarscreamTests.swift; sourceTree = "<group>"; };
-		6B3E7A0419D48C41006071F7 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocket.swift; sourceTree = SOURCE_ROOT; };
-		6B3E7A0619D48C5F006071F7 /* Starscream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Starscream.h; sourceTree = SOURCE_ROOT; };
-		72F288E21BFA4EF10067F7F6 /* Info-tvOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-tvOS.plist"; sourceTree = SOURCE_ROOT; };
 		D9C3E35F19E48FF1009FC285 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C3E36919E48FF1009FC285 /* StarscreamOSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarscreamOSXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -130,9 +129,9 @@
 		6B3E79E819D48B7F006071F7 /* Starscream */ = {
 			isa = PBXGroup;
 			children = (
-				6B3E7A0419D48C41006071F7 /* WebSocket.swift */,
-				5C06AE8E1B08050D00D41060 /* SSLSecurity.swift */,
-				6B3E7A0619D48C5F006071F7 /* Starscream.h */,
+				5C1360001C473BEF00AA3A01 /* Starscream.h */,
+				5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */,
+				5C1360011C473BEF00AA3A01 /* WebSocket.swift */,
 				6B3E79E919D48B7F006071F7 /* Supporting Files */,
 			);
 			path = Starscream;
@@ -141,8 +140,8 @@
 		6B3E79E919D48B7F006071F7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				72F288E21BFA4EF10067F7F6 /* Info-tvOS.plist */,
-				6B3E79EA19D48B7F006071F7 /* Info.plist */,
+				5C13600B1C473BFE00AA3A01 /* Info-tvOS.plist */,
+				5C13600C1C473BFE00AA3A01 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -163,7 +162,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5CADAB2C1BEAC5DA005DE2F0 /* Starscream.h in Headers */,
+				5C1360071C473BEF00AA3A01 /* Starscream.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,7 +170,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6B3E7A0719D48C5F006071F7 /* Starscream.h in Headers */,
+				5C1360051C473BEF00AA3A01 /* Starscream.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,7 +178,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9C3E37919E49051009FC285 /* Starscream.h in Headers */,
+				5C1360061C473BEF00AA3A01 /* Starscream.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,7 +364,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				72F288E31BFA4EF10067F7F6 /* Info-tvOS.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,8 +395,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5CADAB2A1BEAC5CF005DE2F0 /* WebSocket.swift in Sources */,
-				5CADAB2B1BEAC5CF005DE2F0 /* SSLSecurity.swift in Sources */,
+				5C13600A1C473BEF00AA3A01 /* WebSocket.swift in Sources */,
+				5C1360041C473BEF00AA3A01 /* SSLSecurity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,8 +412,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6B3E7A0519D48C41006071F7 /* WebSocket.swift in Sources */,
-				5C06AE8F1B08050D00D41060 /* SSLSecurity.swift in Sources */,
+				5C1360081C473BEF00AA3A01 /* WebSocket.swift in Sources */,
+				5C1360021C473BEF00AA3A01 /* SSLSecurity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,8 +429,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9C3E37A19E49058009FC285 /* WebSocket.swift in Sources */,
-				5C06AE901B08050D00D41060 /* SSLSecurity.swift in Sources */,
+				5C1360091C473BEF00AA3A01 /* WebSocket.swift in Sources */,
+				5C1360031C473BEF00AA3A01 /* SSLSecurity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -472,7 +470,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "Info-tvOS.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Source/Info-tvOS.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.Starscream;
@@ -497,7 +495,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "Info-tvOS.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Source/Info-tvOS.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.Starscream;
@@ -514,7 +512,7 @@
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.StarscreamTvTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -529,7 +527,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vluxe.StarscreamTvTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -635,7 +633,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -659,7 +657,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -716,7 +714,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -738,7 +736,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;

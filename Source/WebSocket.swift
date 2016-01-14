@@ -111,9 +111,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public var selfSignedSSL = false
     public var security: SSLSecurity?
     public var enabledSSLCipherSuites: [SSLCipherSuite]?
+    public var origin: String?
     public var isConnected :Bool {
         return connected
     }
+    public var currentURL: NSURL {return url}
     private var url: NSURL
     private var inputStream: NSInputStream?
     private var outputStream: NSOutputStream?
@@ -130,6 +132,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     //used for setting protocols.
     public init(url: NSURL, protocols: [String]? = nil) {
         self.url = url
+        self.origin = url.absoluteString
         writeQueue.maxConcurrentOperationCount = 1
         optionalProtocols = protocols
     }
@@ -211,7 +214,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
         addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
         addHeader(urlRequest, key: headerWSKeyName, val: generateWebSocketKey())
-        addHeader(urlRequest, key: headerOriginName, val: url.absoluteString)
+        if let origin = origin {
+            addHeader(urlRequest, key: headerOriginName, val: origin)
+        }
         addHeader(urlRequest, key: headerWSHostName, val: "\(url.host!):\(port!)")
         for (key,value) in headers {
             addHeader(urlRequest, key: key, val: value)
