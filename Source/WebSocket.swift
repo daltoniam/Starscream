@@ -115,6 +115,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public var isConnected :Bool {
         return connected
     }
+    public var currentURL: NSURL {return url}
     private var url: NSURL
     private var inputStream: NSInputStream?
     private var outputStream: NSOutputStream?
