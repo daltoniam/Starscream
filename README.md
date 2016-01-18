@@ -4,13 +4,10 @@ Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6
 
 It's Objective-C counter part can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
 
-This is written Swift 2. (the latest). If you need older legecy support checkout the Swift-1.2 branch [here](https://github.com/daltoniam/Starscream/tree/swift-1.2).
-
 ## Features
 
 - Conforms to all of the base [Autobahn test suite](http://autobahn.ws/testsuite/).
 - Nonblocking. Everything happens in the background, thanks to GCD.
-- Simple delegate pattern design.
 - TLS/WSS support.
 - Simple concise codebase at just a few hundred LOC.
 
@@ -22,10 +19,10 @@ First thing is to import the framework. See the Installation instructions on how
 import Starscream
 ```
 
-Once imported, you can open a connection to your WebSocket server. Note that `socket` is probably best as a property, so your delegate can stick around.
+Once imported, you can open a connection to your WebSocket server. Note that `socket` is probably best as a property, so it doesn't get deallocated right after being setup.
 
 ```swift
-var socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!)
+socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!)
 socket.delegate = self
 socket.connect()
 ```
@@ -85,7 +82,7 @@ func websocketDidReceivePong(socket: WebSocket) {
 Or you can use closures.
 
 ```swift
-var socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!)
+socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!)
 //websocketDidConnect
 socket.onConnect = {
     println("websocket is connected")
@@ -114,7 +111,7 @@ socket.connect()
 The writeData method gives you a simple way to send `NSData` (binary) data to the server.
 
 ```swift
-self.socket.writeData(data) //write some NSData over the socket!
+socket.writeData(data) //write some NSData over the socket!
 ```
 
 ### writeString
@@ -122,7 +119,7 @@ self.socket.writeData(data) //write some NSData over the socket!
 The writeString method is the same as writeData, but sends text/string.
 
 ```swift
-self.socket.writeString("Hi Server!") //example on how to write text over the socket!
+socket.writeString("Hi Server!") //example on how to write text over the socket!
 ```
 
 ### writePing
@@ -130,7 +127,7 @@ self.socket.writeString("Hi Server!") //example on how to write text over the so
 The writePing method is the same as writeData, but sends a ping control frame.
 
 ```swift
-self.socket.writePing(NSData()) //example on how to write a ping control frame over the socket!
+socket.writePing(NSData()) //example on how to write a ping control frame over the socket!
 ```
 
 ### disconnect
@@ -138,7 +135,7 @@ self.socket.writePing(NSData()) //example on how to write a ping control frame o
 The disconnect method does what you would expect and closes the socket.
 
 ```swift
-self.socket.disconnect()
+socket.disconnect()
 ```
 
 ### isConnected
@@ -146,7 +143,7 @@ self.socket.disconnect()
 Returns if the socket is connected or not.
 
 ```swift
-if self.socket.isConnected {
+if socket.isConnected {
   // do cool stuff.
 }
 ```
@@ -167,7 +164,7 @@ If you need to specify a protocol, simple add it to the init:
 
 ```swift
 //chat and superchat are the example protocols here
-var socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
+socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
 socket.delegate = self
 socket.connect()
 ```
@@ -177,7 +174,7 @@ socket.connect()
 There are a couple of other properties that modify the stream:
 
 ```swift
-var socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
+socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
 
 //set this if you are planning on using the socket in a VOIP background setting (using the background VOIP service).
 socket.voipEnabled = true
@@ -191,7 +188,7 @@ socket.selfSignedSSL = true
 SSL Pinning is also supported in Starscream. 
 
 ```swift
-var socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
+socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
 let data = ... //load your certificate from disk
 socket.security = SSLSecurity(certs: [SSLCert(data: data)], usePublicKeys: true)
 //socket.security = SSLSecurity() //uses the .cer files in your app's bundle
@@ -203,7 +200,7 @@ You load either a `NSData` blob of your certificate or you can use a `SecKeyRef`
 A custom queue can be specified when delegate methods are called. By default `dispatch_get_main_queue` is used, thus making all delegate methods calls run on the main thread. It is important to note that all WebSocket processing is done on a background thread, only the delegate method calls are changed when modifying the queue. The actual processing is always on a background thread and will not pause your app.
 
 ```swift
-var socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
+socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
 //create a custom queue
 socket.queue = dispatch_queue_create("com.vluxe.starscream.myapp", nil)
 ```
@@ -225,10 +222,10 @@ Check out [Get Started](http://cocoapods.org/) tab on [cocoapods.org](http://coc
 To use Starscream in your project add the following 'Podfile' to your project
 
 	source 'https://github.com/CocoaPods/Specs.git'
-	platform :ios, '8.0'
+	platform :ios, '9.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 1.0.0'
+	pod 'Starscream', '~> 1.1.1'
 
 Then run:
 
@@ -250,7 +247,7 @@ $ brew install carthage
 To integrate Starscream into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```
-github "daltoniam/Starscream" >= 1.0.0
+github "daltoniam/Starscream" >= 1.1.1
 ```
 
 ### Rogue
@@ -277,8 +274,9 @@ If you are running this in an OSX app or on a physical iOS device you will need 
 
 ## TODOs
 
-- [ ] WatchOS
-- [ ] Add Unit Tests
+- [ ] WatchOS?
+- [ ] Linux Support?
+- [ ] Add Unit Tests - Local Swift websocket server
 
 ## License
 
