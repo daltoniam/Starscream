@@ -393,7 +393,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 s.onConnect?()
                 s.delegate?.websocketDidConnect(s)
             }
-        case -1: break //do nothing, we are going to collect more data
+        case -1:
+            fragBuffer = NSData(bytes: buffer, length: bufferLen)
+            break //do nothing, we are going to collect more data
         default:
             doDisconnect(errorWithDetail("Invalid HTTP upgrade", code: UInt16(code)))
         }
