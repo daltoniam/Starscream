@@ -771,6 +771,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     
     deinit {
+        outputStream?.delegate = nil
+        inputStream?.delegate = nil
         if let stream = inputStream {
             CFReadStreamSetDispatchQueue(stream, nil)
             stream.close()
