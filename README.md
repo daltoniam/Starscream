@@ -35,7 +35,7 @@ websocketDidConnect is called as soon as the client connects to the server.
 
 ```swift
 func websocketDidConnect(socket: WebSocket) {
-    println("websocket is connected")
+    print("websocket is connected")
 }
 ```
 
@@ -45,7 +45,7 @@ websocketDidDisconnect is called as soon as the client is disconnected from the 
 
 ```swift
 func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
-	println("websocket is disconnected: \(error?.localizedDescription)")
+	print("websocket is disconnected: \(error?.localizedDescription)")
 }
 ```
 
@@ -55,7 +55,7 @@ websocketDidReceiveMessage is called when the client gets a text frame from the 
 
 ```swift
 func websocketDidReceiveMessage(socket: WebSocket, text: String) {
-	println("got some text: \(text)")
+	print("got some text: \(text)")
 }
 ```
 
@@ -65,7 +65,7 @@ websocketDidReceiveData is called when the client gets a binary frame from the c
 
 ```swift
 func websocketDidReceiveData(socket: WebSocket, data: NSData) {
-	println("got some data: \(data.length)")
+	print("got some data: \(data.length)")
 }
 ```
 
@@ -75,7 +75,7 @@ websocketDidReceivePong is called when the client gets a pong response from the 
 
 ```swift
 func websocketDidReceivePong(socket: WebSocket) {
-	println("Got pong!")
+	print("Got pong!")
 }
 ```
 
@@ -85,19 +85,19 @@ Or you can use closures.
 socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!)
 //websocketDidConnect
 socket.onConnect = {
-    println("websocket is connected")
+    print("websocket is connected")
 }
 //websocketDidDisconnect
 socket.onDisconnect = { (error: NSError?) in
-    println("websocket is disconnected: \(error?.localizedDescription)")
+    print("websocket is disconnected: \(error?.localizedDescription)")
 }
 //websocketDidReceiveMessage
 socket.onText = { (text: String) in
-    println("got some text: \(text)")
+    print("got some text: \(text)")
 }
 //websocketDidReceiveData
 socket.onData = { (data: NSData) in
-    println("got some data: \(data.length)")
+    print("got some data: \(data.length)")
 }
 //you could do onPong as well.
 socket.connect()
