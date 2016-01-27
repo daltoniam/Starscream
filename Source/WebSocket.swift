@@ -700,6 +700,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
         let buffer = UnsafeMutablePointer<UInt8>(buf!.bytes)
         WebSocket.writeUint16(buffer, offset: 0, value: code)
         dequeueWrite(NSData(bytes: buffer, length: sizeof(UInt16)), code: .ConnectionClose)
+        
+        inputStream?.close()
+        outputStream?.close()
     }
     ///used to write things to the stream
     private func dequeueWrite(data: NSData, code: OpCode) {
