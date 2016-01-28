@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D9C3E35E19E48FF1009FC285"
                BuildableName = "Starscream.framework"
-               BlueprintName = "StarscreamOSX"
+               BlueprintName = "Starscream OSX"
                ReferencedContainer = "container:Starscream.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,8 +29,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D9C3E36819E48FF1009FC285"
-               BuildableName = "StarscreamOSXTests.xctest"
-               BlueprintName = "StarscreamOSXTests"
+               BuildableName = "Starscream OSXTests.xctest"
+               BlueprintName = "Starscream OSXTests"
                ReferencedContainer = "container:Starscream.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,8 +47,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D9C3E36819E48FF1009FC285"
-               BuildableName = "StarscreamOSXTests.xctest"
-               BlueprintName = "StarscreamOSXTests"
+               BuildableName = "Starscream OSXTests.xctest"
+               BlueprintName = "Starscream OSXTests"
                ReferencedContainer = "container:Starscream.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -58,7 +58,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D9C3E35E19E48FF1009FC285"
             BuildableName = "Starscream.framework"
-            BlueprintName = "StarscreamOSX"
+            BlueprintName = "Starscream OSX"
             ReferencedContainer = "container:Starscream.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -80,7 +80,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D9C3E35E19E48FF1009FC285"
             BuildableName = "Starscream.framework"
-            BlueprintName = "StarscreamOSX"
+            BlueprintName = "Starscream OSX"
             ReferencedContainer = "container:Starscream.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -98,7 +98,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D9C3E35E19E48FF1009FC285"
             BuildableName = "Starscream.framework"
-            BlueprintName = "StarscreamOSX"
+            BlueprintName = "Starscream OSX"
             ReferencedContainer = "container:Starscream.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

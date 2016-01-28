@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6B3E79E519D48B7F006071F7"
-               BuildableName = "Starscream.framework"
-               BlueprintName = "Starscream"
+               BuildableName = "Starscream iOS.framework"
+               BlueprintName = "Starscream iOS"
                ReferencedContainer = "container:Starscream.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,8 +46,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6B3E79E519D48B7F006071F7"
-            BuildableName = "Starscream.framework"
-            BlueprintName = "Starscream"
+            BuildableName = "Starscream iOS.framework"
+            BlueprintName = "Starscream iOS"
             ReferencedContainer = "container:Starscream.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -64,8 +64,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6B3E79E519D48B7F006071F7"
-            BuildableName = "Starscream.framework"
-            BlueprintName = "Starscream"
+            BuildableName = "Starscream iOS.framework"
+            BlueprintName = "Starscream iOS"
             ReferencedContainer = "container:Starscream.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
