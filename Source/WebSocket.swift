@@ -301,6 +301,11 @@ public class WebSocket : NSObject, NSStreamDelegate {
         CFWriteStreamSetDispatchQueue(outStream, WebSocket.sharedWorkQueue)
         inStream.open()
         outStream.open()
+        
+        self.mutex.lock()
+        self.readyToWrite = true
+        self.mutex.unlock()
+        
         let bytes = UnsafePointer<UInt8>(data.bytes)
         var timeout = 5000000 //wait 5 seconds before giving up
         writeQueue.addOperationWithBlock { [unowned self] in
@@ -308,16 +313,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 usleep(100) //wait until the socket is ready
                 timeout -= 100
                 if timeout < 0 {
-                    self.disconnectStream(self.errorWithDetail("write wait timed out", code: 2))
+                    self.cleanupStream()
+                    self.doDisconnect(self.errorWithDetail("write wait timed out", code: 2))
                     return
-                } else if let error = outStream.streamError {
-                    self.disconnectStream(error)
-                    return
+                } else if outStream.streamError != nil {
+                    return //disconnectStream will be called.
                 }
             }
-            self.mutex.lock()
-            self.readyToWrite = true
-            self.mutex.unlock()
             outStream.write(bytes, maxLength: data.length)
         }
     }
@@ -350,6 +352,13 @@ public class WebSocket : NSObject, NSStreamDelegate {
     //disconnect the stream object
     private func disconnectStream(error: NSError?) {
         writeQueue.waitUntilAllOperationsAreFinished()
+        cleanupStream()
+        doDisconnect(error)
+    }
+    
+    private func cleanupStream() {
+        outputStream?.delegate = nil
+        inputStream?.delegate = nil
         if let stream = inputStream {
             CFReadStreamSetDispatchQueue(stream, nil)
             stream.close()
@@ -357,10 +366,9 @@ public class WebSocket : NSObject, NSStreamDelegate {
         if let stream = outputStream {
             CFWriteStreamSetDispatchQueue(stream, nil)
             stream.close()
-        }        
+        }
         outputStream = nil
-        certValidated = false
-        doDisconnect(error)
+        inputStream = nil
     }
     
     ///handles the incoming bytes and sending them to the proper processing method
@@ -800,18 +808,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         mutex.lock()
         readyToWrite = false
         mutex.unlock()
-        outputStream?.delegate = nil
-        inputStream?.delegate = nil
-        if let stream = inputStream {
-            CFReadStreamSetDispatchQueue(stream, nil)
-            stream.close()
-        }
-        if let stream = outputStream {
-            CFWriteStreamSetDispatchQueue(stream, nil)
-            stream.close()
-        }
-        outputStream = nil
-        inputStream = nil
+        cleanupStream()
     }
     
 }
