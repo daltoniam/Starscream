@@ -167,7 +167,7 @@ public class SSLSecurity {
                 for serverCert in serverCerts {
                     for cert in certs {
                         if cert == serverCert {
-                            trustedCount++
+                            trustedCount += 1
                             break
                         }
                     }
