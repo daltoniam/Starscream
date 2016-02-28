@@ -180,23 +180,37 @@ public class WebSocket : NSObject, NSStreamDelegate {
         }
     }
     
-    ///write a string to the websocket. This sends it as a text frame.
-    public func writeString(str: String) {
+    /**
+     Write a string to the websocket. This sends it as a text frame.
+     
+     If you supply a non-nil completion block, I will perform it when the write completes.
+
+     - parameter str:        The string to write.
+     - parameter completion: The (optional) completion handler.
+     */
+    public func writeString(str: String, completion: (() -> ())? = nil) {
         guard isConnected else { return }
-        dequeueWrite(str.dataUsingEncoding(NSUTF8StringEncoding)!, code: .TextFrame)
+        dequeueWrite(str.dataUsingEncoding(NSUTF8StringEncoding)!, code: .TextFrame, writeCompletion: completion)
     }
-    
-    ///write binary data to the websocket. This sends it as a binary frame.
-    public func writeData(data: NSData) {
+
+    /**
+     Write binary data to the websocket. This sends it as a binary frame.
+     
+     If you supply a non-nil completion block, I will perform it when the write completes.
+
+     - parameter data:       The data to write.
+     - parameter completion: The (optional) completion handler.
+     */
+    public func writeData(data: NSData, completion: (() -> ())? = nil) {
         guard isConnected else { return }
-        dequeueWrite(data, code: .BinaryFrame)
+        dequeueWrite(data, code: .BinaryFrame, writeCompletion: completion)
     }
     
     //write a   ping   to the websocket. This sends it as a  control frame.
     //yodel a   sound  to the planet.    This sends it as an astroid. http://youtu.be/Eu5ZJELRiJ8?t=42s
-    public func writePing(data: NSData) {
+    public func writePing(data: NSData, completion: (() -> ())? = nil) {
         guard isConnected else { return }
-        dequeueWrite(data, code: .Ping)
+        dequeueWrite(data, code: .Ping, writeCompletion: completion)
     }
 
     //private method that starts the connection
@@ -739,7 +753,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
         dequeueWrite(NSData(bytes: buffer, length: sizeof(UInt16)), code: .ConnectionClose)
     }
     ///used to write things to the stream
-    private func dequeueWrite(data: NSData, code: OpCode) {
+    private func dequeueWrite(data: NSData, code: OpCode, writeCompletion: (() -> ())? = nil) {
         writeQueue.addOperationWithBlock { [weak self] in
             //stream isn't ready, let's wait
             guard let s = self else { return }
@@ -788,6 +802,12 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     total += len
                 }
                 if total >= offset {
+                    if let queue = self?.queue, callback = writeCompletion {
+                        dispatch_async(queue) {
+                            callback()
+                        }
+                    }
+
                     break
                 }
             }
