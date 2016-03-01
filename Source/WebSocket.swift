@@ -603,7 +603,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
             if dataLength > UInt64(bufferLen) {
                 len = UInt64(bufferLen-offset)
             }
-            var data: NSData!
+            let data: NSData
             if len < 0 {
                 len = 0
                 data = NSData()
