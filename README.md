@@ -225,7 +225,7 @@ To use Starscream in your project add the following 'Podfile' to your project
 	platform :ios, '9.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 1.1.1'
+	pod 'Starscream', '~> 1.1.3'
 
 Then run:
 
@@ -247,7 +247,7 @@ $ brew install carthage
 To integrate Starscream into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```
-github "daltoniam/Starscream" >= 1.1.1
+github "daltoniam/Starscream" >= 1.1.3
 ```
 
 ### Rogue
