@@ -112,6 +112,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     public var security: SSLSecurity?
     public var enabledSSLCipherSuites: [SSLCipherSuite]?
     public var origin: String?
+    public var timeout = 5
     public var isConnected :Bool {
         return connected
     }
@@ -321,12 +322,12 @@ public class WebSocket : NSObject, NSStreamDelegate {
         self.mutex.unlock()
         
         let bytes = UnsafePointer<UInt8>(data.bytes)
-        var timeout = 5000000 //wait 5 seconds before giving up
+        var out = timeout * 1000000 //wait 5 seconds before giving up
         writeQueue.addOperationWithBlock { [weak self] in
             while !outStream.hasSpaceAvailable {
                 usleep(100) //wait until the socket is ready
-                timeout -= 100
-                if timeout < 0 {
+                out -= 100
+                if out < 0 {
                     self?.cleanupStream()
                     self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: 2))
                     return
