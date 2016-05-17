@@ -407,25 +407,24 @@ public class WebSocket : NSObject, NSStreamDelegate {
     }
     ///dequeue the incoming input so it is processed in order
     private func dequeueInput() {
-        guard !inputQueue.isEmpty else { return }
-        
-        let data = inputQueue[0]
-        var work = data
-        if let fragBuffer = fragBuffer {
-            let combine = NSMutableData(data: fragBuffer)
-            combine.appendData(data)
-            work = combine
-            self.fragBuffer = nil
+        while !inputQueue.isEmpty {
+            let data = inputQueue[0]
+            var work = data
+            if let fragBuffer = fragBuffer {
+                let combine = NSMutableData(data: fragBuffer)
+                combine.appendData(data)
+                work = combine
+                self.fragBuffer = nil
+            }
+            let buffer = UnsafePointer<UInt8>(work.bytes)
+            let length = work.length
+            if !connected {
+                processTCPHandshake(buffer, bufferLen: length)
+            } else {
+                processRawMessagesInBuffer(buffer, bufferLen: length)
+            }
+            inputQueue = inputQueue.filter{$0 != data}
         }
-        let buffer = UnsafePointer<UInt8>(work.bytes)
-        let length = work.length
-        if !connected {
-            processTCPHandshake(buffer, bufferLen: length)
-        } else {
-            processRawMessagesInBuffer(buffer, bufferLen: length)
-        }
-        inputQueue = inputQueue.filter{$0 != data}
-        dequeueInput()
     }
     
     //handle checking the inital connection status
