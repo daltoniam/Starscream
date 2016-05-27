@@ -25,6 +25,7 @@ import Security
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
+public let WebsocketDisconnectionErrorKeyName = "WebsocketDisconnectionErrorKeyName"
 
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocket)
@@ -822,7 +823,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
             guard let s = self else { return }
             s.onDisconnect?(error)
             s.delegate?.websocketDidDisconnect(s, error: error)
-            s.notificationCenter.postNotificationName(WebsocketDidDisconnectNotification, object: self)
+            let userInfo = error.map({ [WebsocketDisconnectionErrorKeyName: $0] })
+            s.notificationCenter.postNotificationName(WebsocketDidDisconnectNotification, object: self, userInfo: userInfo)
         }
     }
     
