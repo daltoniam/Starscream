@@ -103,6 +103,8 @@ socket.onData = { (data: NSData) in
 socket.connect()
 ```
 
+One more: you can listen to socket connection and disconnection via notifications. Starscream posts `WebsocketDidConnectNotification` and `WebsocketDidDisconnectNotification`. You can find an `NSError` that caused the disconection by accessing `WebsocketDisconnectionErrorKeyName` on notification `userInfo`.
+
 
 ## The delegate methods give you a simple way to handle data from the server, but how do you send data?
 
