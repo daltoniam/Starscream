@@ -133,6 +133,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
     private var certValidated = false
     private var didDisconnect = false
     private var readyToWrite = false
+    // proxy support
+    private var proxyConnect:ProxyConnect?
     private let mutex = NSLock()
     private let notificationCenter = NSNotificationCenter.defaultCenter()
     private var canDispatch: Bool {
@@ -157,10 +159,66 @@ public class WebSocket : NSObject, NSStreamDelegate {
         guard !isCreated else { return }
         didDisconnect = false
         isCreated = true
-        createHTTPRequest()
-        isCreated = false
+        proxyConnect = ProxyConnect(url: url)
+        proxyConnect?.openNetworkStream() {
+            [weak self](error : NSError?, readStream: NSInputStream?, writeStream: NSOutputStream?) in
+            guard let s = self else { return }
+            s.handleConnectionDone(error, readStream: readStream, writeStream: writeStream)
+            //createHTTPRequest()
+            s.isCreated = false
+        }
     }
 
+    private func handleConnectionDone(err: NSError?, readStream: NSInputStream?, writeStream: NSOutputStream?) {
+        proxyConnect = nil      // no need for it anymore
+        if err != nil {
+            disconnectStream(err)
+            return
+        }
+        inputStream = readStream
+        outputStream = writeStream
+        guard let inStream = inputStream, let outStream = outputStream else { return }
+        inStream.delegate = self
+        outStream.delegate = self
+        if ["wss", "https"].contains(url.scheme) {
+            inStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+            outStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+        } else {
+            certValidated = true //not a https session, so no need to check SSL pinning
+        }
+        if voipEnabled {
+            inStream.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
+            outStream.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
+        }
+        if selfSignedSSL {
+            let settings: [NSObject: NSObject] = [kCFStreamSSLValidatesCertificateChain: NSNumber(bool:false), kCFStreamSSLPeerName: kCFNull]
+            inStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as String)
+            outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as String)
+        }
+        if let cipherSuites = self.enabledSSLCipherSuites {
+            if let sslContextIn = CFReadStreamCopyProperty(inputStream, kCFStreamPropertySSLContext) as! SSLContextRef?,
+                   sslContextOut = CFWriteStreamCopyProperty(outputStream, kCFStreamPropertySSLContext) as! SSLContextRef? {
+                let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
+                let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
+                if resIn != errSecSuccess {
+                    let error = self.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
+                    disconnectStream(error)
+                    return
+                }
+                if resOut != errSecSuccess {
+                    let error = self.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
+                    disconnectStream(error)
+                    return
+                }
+            }
+        }
+        CFReadStreamSetDispatchQueue(inStream, WebSocket.sharedWorkQueue)
+        CFWriteStreamSetDispatchQueue(outStream, WebSocket.sharedWorkQueue)
+        self.mutex.lock()
+        self.readyToWrite = true
+        self.mutex.unlock()
+        didConnect()
+    }
     /**
      Disconnect from the server. I send a Close control frame to the server, then expect the server to respond with a Close control frame and close the socket from its end. I notify my delegate once the socket has been closed.
      
@@ -218,40 +276,6 @@ public class WebSocket : NSObject, NSStreamDelegate {
         guard isConnected else { return }
         dequeueWrite(data, code: .Ping, writeCompletion: completion)
     }
-
-    //private method that starts the connection
-    private func createHTTPRequest() {
-        
-        let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "GET",
-            url, kCFHTTPVersion1_1).takeRetainedValue()
-        
-        var port = url.port
-        if port == nil {
-            if ["wss", "https"].contains(url.scheme) {
-                port = 443
-            } else {
-                port = 80
-            }
-        }
-        addHeader(urlRequest, key: headerWSUpgradeName, val: headerWSUpgradeValue)
-        addHeader(urlRequest, key: headerWSConnectionName, val: headerWSConnectionValue)
-        if let protocols = optionalProtocols {
-            addHeader(urlRequest, key: headerWSProtocolName, val: protocols.joinWithSeparator(","))
-        }
-        addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
-        addHeader(urlRequest, key: headerWSKeyName, val: generateWebSocketKey())
-        if let origin = origin {
-            addHeader(urlRequest, key: headerOriginName, val: origin)
-        }
-        addHeader(urlRequest, key: headerWSHostName, val: "\(url.host!):\(port!)")
-        for (key,value) in headers {
-            addHeader(urlRequest, key: key, val: value)
-        }
-        if let cfHTTPMessage = CFHTTPMessageCopySerializedMessage(urlRequest) {
-            let serializedRequest = cfHTTPMessage.takeRetainedValue()
-            initStreamsWithData(serializedRequest, Int(port!))
-        }
-    }
     
     //Add a header to the CFHTTPMessage by using the NSString bridges to CFString
     private func addHeader(urlRequest: CFHTTPMessage, key: NSString, val: NSString) {
@@ -271,78 +295,6 @@ public class WebSocket : NSObject, NSStreamDelegate {
         return baseKey!
     }
     
-    //Start the stream connection and write the data to the output stream
-    private func initStreamsWithData(data: NSData, _ port: Int) {
-        //higher level API we will cut over to at some point
-        //NSStream.getStreamsToHostWithName(url.host, port: url.port.integerValue, inputStream: &inputStream, outputStream: &outputStream)
-        
-        var readStream: Unmanaged<CFReadStream>?
-        var writeStream: Unmanaged<CFWriteStream>?
-        let h: NSString = url.host!
-        CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
-        inputStream = readStream!.takeRetainedValue()
-        outputStream = writeStream!.takeRetainedValue()
-        guard let inStream = inputStream, let outStream = outputStream else { return }
-        inStream.delegate = self
-        outStream.delegate = self
-        if ["wss", "https"].contains(url.scheme) {
-            inStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
-            outStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
-        } else {
-            certValidated = true //not a https session, so no need to check SSL pinning
-        }
-        if voipEnabled {
-            inStream.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
-            outStream.setProperty(NSStreamNetworkServiceTypeVoIP, forKey: NSStreamNetworkServiceType)
-        }
-        if selfSignedSSL {
-            let settings: [NSObject: NSObject] = [kCFStreamSSLValidatesCertificateChain: NSNumber(bool:false), kCFStreamSSLPeerName: kCFNull]
-            inStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as String)
-            outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as String)
-        }
-        if let cipherSuites = self.enabledSSLCipherSuites {
-            if let sslContextIn = CFReadStreamCopyProperty(inputStream, kCFStreamPropertySSLContext) as! SSLContextRef?,
-                   sslContextOut = CFWriteStreamCopyProperty(outputStream, kCFStreamPropertySSLContext) as! SSLContextRef? {
-                let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
-                let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
-                if resIn != errSecSuccess {
-                    let error = self.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
-                    disconnectStream(error)
-                    return
-                }
-                if resOut != errSecSuccess {
-                    let error = self.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
-                    disconnectStream(error)
-                    return
-                }
-            }
-        }
-        CFReadStreamSetDispatchQueue(inStream, WebSocket.sharedWorkQueue)
-        CFWriteStreamSetDispatchQueue(outStream, WebSocket.sharedWorkQueue)
-        inStream.open()
-        outStream.open()
-        
-        self.mutex.lock()
-        self.readyToWrite = true
-        self.mutex.unlock()
-        
-        let bytes = UnsafePointer<UInt8>(data.bytes)
-        var out = timeout * 1000000 //wait 5 seconds before giving up
-        writeQueue.addOperationWithBlock { [weak self] in
-            while !outStream.hasSpaceAvailable {
-                usleep(100) //wait until the socket is ready
-                out -= 100
-                if out < 0 {
-                    self?.cleanupStream()
-                    self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: 2))
-                    return
-                } else if outStream.streamError != nil {
-                    return //disconnectStream will be called.
-                }
-            }
-            outStream.write(bytes, maxLength: data.length)
-        }
-    }
     //delegate for the stream methods. Processes incoming bytes
     public func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
         
@@ -395,6 +347,55 @@ public class WebSocket : NSObject, NSStreamDelegate {
         inputStream = nil
     }
     
+    ///network connected
+    private func didConnect() {
+        let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "GET",
+                                                    url, kCFHTTPVersion1_1).takeRetainedValue()
+        
+        var port = url.port
+        if port == nil {
+            if ["wss", "https"].contains(url.scheme) {
+                port = 443
+            } else {
+                port = 80
+            }
+        }
+        addHeader(urlRequest, key: headerWSUpgradeName, val: headerWSUpgradeValue)
+        addHeader(urlRequest, key: headerWSConnectionName, val: headerWSConnectionValue)
+        if let protocols = optionalProtocols {
+            addHeader(urlRequest, key: headerWSProtocolName, val: protocols.joinWithSeparator(","))
+        }
+        addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
+        addHeader(urlRequest, key: headerWSKeyName, val: generateWebSocketKey())
+        if let origin = origin {
+            addHeader(urlRequest, key: headerOriginName, val: origin)
+        }
+        addHeader(urlRequest, key: headerWSHostName, val: "\(url.host!):\(port!)")
+        for (key,value) in headers {
+            addHeader(urlRequest, key: key, val: value)
+        }
+        if let cfHTTPMessage = CFHTTPMessageCopySerializedMessage(urlRequest) {
+            let data:NSData = cfHTTPMessage.takeRetainedValue()
+            let bytes = UnsafePointer<UInt8>(data.bytes)
+            var out = timeout * 1000000 //wait 5 seconds before giving up
+            writeQueue.addOperationWithBlock { [weak self] in
+                guard let s = self else { return }
+                guard let outStream = s.outputStream else { return }
+                while !outStream.hasSpaceAvailable {
+                    usleep(100) //wait until the socket is ready
+                    out -= 100
+                    if out < 0 {
+                        self?.cleanupStream()
+                        self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: 2))
+                        return
+                    } else if outStream.streamError != nil {
+                        return //disconnectStream will be called.
+                    }
+                }
+                outStream.write(bytes, maxLength: data.length)
+            }
+        }
+    }
     ///handles the incoming bytes and sending them to the proper processing method
     private func processInputStream() {
         let buf = NSMutableData(capacity: BUFFER_MAX)
