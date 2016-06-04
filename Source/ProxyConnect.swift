@@ -419,7 +419,7 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         didConnect()
     }
     
-    private let proxyEnableLog = true
+    private let proxyEnableLog = false
     private func  ProxyFastLog(msg:String)  {
         if proxyEnableLog {
             NSLog("%@", msg);
