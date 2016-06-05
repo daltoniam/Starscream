@@ -24,23 +24,23 @@ import Security
 
 public class ProxyConnect : NSObject, NSStreamDelegate {
     
-    private var url:NSURL
+    private var url: NSURL
     private var inputStream: NSInputStream?
-    private var outputStream:NSOutputStream?
+    private var outputStream: NSOutputStream?
     
-    private var connectDoneHandler: ((error:NSError?, readStream:NSInputStream?, writeStream:NSOutputStream?) -> (Void))?
+    private var connectDoneHandler: ((error: NSError?, readStream: NSInputStream?, writeStream: NSOutputStream?) -> (Void))?
     
     private var httpProxyHost: NSString?
     private var httpProxyPort = 80
     
-    private var receivedHTTPHeaders:CFHTTPMessage?
+    private var receivedHTTPHeaders: CFHTTPMessage?
     
     private var socksProxyHost: NSString?
-    private var socksProxyPort:Int?
+    private var socksProxyPort: Int?
     private var socksProxyUsername: NSString?
     private var socksProxyPassword: NSString?
     
-    private var secure:Bool = false
+    private var secure: Bool = false
     
     private var inputQueue = [NSData]()
     private var writeQueue = NSOperationQueue()
@@ -50,14 +50,14 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
     private let timeout = 5
     private let BUFFER_MAX              = 4096
     
-    public init(url:NSURL) {
+    public init(url: NSURL) {
         self.url = url;
         if ["wss", "https"].contains(url.scheme) {
             self.secure = true
         }
     }
     
-    public func openNetworkStream(completionHandler:(error:NSError?, readStream:NSInputStream?, writeStream : NSOutputStream?) -> Void) {
+    public func openNetworkStream(completionHandler: (error: NSError?, readStream: NSInputStream?, writeStream: NSOutputStream?) -> Void) {
         connectDoneHandler = completionHandler
         configureProxy()
     }
@@ -80,7 +80,7 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         inputStream?.delegate = nil
         outputStream?.delegate = nil
         if connectDoneHandler != nil {
-            connectDoneHandler!(error:nil, readStream:inputStream, writeStream:outputStream)
+            connectDoneHandler!(error: nil, readStream: inputStream, writeStream: outputStream)
         }
         
     }
@@ -90,7 +90,7 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         var err = error
         if err == nil  {
             err  = NSError(domain: "Proxy", code : Int(500),
-                           userInfo : [NSLocalizedDescriptionKey:"Proxy Error"])
+                           userInfo: [NSLocalizedDescriptionKey:"Proxy Error"])
         }
         
         receivedHTTPHeaders = nil
@@ -108,64 +108,64 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         outputStream = nil
         inputStream = nil
         if connectDoneHandler != nil {
-            connectDoneHandler!(error:err, readStream:nil, writeStream:nil)
+            connectDoneHandler!(error: err, readStream: nil, writeStream: nil)
         }
     }
     
     // get proxy setting from device setting
     private func configureProxy () {
         ProxyFastLog("configureProxy");
-        var hURL:NSURL? = url;
+        var hURL: NSURL? = url;
         if let host = url.host {
             if secure {
-                hURL = NSURL(string : "https://"+host)
+                hURL = NSURL(string: "https://"+host)
             } else {
-                hURL = NSURL(string : "http://"+host)
+                hURL = NSURL(string: "http://"+host)
             }
         }
         if hURL == nil {
             hURL = url
         }
         if let proxySettings: NSDictionary = CFNetworkCopySystemProxySettings()?.takeRetainedValue() {
-            let proxies : NSArray = CFNetworkCopyProxiesForURL(hURL!, proxySettings).takeRetainedValue()
+            let proxies: NSArray = CFNetworkCopyProxiesForURL(hURL!, proxySettings).takeRetainedValue()
             if proxies.count == 0 {
                 ProxyFastLog("configureProxy no proxy")
-                openConnection()
+                initializeStreams()
                 return
             }
             
-            let settings:NSDictionary = proxies[0] as! NSDictionary
+            let settings = proxies[0] as! NSDictionary
             
-            if let proxyType:NSString = settings[(kCFProxyTypeKey as NSString)] as? NSString {
-                if proxyType == (kCFProxyTypeAutoConfigurationURL as NSString)  {
-                    if let pacURL:NSURL = settings[(kCFProxyAutoConfigurationURLKey as NSString)] as? NSURL {
+            if let proxyType: NSString = settings[(kCFProxyTypeKey as NSString)] as? NSString {
+                if proxyType == kCFProxyTypeAutoConfigurationURL  {
+                    if let pacURL: NSURL = settings[(kCFProxyAutoConfigurationURLKey as NSString)] as? NSURL {
                         fetchPAC(pacURL)
                         return
                     }
                 }
-                if proxyType == (kCFProxyTypeAutoConfigurationJavaScript as NSString) {
-                    if let script:NSString = settings[(kCFProxyAutoConfigurationJavaScriptKey as NSString)] as? NSString {
+                if proxyType == kCFProxyTypeAutoConfigurationJavaScript {
+                    if let script: NSString = settings[(kCFProxyAutoConfigurationJavaScriptKey as NSString)] as? NSString {
                         runPACScript(script);
                         return;
                     }
                 }
-                readProxySetting(proxyType, settings:settings)
+                readProxySetting(proxyType, settings: settings)
             }
             
         }
-        openConnection()
+        initializeStreams()
     }
     
-    private func readProxySetting(proxyType: NSString, settings : NSDictionary ){
+    private func readProxySetting(proxyType: NSString, settings: NSDictionary ){
         if proxyType == kCFProxyTypeHTTP || proxyType == kCFProxyTypeHTTPS {
             httpProxyHost = settings[(kCFProxyHostNameKey as NSString)] as? NSString
-            if let portValue:NSNumber = settings[(kCFProxyPortNumberKey as NSString)] as? NSNumber {
+            if let portValue: NSNumber = settings[(kCFProxyPortNumberKey as NSString)] as? NSNumber {
                 httpProxyPort = portValue.integerValue
             }
         }
         if proxyType == kCFProxyTypeSOCKS {
             socksProxyHost = settings[(kCFProxyHostNameKey as NSString)] as? NSString
-            if let portValue:NSNumber = settings[(kCFProxyPortNumberKey as NSString)] as? NSNumber {
+            if let portValue: NSNumber = settings[(kCFProxyPortNumberKey as NSString)] as? NSNumber {
                 socksProxyPort = portValue.integerValue
             }
             socksProxyUsername = settings[(kCFProxyUsernameKey as NSString)] as? NSString
@@ -181,117 +181,119 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
     }
     
     
-    private func fetchPAC(PACurl:NSURL) {
+    private func fetchPAC(PACurl: NSURL) {
         ProxyFastLog("SRWebSocket fetchPAC \(PACurl)")
         
         if PACurl.fileURL {
             do {
-                let script:NSString = try NSString(contentsOfURL:PACurl, usedEncoding:nil)
+                let script: NSString = try NSString(contentsOfURL: PACurl, usedEncoding: nil)
                 runPACScript(script)
             } catch {
-                openConnection()
+                initializeStreams()
             }
             return;
         }
         
-        let scheme:String = PACurl.scheme.lowercaseString
+        let scheme = PACurl.scheme.lowercaseString
         if  scheme != "http" && scheme != "https" {
             // Don't know how to read data from this URL, we'll have to give up
             // We'll simply assume no proxies, and start the request as normal
-            openConnection()
+            initializeStreams()
             return
         }
         
-        let request:NSURLRequest = NSURLRequest(URL:PACurl)
-        let session:NSURLSession = NSURLSession.sharedSession()
-        let task:NSURLSessionDataTask = session.dataTaskWithRequest(request) {
-            [weak self](data:NSData? , response: NSURLResponse?, error : NSError? )  in
+        let request = NSURLRequest(URL:PACurl)
+        let session = NSURLSession.sharedSession()
+        let task = session.dataTaskWithRequest(request) {
+            [weak self](data: NSData? , response: NSURLResponse?, error: NSError? )  in
             if error == nil && data != nil {
-                if let script:NSString = NSString(data:data!, encoding:NSUTF8StringEncoding) {
+                if let script = NSString(data: data!, encoding: NSUTF8StringEncoding) {
                     self?.runPACScript(script)
                     return
                 }
             }
-            self?.openConnection()
+            self?.initializeStreams()
         }
         task.resume()
     }
     
-    private func runPACScript(script:NSString) {
+    private func runPACScript(script: NSString) {
         ProxyFastLog("runPACScript")
         
         // From: http://developer.apple.com/samplecode/CFProxySupportTool/listing1.html
         // Work around <rdar://problem/5530166>.  This dummy call to
         // CFNetworkCopyProxiesForURL initialise some state within CFNetwork
         // that is required by CFNetworkCopyProxiesForAutoConfigurationScript.
-        let empty:NSDictionary = NSDictionary()
+        let empty = NSDictionary()
         CFNetworkCopyProxiesForURL(url, empty).takeRetainedValue()
         
         // Obtain the list of proxies by running the autoconfiguration script
         
         // CFNetworkCopyProxiesForAutoConfigurationScript doesn't understand ws:// or wss://
-        var hURL:NSURL? = url;
+        var hURL: NSURL? = url;
         if let host = url.host {
             if secure {
-                hURL = NSURL(string : "https://"+host)
+                hURL = NSURL(string: "https://"+host)
             } else {
-                hURL = NSURL(string : "http://"+host)
+                hURL = NSURL(string: "http://"+host)
             }
         }
         if hURL == nil {
             hURL = url
         }
         
-        var error : Unmanaged<CFError>?
-        let proxies : NSArray? = CFNetworkCopyProxiesForAutoConfigurationScript(script,hURL!, &error)?.takeRetainedValue()
+        var error: Unmanaged<CFError>?
+        let proxies: NSArray? = CFNetworkCopyProxiesForAutoConfigurationScript(script, hURL!, &error)?.takeRetainedValue()
         if  error != nil || proxies == nil {
-            openConnection()
+            initializeStreams()
             return
         }
         if proxies!.count > 0 {
-            let settings:NSDictionary = proxies![0] as! NSDictionary
-            if let proxyType:NSString = settings[(kCFProxyTypeKey as NSString)] as? NSString {
-                readProxySetting(proxyType, settings:settings)
+            let settings = proxies![0] as! NSDictionary
+            if let proxyType: NSString = settings[(kCFProxyTypeKey as NSString)] as? NSString {
+                readProxySetting(proxyType, settings: settings)
             }
         }
-        openConnection()
-    }
-    
-    private func openConnection (){
         initializeStreams()
     }
     
     private func initializeStreams (){
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
-        if let pHost : NSString = httpProxyHost {
-            CFStreamCreatePairWithSocketToHost(nil, pHost, UInt32(httpProxyPort), &readStream, &writeStream)
+
+        var host: NSString
+        var port: UInt32
+
+        if httpProxyHost != nil {
+            host = httpProxyHost!
+            port =  UInt32(httpProxyPort)
         } else {
-            let h: NSString = url.host!
-            var port = url.port
-            if port == nil {
-                if ["wss", "https"].contains(url.scheme) {
+            host = url.host!
+            if url.port != nil {
+                port = UInt32(url.port!.integerValue)
+            } else {
+                if secure {
                     port = 443
                 } else {
                     port = 80
                 }
             }
-            CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port!.integerValue), &readStream, &writeStream)
         }
+        CFStreamCreatePairWithSocketToHost(nil, host, port, &readStream, &writeStream)
         inputStream = readStream!.takeRetainedValue()
         outputStream = writeStream!.takeRetainedValue()
         guard let inStream = inputStream, let outStream = outputStream else { return }
-        if let sProxy : NSString = socksProxyHost  {
+        if let sProxy: NSString = socksProxyHost  {
             ProxyFastLog("ProxyConnect set sock property stream to \(sProxy):\(socksProxyPort) user \(socksProxyUsername) password \(socksProxyPassword)")
-            let settings:NSMutableDictionary = NSMutableDictionary(capacity:4)
+            let settings: NSMutableDictionary = NSMutableDictionary(capacity:4)
             settings[NSStreamSOCKSProxyHostKey] = sProxy
-            if let sPort:NSNumber = socksProxyPort {
+            if let sPort: NSNumber = socksProxyPort {
                 settings[NSStreamSOCKSProxyPortKey] = sPort
             }
-            if let sName : NSString = socksProxyUsername {
+            if let sName: NSString = socksProxyUsername {
                 settings[NSStreamSOCKSProxyUserKey] = sName
             }
-            if let sPass : NSString = socksProxyPassword {
+            if let sPass: NSString = socksProxyPassword {
                 settings[NSStreamSOCKSProxyPasswordKey] = sPass;
             }
             inputStream!.setProperty(settings, forKey:NSStreamSOCKSProxyConfigurationKey)
@@ -329,10 +331,10 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
     // proxy server connected
     private func proxyDidConnect() {
         ProxyFastLog("Proxy Connected")
-        let h: NSString = url.host!
+        let h = url.host!
         var port = url.port
         if port == nil {
-            if ["wss", "https"].contains(url.scheme) {
+            if secure {
                 port = 443
             } else {
                 port = 80
@@ -342,7 +344,7 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         let connectRequestStr = "CONNECT \(h):\(port!) HTTP/1.1\r\nHost: \(h)\r\nConnection: keep-alive\r\nProxy-Connection: keep-alive\r\n\r\n"
         
         ProxyFastLog("Proxy sending \(connectRequestStr)")
-        if let data:NSData =  connectRequestStr.dataUsingEncoding(NSUTF8StringEncoding) {
+        if let data =  connectRequestStr.dataUsingEncoding(NSUTF8StringEncoding) {
             let bytes = UnsafePointer<UInt8>(data.bytes)
             var out = timeout * 1000000 //wait 5 seconds before giving up
             writeQueue.addOperationWithBlock { [weak self] in
@@ -410,8 +412,8 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         
         if responseCode >= 299 {
             ProxyFastLog("Connect to Proxy Request failed with response code \(responseCode)");
-            let error: NSError  = NSError(domain: "Proxy", code : Int(responseCode),
-                                          userInfo : [NSLocalizedDescriptionKey:"Received bad response code from proxy server: \(responseCode)"])
+            let error: NSError  = NSError(domain: "Proxy", code: Int(responseCode),
+                                          userInfo: [NSLocalizedDescriptionKey:"Received bad response code from proxy server: \(responseCode)"])
             connectionFailed(error)
             return;
         }
@@ -420,7 +422,7 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
     }
     
     private let proxyEnableLog = false
-    private func  ProxyFastLog(msg:String)  {
+    private func  ProxyFastLog(msg: String)  {
         if proxyEnableLog {
             NSLog("%@", msg);
         }
