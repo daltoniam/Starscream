@@ -186,7 +186,7 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         
         if PACurl.fileURL {
             do {
-                let script: NSString = try NSString(contentsOfURL: PACurl, usedEncoding: nil)
+                let script = try NSString(contentsOfURL: PACurl, usedEncoding: nil)
                 runPACScript(script)
             } catch {
                 initializeStreams()
@@ -285,15 +285,15 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         guard let inStream = inputStream, let outStream = outputStream else { return }
         if let sProxy: NSString = socksProxyHost  {
             ProxyFastLog("ProxyConnect set sock property stream to \(sProxy):\(socksProxyPort) user \(socksProxyUsername) password \(socksProxyPassword)")
-            let settings: NSMutableDictionary = NSMutableDictionary(capacity:4)
+            let settings = NSMutableDictionary(capacity:4)
             settings[NSStreamSOCKSProxyHostKey] = sProxy
-            if let sPort: NSNumber = socksProxyPort {
+            if let sPort = socksProxyPort {
                 settings[NSStreamSOCKSProxyPortKey] = sPort
             }
-            if let sName: NSString = socksProxyUsername {
+            if let sName = socksProxyUsername {
                 settings[NSStreamSOCKSProxyUserKey] = sName
             }
-            if let sPass: NSString = socksProxyPassword {
+            if let sPass = socksProxyPassword {
                 settings[NSStreamSOCKSProxyPasswordKey] = sPass;
             }
             inputStream!.setProperty(settings, forKey:NSStreamSOCKSProxyConfigurationKey)
@@ -354,8 +354,7 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
                     usleep(100) //wait until the socket is ready
                     out -= 100
                     if out < 0 {
-                        let error:NSError = NSError(domain: "Proxy", code : Int(408),
-                            userInfo : [NSLocalizedDescriptionKey:"Proxy timeout"])
+                        let error = NSError(domain: "Proxy", code: Int(408), userInfo: [NSLocalizedDescriptionKey:"Proxy timeout"])
                         
                         self?.connectionFailed(error)
                         return
@@ -412,8 +411,8 @@ public class ProxyConnect : NSObject, NSStreamDelegate {
         
         if responseCode >= 299 {
             ProxyFastLog("Connect to Proxy Request failed with response code \(responseCode)");
-            let error: NSError  = NSError(domain: "Proxy", code: Int(responseCode),
-                                          userInfo: [NSLocalizedDescriptionKey:"Received bad response code from proxy server: \(responseCode)"])
+            let error = NSError(domain: "Proxy", code: Int(responseCode),
+                                 userInfo: [NSLocalizedDescriptionKey:"Received bad response code from proxy server: \(responseCode)"])
             connectionFailed(error)
             return;
         }
