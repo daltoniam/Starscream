@@ -23,7 +23,7 @@
 import Foundation
 import Security
 
-public class SSLCert {
+public class SSLCert: NSObject {
     var certData: NSData?
     var key: SecKeyRef?
     
@@ -50,7 +50,7 @@ public class SSLCert {
     }
 }
 
-public class SSLSecurity {
+public class SSLSecurity: NSObject {
     public var validatedDN = true //should the domain name be validated?
     
     var isReady = false //is the key processing done?
@@ -88,6 +88,7 @@ public class SSLSecurity {
     - returns: a representation security object to be used with
     */
     public init(certs: [SSLCert], usePublicKeys: Bool) {
+        super.init()
         self.usePublicKeys = usePublicKeys
         
         if self.usePublicKeys {
