@@ -23,6 +23,10 @@ import Foundation
 import CoreFoundation
 import Security
 
+public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
+public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
+public let WebsocketDisconnectionErrorKeyName = "WebsocketDisconnectionErrorKeyName"
+
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocket)
     func websocketDidDisconnect(socket: WebSocket, error: NSError?)
@@ -130,6 +134,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
     private var didDisconnect = false
     private var readyToWrite = false
     private let mutex = NSLock()
+    private let notificationCenter = NSNotificationCenter.defaultCenter()
     private var canDispatch: Bool {
         mutex.lock()
         let canWork = readyToWrite
@@ -439,6 +444,7 @@ public class WebSocket : NSObject, NSStreamDelegate {
                 guard let s = self else { return }
                 s.onConnect?()
                 s.delegate?.websocketDidConnect(s)
+                s.notificationCenter.postNotificationName(WebsocketDidConnectNotification, object: self)
             }
         case -1:
             fragBuffer = NSData(bytes: buffer, length: bufferLen)
@@ -817,6 +823,8 @@ public class WebSocket : NSObject, NSStreamDelegate {
             guard let s = self else { return }
             s.onDisconnect?(error)
             s.delegate?.websocketDidDisconnect(s, error: error)
+            let userInfo = error.map({ [WebsocketDisconnectionErrorKeyName: $0] })
+            s.notificationCenter.postNotificationName(WebsocketDidDisconnectNotification, object: self, userInfo: userInfo)
         }
     }
     
