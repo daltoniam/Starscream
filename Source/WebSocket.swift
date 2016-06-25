@@ -588,17 +588,19 @@ public class WebSocket : NSObject, NSStreamDelegate {
                     }
                     offset += 2
                 }
+                var closeReason = "connection closed by server"
                 if payloadLen > 2 {
-                    let len = Int(payloadLen-2)
+                    let len = Int(payloadLen - 2)
                     if len > 0 {
                         let bytes = baseAddress + offset
-                        let str: NSString? = NSString(data: NSData(bytes: bytes, length: len), encoding: NSUTF8StringEncoding)
-                        if str == nil {
+                        if let customCloseReason = String(data: NSData(bytes: bytes, length: len), encoding: NSUTF8StringEncoding) {
+                            closeReason = customCloseReason
+                        } else {
                             code = CloseCode.ProtocolError.rawValue
                         }
                     }
                 }
-                doDisconnect(errorWithDetail("connection closed by server", code: code))
+                doDisconnect(errorWithDetail(closeReason, code: code))
                 writeError(code)
                 return emptyBuffer
             }
