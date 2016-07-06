@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		091277A11BD673A70003036D /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 091277971BD673A70003036D /* Starscream.framework */; };
-		488131331D0270B3001E7EC3 /* ProxyConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 488131321D0270B3001E7EC3 /* ProxyConnect.swift */; };
 		5C1360021C473BEF00AA3A01 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
 		5C1360031C473BEF00AA3A01 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
 		5C1360041C473BEF00AA3A01 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
@@ -44,7 +43,6 @@
 /* Begin PBXFileReference section */
 		091277971BD673A70003036D /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		091277A01BD673A70003036D /* Starscream tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Starscream tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		488131321D0270B3001E7EC3 /* ProxyConnect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProxyConnect.swift; path = Source/ProxyConnect.swift; sourceTree = SOURCE_ROOT; };
 		5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SSLSecurity.swift; path = Source/SSLSecurity.swift; sourceTree = SOURCE_ROOT; };
 		5C1360001C473BEF00AA3A01 /* Starscream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Starscream.h; path = Source/Starscream.h; sourceTree = SOURCE_ROOT; };
 		5C1360011C473BEF00AA3A01 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WebSocket.swift; path = Source/WebSocket.swift; sourceTree = SOURCE_ROOT; };
@@ -131,7 +129,6 @@
 		6B3E79E819D48B7F006071F7 /* Starscream */ = {
 			isa = PBXGroup;
 			children = (
-				488131321D0270B3001E7EC3 /* ProxyConnect.swift */,
 				5C1360001C473BEF00AA3A01 /* Starscream.h */,
 				5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */,
 				5C1360011C473BEF00AA3A01 /* WebSocket.swift */,
@@ -417,7 +414,6 @@
 			files = (
 				5C1360081C473BEF00AA3A01 /* WebSocket.swift in Sources */,
 				5C1360021C473BEF00AA3A01 /* SSLSecurity.swift in Sources */,
-				488131331D0270B3001E7EC3 /* ProxyConnect.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
