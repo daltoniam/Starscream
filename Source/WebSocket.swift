@@ -462,7 +462,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
         case 0:
             connected = true
             guard canDispatch else {return}
-            dispatch_async(queue) { [weak self] in
+            dispatch_async(callbackQueue) { [weak self] in
                 guard let s = self else { return }
                 s.onConnect?()
                 s.delegate?.websocketDidConnect(s)
@@ -656,7 +656,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
             }
             if receivedOpcode == .Pong {
                 if canDispatch {
-                    dispatch_async(queue) { [weak self] in
+                    dispatch_async(callbackQueue) { [weak self] in
                         guard let s = self else { return }
                         s.onPong?()
                         s.pongDelegate?.websocketDidReceivePong(s)
@@ -739,7 +739,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
                     return false
                 }
                 if canDispatch {
-                    dispatch_async(queue) { [weak self] in
+                    dispatch_async(callbackQueue) { [weak self] in
                         guard let s = self else { return }
                         s.onText?(str! as String)
                         s.delegate?.websocketDidReceiveMessage(s, text: str! as String)
@@ -748,7 +748,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
             } else if response.code == .BinaryFrame {
                 if canDispatch {
                     let data = response.buffer! //local copy so it's not perverse for writing
-                    dispatch_async(queue) { [weak self] in
+                    dispatch_async(callbackQueue) { [weak self] in
                         guard let s = self else { return }
                         s.onData?(data)
                         s.delegate?.websocketDidReceiveData(s, data: data)
@@ -845,7 +845,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
         didDisconnect = true
         connected = false
         guard canDispatch else {return}
-        dispatch_async(queue) { [weak self] in
+        dispatch_async(callbackQueue) { [weak self] in
             guard let s = self else { return }
             s.onDisconnect?(error)
             s.delegate?.websocketDidDisconnect(s, error: error)
