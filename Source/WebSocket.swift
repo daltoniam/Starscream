@@ -416,7 +416,7 @@ public class WebSocket : NSObject, StreamDelegate {
                 work = combine
                 self.fragBuffer = nil
             }
-            let buffer = UnsafePointer<UInt8>((data as NSData).bytes)
+            let buffer = UnsafePointer<UInt8>((work as NSData).bytes)
             let length = work.count
             if !connected {
                 processTCPHandshake(buffer, bufferLen: length)
