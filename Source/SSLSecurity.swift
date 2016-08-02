@@ -66,7 +66,7 @@ public class SSLSecurity {
     - returns: a representation security object to be used with
     */
     public convenience init(usePublicKeys: Bool = false) {
-        let paths = Bundle.main().pathsForResources(ofType: "cer", inDirectory: ".")
+        let paths = Bundle.main.paths(forResourcesOfType: "cer", inDirectory: ".")
         
         let certs = paths.reduce([SSLCert]()) { (certs: [SSLCert], path: String) -> [SSLCert] in
             var certs = certs
@@ -91,10 +91,10 @@ public class SSLSecurity {
         self.usePublicKeys = usePublicKeys
         
         if self.usePublicKeys {
-            DispatchQueue.global(attributes: DispatchQueue.GlobalAttributes.qosDefault).async {
+            DispatchQueue.global(qos: .default).async {
                 let pubKeys = certs.reduce([SecKey]()) { (pubKeys: [SecKey], cert: SSLCert) -> [SecKey] in
                     var pubKeys = pubKeys
-                    if let data = cert.certData where cert.key == nil {
+                    if let data = cert.certData, cert.key == nil {
                         cert.key = self.extractPublicKey(data)
                     }
                     if let key = cert.key {
@@ -139,9 +139,9 @@ public class SSLSecurity {
         }
         var policy: SecPolicy
         if self.validatedDN {
-            policy = SecPolicyCreateSSL(true, domain as NSString?)!
+            policy = SecPolicyCreateSSL(true, domain as NSString?)
         } else {
-            policy = SecPolicyCreateBasicX509()!
+            policy = SecPolicyCreateBasicX509()
         }
         SecTrustSetPolicies(trust,policy)
         if self.usePublicKeys {
@@ -192,7 +192,7 @@ public class SSLSecurity {
     func extractPublicKey(_ data: Data) -> SecKey? {
         guard let cert = SecCertificateCreateWithData(nil, data) else { return nil }
         
-        return extractPublicKey(cert, policy: SecPolicyCreateBasicX509()!)
+        return extractPublicKey(cert, policy: SecPolicyCreateBasicX509())
     }
     
     /**
@@ -243,7 +243,7 @@ public class SSLSecurity {
         let keys = (0..<SecTrustGetCertificateCount(trust)).reduce([SecKey]()) { (keys: [SecKey], index: Int) -> [SecKey] in
             var keys = keys
             let cert = SecTrustGetCertificateAtIndex(trust, index)
-            if let key = extractPublicKey(cert!, policy: policy!) {
+            if let key = extractPublicKey(cert!, policy: policy) {
                 keys.append(key)
             }
             
