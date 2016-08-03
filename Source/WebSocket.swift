@@ -97,7 +97,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
     let PayloadLenMask: UInt8   = 0x7F
     let MaxFrameSize: Int       = 32
     let httpSwitchProtocolCode  = 101
-    let supportedSSLSchemes     = ["wss, https"]
+    let supportedSSLSchemes     = ["wss", "https"]
 
     class WSResponse {
         var isFin = false
