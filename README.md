@@ -4,6 +4,9 @@ Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6
 
 It's Objective-C counter part can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
 
+###Swift 3/Xcode 8
+If you are looking for Swift 3 support, see [swift 3 here](https://github.com/daltoniam/Starscream/tree/swift3)
+
 ## Features
 
 - Conforms to all of the base [Autobahn test suite](http://autobahn.ws/testsuite/).
