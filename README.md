@@ -4,6 +4,9 @@ Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6
 
 It's Objective-C counter part can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
 
+###Swift 3/Xcode 8
+If you are looking for Swift 3 support, see [swift 3 here](https://github.com/daltoniam/Starscream/tree/swift3)
+
 ## Features
 
 - Conforms to all of the base [Autobahn test suite](http://autobahn.ws/testsuite/).
@@ -102,6 +105,8 @@ socket.onData = { (data: NSData) in
 //you could do onPong as well.
 socket.connect()
 ```
+
+One more: you can listen to socket connection and disconnection via notifications. Starscream posts `WebsocketDidConnectNotification` and `WebsocketDidDisconnectNotification`. You can find an `NSError` that caused the disconection by accessing `WebsocketDisconnectionErrorKeyName` on notification `userInfo`.
 
 
 ## The delegate methods give you a simple way to handle data from the server, but how do you send data?
