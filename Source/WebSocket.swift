@@ -98,7 +98,7 @@ public class WebSocket : NSObject, StreamDelegate {
     let MaxFrameSize: Int       = 32
     let httpSwitchProtocolCode  = 101
     let supportedSSLSchemes     = ["wss", "https"]
-    
+
     class WSResponse {
         var isFin = false
         var code: OpCode = .continueFrame
@@ -124,7 +124,7 @@ public class WebSocket : NSObject, StreamDelegate {
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
     public var onPong: ((Void) -> Void)?
-    
+
     public var headers = [String: String]()
     public var voipEnabled = false
     public var selfSignedSSL = false
@@ -139,7 +139,7 @@ public class WebSocket : NSObject, StreamDelegate {
     public var currentURL: NSURL { return url }
     
     // MARK: - Private
-    
+
     private var url: NSURL
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
@@ -171,7 +171,7 @@ public class WebSocket : NSObject, StreamDelegate {
         writeQueue.maxConcurrentOperationCount = 1
         optionalProtocols = protocols
     }
-    
+
     /// Connect to the WebSocket server on a background thread.
     public func connect() {
         guard !isConnecting else { return }
@@ -183,11 +183,11 @@ public class WebSocket : NSObject, StreamDelegate {
     
     /**
      Disconnect from the server. I send a Close control frame to the server, then expect the server to respond with a Close control frame and close the socket from its end. I notify my delegate once the socket has been closed.
-     
+
      If you supply a non-nil `forceTimeout`, I wait at most that long (in seconds) for the server to close the socket. After the timeout expires, I close the socket and notify my delegate.
-     
+
      If you supply a zero (or negative) `forceTimeout`, I immediately close the socket (without sending a Close control frame) and notify my delegate.
-     
+
      - Parameter forceTimeout: Maximum time to wait for the server to close the socket.
      */
     public func disconnect(forceTimeout: TimeInterval? = nil) {
@@ -204,10 +204,10 @@ public class WebSocket : NSObject, StreamDelegate {
             break
         }
     }
-    
+
     /**
      Write a string to the websocket. This sends it as a text frame.
-     
+
      If you supply a non-nil completion block, I will perform it when the write completes.
      
      - parameter str:        The string to write.
@@ -220,7 +220,7 @@ public class WebSocket : NSObject, StreamDelegate {
     
     /**
      Write binary data to the websocket. This sends it as a binary frame.
-     
+
      If you supply a non-nil completion block, I will perform it when the write completes.
      
      - parameter data:       The data to write.
@@ -294,7 +294,7 @@ public class WebSocket : NSObject, StreamDelegate {
     private func initStreamsWithData(data: Data, _ port: Int) {
         //higher level API we will cut over to at some point
         //NSStream.getStreamsToHostWithName(url.host, port: url.port.integerValue, inputStream: &inputStream, outputStream: &outputStream)
-        
+
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
         let h = url.host!
@@ -340,7 +340,7 @@ public class WebSocket : NSObject, StreamDelegate {
         CFWriteStreamSetDispatchQueue(outStream, WebSocket.sharedWorkQueue)
         inStream.open()
         outStream.open()
-        
+
         self.mutex.lock()
         self.readyToWrite = true
         self.mutex.unlock()
@@ -386,7 +386,7 @@ public class WebSocket : NSObject, StreamDelegate {
             disconnectStream(error: nil)
         }
     }
-    
+
     /// Disconnect the stream object and notifies the delegate.
     private func disconnectStream(error: NSError?) {
         if error == nil {
@@ -397,7 +397,7 @@ public class WebSocket : NSObject, StreamDelegate {
         cleanupStream()
         doDisconnect(error: error)
     }
-    
+
     private func cleanupStream() {
         outputStream?.delegate = nil
         inputStream?.delegate = nil
@@ -412,13 +412,13 @@ public class WebSocket : NSObject, StreamDelegate {
         outputStream = nil
         inputStream = nil
     }
-    
+
     /// Handles the incoming bytes and sending them to the proper processing method.
     private func processInputStream() {
         let buf = NSMutableData(capacity: BUFFER_MAX)
         let buffer = UnsafeMutableRawPointer(mutating: buf!.bytes).assumingMemoryBound(to: UInt8.self)
         let length = inputStream!.read(buffer, maxLength: BUFFER_MAX)
-        
+
         guard length > 0 else { return }
         var process = false
         if inputQueue.count == 0 {
@@ -429,7 +429,7 @@ public class WebSocket : NSObject, StreamDelegate {
             dequeueInput()
         }
     }
-    
+
     /// Dequeue the incoming input so it is processed in order.
     private func dequeueInput() {
         while !inputQueue.isEmpty {
@@ -451,7 +451,7 @@ public class WebSocket : NSObject, StreamDelegate {
             inputQueue = inputQueue.filter{ $0 != data }
         }
     }
-    
+
     // Handle checking the initial connection status.
     private func processTCPHandshake(buffer: UnsafePointer<UInt8>, bufferLen: Int) {
         let code = processHTTP(buffer: buffer, bufferLen: bufferLen)
@@ -472,7 +472,7 @@ public class WebSocket : NSObject, StreamDelegate {
             doDisconnect(error: errorWithDetail("Invalid HTTP upgrade", code: UInt16(code)))
         }
     }
-    
+
     /// Finds the HTTP Packet in the TCP stream, by looking for the CRLF.
     private func processHTTP(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Int {
         let CRLFBytes = [UInt8(ascii: "\r"), UInt8(ascii: "\n"), UInt8(ascii: "\r"), UInt8(ascii: "\n")]
@@ -503,7 +503,7 @@ public class WebSocket : NSObject, StreamDelegate {
         }
         return -1 // Was unable to find the full TCP header.
     }
-    
+
     /// Validates the HTTP is a 101 as per the RFC spec.
     private func validateResponse(buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Int {
         let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
@@ -522,12 +522,12 @@ public class WebSocket : NSObject, StreamDelegate {
         }
         return -1
     }
-    
+
     ///read a 16-bit big endian value from a buffer
     private static func readUint16(buffer: UnsafePointer<UInt8>, offset: Int) -> UInt16 {
         return (UInt16(buffer[offset + 0]) << 8) | UInt16(buffer[offset + 1])
     }
-    
+
     ///read a 64-bit big endian value from a buffer
     private static func readUint64(buffer: UnsafePointer<UInt8>, offset: Int) -> UInt64 {
         var value = UInt64(0)
@@ -536,13 +536,13 @@ public class WebSocket : NSObject, StreamDelegate {
         }
         return value
     }
-    
+
     /// Write a 16-bit big endian value to a buffer.
     private static func writeUint16(buffer: UnsafeMutablePointer<UInt8>, offset: Int, value: UInt16) {
         buffer[offset + 0] = UInt8(value >> 8)
         buffer[offset + 1] = UInt8(value & 0xff)
     }
-    
+
     /// Write a 64-bit big endian value to a buffer.
     private static func writeUint64(buffer: UnsafeMutablePointer<UInt8>, offset: Int, value: UInt64) {
         for i in 0...7 {
@@ -706,7 +706,7 @@ public class WebSocket : NSObject, StreamDelegate {
                 }
                 _ = processResponse(response)
             }
-            
+
             let step = Int(offset + numericCast(len))
             return buffer.fromOffset(step)
         }
@@ -832,10 +832,10 @@ public class WebSocket : NSObject, StreamDelegate {
                     break
                 }
             }
-            
+
         }
     }
-    
+
     /// Used to preform the disconnect delegate.
     private func doDisconnect(error: NSError?) {
         guard !didDisconnect else { return }
@@ -852,14 +852,14 @@ public class WebSocket : NSObject, StreamDelegate {
     }
     
     // MARK: - Deinit
-    
+
     deinit {
         mutex.lock()
         readyToWrite = false
         mutex.unlock()
         cleanupStream()
     }
-    
+
 }
 
 private extension Data {
