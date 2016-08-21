@@ -50,7 +50,7 @@ public class SSLCert {
     }
 }
 
-public class SSLSecurity: NSObject {
+public class SSLSecurity {
     public var validatedDN = true //should the domain name be validated?
     
     var isReady = false //is the key processing done?
@@ -88,7 +88,6 @@ public class SSLSecurity: NSObject {
     - returns: a representation security object to be used with
     */
     public init(certs: [SSLCert], usePublicKeys: Bool) {
-        super.init()
         self.usePublicKeys = usePublicKeys
         
         if self.usePublicKeys {
