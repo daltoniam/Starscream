@@ -159,7 +159,7 @@ public class SSLSecurity {
             let serverCerts = certificateChain(trust)
             var collect = [SecCertificate]()
             for cert in certs {
-                collect.append(SecCertificateCreateWithData(nil,cert)!)
+                collect.append(SecCertificateCreateWithData(nil,cert as CFData)!)
             }
             SecTrustSetAnchorCertificates(trust,collect as NSArray)
             var result: SecTrustResultType = .unspecified
@@ -190,7 +190,7 @@ public class SSLSecurity {
     - returns: a public key
     */
     func extractPublicKey(_ data: Data) -> SecKey? {
-        guard let cert = SecCertificateCreateWithData(nil, data) else { return nil }
+        guard let cert = SecCertificateCreateWithData(nil, data as CFData) else { return nil }
         
         return extractPublicKey(cert, policy: SecPolicyCreateBasicX509())
     }
