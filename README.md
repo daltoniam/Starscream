@@ -77,8 +77,8 @@ func websocketDidReceiveData(socket: WebSocket, data: NSData) {
 websocketDidReceivePong is called when the client gets a pong response from the connection. You need to implement the WebSocketPongDelegate protocol and set an additional delegate, eg: ` socket.pongDelegate = self`
 
 ```swift
-func websocketDidReceivePong(socket: WebSocket) {
-	print("Got pong!")
+func websocketDidReceivePong(socket: WebSocket, data: NSData?) {
+	print("Got pong maybe with data: \(data)!")
 }
 ```
 
