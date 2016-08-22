@@ -27,7 +27,9 @@ Once imported, you can open a connection to your WebSocket server. Note that `so
 ```swift
 socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!)
 socket.delegate = self
-socket.connect()
+socket.connect() {
+	print("Connected")
+}
 ```
 
 After you are connected, there are some delegate methods that we need to implement.
@@ -133,6 +135,18 @@ The writePing method is the same as writeData, but sends a ping control frame.
 
 ```swift
 socket.writePing(NSData()) //example on how to write a ping control frame over the socket!
+```
+
+### connect
+
+The connect method is self-explanatory and it takes optional closure that will be called as soon as the client connects to the server.
+
+```swift
+socket.connect()
+// or
+socket.connect({
+	// do cool stuff.
+})
 ```
 
 ### disconnect

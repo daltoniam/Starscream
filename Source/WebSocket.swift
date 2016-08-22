@@ -74,7 +74,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
     /// Where the callback is executed. It defaults to the main UI thread queue.
     public var callbackQueue            = dispatch_get_main_queue()
 
-    var optionalProtocols       : [String]?
+    var optionalProtocols: [String]?
 
     // MARK: - Constants
 
@@ -132,7 +132,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
     public var enabledSSLCipherSuites: [SSLCipherSuite]?
     public var origin: String?
     public var timeout = 5
-    public var isConnected :Bool {
+    public var isConnected: Bool {
         return connected
     }
     public var currentURL: NSURL { return url }
@@ -159,6 +159,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
         mutex.unlock()
         return canWork
     }
+    private var waitingConnectionCallback: (() -> Void)?
 
     /// The shared processing queue used for all WebSocket.
     private static let sharedWorkQueue = dispatch_queue_create("com.vluxe.starscream.websocket", DISPATCH_QUEUE_SERIAL)
@@ -172,10 +173,11 @@ public class WebSocket: NSObject, NSStreamDelegate {
     }
 
     /// Connect to the WebSocket server on a background thread.
-    public func connect() {
+    public func connect(callback: (() -> Void)? = nil) {
         guard !isConnecting else { return }
         didDisconnect = false
         isConnecting = true
+        waitingConnectionCallback = callback
         createHTTPRequest()
         isConnecting = false
     }
@@ -263,7 +265,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
             addHeader(urlRequest, key: headerOriginName, val: origin)
         }
         addHeader(urlRequest, key: headerWSHostName, val: "\(url.host!):\(port!)")
-        for (key,value) in headers {
+        for (key, value) in headers {
             addHeader(urlRequest, key: key, val: value)
         }
         if let cfHTTPMessage = CFHTTPMessageCopySerializedMessage(urlRequest) {
@@ -451,7 +453,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
             } else {
                 processRawMessagesInBuffer(buffer, bufferLen: length)
             }
-            inputQueue = inputQueue.filter{ $0 != data }
+            inputQueue = inputQueue.filter { $0 != data }
         }
     }
 
@@ -464,6 +466,8 @@ public class WebSocket: NSObject, NSStreamDelegate {
             guard canDispatch else {return}
             dispatch_async(callbackQueue) { [weak self] in
                 guard let s = self else { return }
+                s.waitingConnectionCallback?()
+                s.waitingConnectionCallback = nil
                 s.onConnect?()
                 s.delegate?.websocketDidConnect(s)
                 s.notificationCenter.postNotificationName(WebsocketDidConnectNotification, object: self)
@@ -559,7 +563,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
         let response = readStack.last
         let baseAddress = buffer.baseAddress
         let bufferLen = buffer.count
-        if response != nil && bufferLen < 2  {
+        if response != nil && bufferLen < 2 {
             fragBuffer = NSData(buffer: buffer)
             return emptyBuffer
         }
@@ -676,7 +680,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
             }
             var isNew = false
             if response == nil {
-                if receivedOpcode == .ContinueFrame  {
+                if receivedOpcode == .ContinueFrame {
                     let errCode = CloseCode.ProtocolError.rawValue
                     doDisconnect(errorWithDetail("first frame can't be a continue frame",
                         code: errCode))
@@ -689,7 +693,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
                 response!.bytesLeft = Int(dataLength)
                 response!.buffer = NSMutableData(data: data)
             } else {
-                if receivedOpcode == .ContinueFrame  {
+                if receivedOpcode == .ContinueFrame {
                     response!.bytesLeft = Int(dataLength)
                 } else {
                     let errCode = CloseCode.ProtocolError.rawValue
@@ -849,7 +853,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
             guard let s = self else { return }
             s.onDisconnect?(error)
             s.delegate?.websocketDidDisconnect(s, error: error)
-            let userInfo = error.map{ [WebsocketDisconnectionErrorKeyName: $0] }
+            let userInfo = error.map { [WebsocketDisconnectionErrorKeyName: $0] }
             s.notificationCenter.postNotificationName(WebsocketDidDisconnectNotification, object: self, userInfo: userInfo)
         }
     }
@@ -878,8 +882,7 @@ private extension UnsafeBufferPointer {
     func fromOffset(offset: Int) -> UnsafeBufferPointer<Element> {
         return UnsafeBufferPointer<Element>(start: baseAddress.advancedBy(offset), count: count - offset)
     }
-    
+
 }
 
 private let emptyBuffer = UnsafeBufferPointer<UInt8>(start: nil, count: 0)
-
