@@ -170,6 +170,12 @@ public class WebSocket: NSObject, NSStreamDelegate {
         writeQueue.maxConcurrentOperationCount = 1
         optionalProtocols = protocols
     }
+    
+    // Used for specifically setting the QOS for the write queue.
+    public convenience init(url: NSURL, writeQueueQOS: NSQualityOfService, protocols: [String]? = nil) {
+        self.init(url: url, protocols: protocols)
+        writeQueue.qualityOfService = writeQueueQOS
+    }
 
     /// Connect to the WebSocket server on a background thread.
     public func connect() {
