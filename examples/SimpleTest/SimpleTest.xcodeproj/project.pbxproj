@@ -37,14 +37,14 @@
 			remoteGlobalIDString = D9C3E36919E48FF1009FC285;
 			remoteInfo = StarscreamOSXTests;
 		};
-		5C42C3EB1D8F32EF00947AA2 /* PBXContainerItemProxy */ = {
+		5C42C3E01D8F31DC00947AA2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6B3E7A0819D48D00006071F7 /* Starscream.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 091277971BD673A70003036D;
 			remoteInfo = "Starscream tvOS";
 		};
-		5C42C3ED1D8F32EF00947AA2 /* PBXContainerItemProxy */ = {
+		5C42C3E21D8F31DC00947AA2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6B3E7A0819D48D00006071F7 /* Starscream.xcodeproj */;
 			proxyType = 2;
@@ -145,9 +145,9 @@
 				6B3E7A0E19D48D00006071F7 /* Starscream.framework */,
 				6B3E7A1019D48D00006071F7 /* Starscream iOSTests.xctest */,
 				5C06AE8B1B08044600D41060 /* Starscream.framework */,
-				5C06AE8D1B08044600D41060 /* Starscream OSXTests.xctest */,
-				5C42C3EC1D8F32EF00947AA2 /* Starscream.framework */,
-				5C42C3EE1D8F32EF00947AA2 /* Starscream tvOSTests.xctest */,
+				5C06AE8D1B08044600D41060 /* StarscreamOSXTests.xctest */,
+				5C42C3E11D8F31DC00947AA2 /* Starscream.framework */,
+				5C42C3E31D8F31DC00947AA2 /* Starscream tvOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -229,18 +229,18 @@
 			remoteRef = 5C06AE8C1B08044600D41060 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		5C42C3EC1D8F32EF00947AA2 /* Starscream.framework */ = {
+		5C42C3E11D8F31DC00947AA2 /* Starscream.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = Starscream.framework;
-			remoteRef = 5C42C3EB1D8F32EF00947AA2 /* PBXContainerItemProxy */;
+			remoteRef = 5C42C3E01D8F31DC00947AA2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		5C42C3EE1D8F32EF00947AA2 /* Starscream tvOSTests.xctest */ = {
+		5C42C3E31D8F31DC00947AA2 /* Starscream tvOSTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = "Starscream tvOSTests.xctest";
-			remoteRef = 5C42C3ED1D8F32EF00947AA2 /* PBXContainerItemProxy */;
+			remoteRef = 5C42C3E21D8F31DC00947AA2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		6B3E7A0E19D48D00006071F7 /* Starscream.framework */ = {
@@ -399,7 +399,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.vluxe.io.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -412,7 +412,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.vluxe.io.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

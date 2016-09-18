@@ -59,6 +59,20 @@
 			remoteGlobalIDString = 6B3E79E519D48B7F006071F7;
 			remoteInfo = Starscream;
 		};
+		5C42C3D51D8DF51C00947AA2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 091277971BD673A70003036D;
+			remoteInfo = "Starscream tvOS";
+		};
+		5C42C3D71D8DF51C00947AA2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 091277A01BD673A70003036D;
+			remoteInfo = "Starscream tvOSTests";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -158,6 +172,8 @@
 				5C178E4B1B62D0EF00A97204 /* StarscreamTests.xctest */,
 				5C178E4D1B62D0EF00A97204 /* Starscream.framework */,
 				5C178E4F1B62D0EF00A97204 /* StarscreamOSXTests.xctest */,
+				5C42C3D61D8DF51C00947AA2 /* Starscream.framework */,
+				5C42C3D81D8DF51C00947AA2 /* Starscream tvOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -214,9 +230,11 @@
 				TargetAttributes = {
 					5C178E1B1B62D0B900A97204 = {
 						CreatedOnToolsVersion = 6.4;
+						LastSwiftMigration = 0800;
 					};
 					5C178E301B62D0B900A97204 = {
 						CreatedOnToolsVersion = 6.4;
+						LastSwiftMigration = 0800;
 						TestTargetID = 5C178E1B1B62D0B900A97204;
 					};
 				};
@@ -257,7 +275,7 @@
 		5C178E4B1B62D0EF00A97204 /* StarscreamTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = StarscreamTests.xctest;
+			path = "Starscream iOSTests.xctest";
 			remoteRef = 5C178E4A1B62D0EF00A97204 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -271,8 +289,22 @@
 		5C178E4F1B62D0EF00A97204 /* StarscreamOSXTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = StarscreamOSXTests.xctest;
+			path = "Starscream OSXTests.xctest";
 			remoteRef = 5C178E4E1B62D0EF00A97204 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5C42C3D61D8DF51C00947AA2 /* Starscream.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Starscream.framework;
+			remoteRef = 5C42C3D51D8DF51C00947AA2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5C42C3D81D8DF51C00947AA2 /* Starscream tvOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "Starscream tvOSTests.xctest";
+			remoteRef = 5C42C3D71D8DF51C00947AA2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -440,6 +472,7 @@
 				INFOPLIST_FILE = Autobahn/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -450,6 +483,7 @@
 				INFOPLIST_FILE = Autobahn/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -468,6 +502,7 @@
 				INFOPLIST_FILE = AutobahnTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Autobahn.app/Autobahn";
 			};
 			name = Debug;
@@ -483,6 +518,7 @@
 				INFOPLIST_FILE = AutobahnTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Autobahn.app/Autobahn";
 			};
 			name = Release;

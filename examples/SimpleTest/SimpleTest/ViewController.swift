@@ -10,7 +10,7 @@ import UIKit
 import Starscream
 
 class ViewController: UIViewController, WebSocketDelegate {
-    var socket = WebSocket(url: NSURL(string: "ws://localhost:8080/")!, protocols: ["chat", "superchat"])
+    var socket = WebSocket(url: URL(string: "ws://localhost:8080/")!, protocols: ["chat", "superchat"])
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,11 +20,11 @@ class ViewController: UIViewController, WebSocketDelegate {
     
     // MARK: Websocket Delegate Methods.
     
-    func websocketDidConnect(ws: WebSocket) {
+    func websocketDidConnect(socket: WebSocket) {
         print("websocket is connected")
     }
     
-    func websocketDidDisconnect(ws: WebSocket, error: NSError?) {
+    func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
         if let e = error {
             print("websocket is disconnected: \(e.localizedDescription)")
         } else {
@@ -32,23 +32,23 @@ class ViewController: UIViewController, WebSocketDelegate {
         }
     }
     
-    func websocketDidReceiveMessage(ws: WebSocket, text: String) {
+    func websocketDidReceiveMessage(socket: WebSocket, text: String) {
         print("Received text: \(text)")
     }
     
-    func websocketDidReceiveData(ws: WebSocket, data: NSData) {
-        print("Received data: \(data.length)")
+    func websocketDidReceiveData(socket: WebSocket, data: Data) {
+        print("Received data: \(data.count)")
     }
     
     // MARK: Write Text Action
     
-    @IBAction func writeText(sender: UIBarButtonItem) {
-        socket.writeString("hello there!")
+    @IBAction func writeText(_ sender: UIBarButtonItem) {
+        socket.write(string: "hello there!")
     }
     
     // MARK: Disconnect Action
     
-    @IBAction func disconnect(sender: UIBarButtonItem) {
+    @IBAction func disconnect(_ sender: UIBarButtonItem) {
         if socket.isConnected {
             sender.title = "Connect"
             socket.disconnect()
