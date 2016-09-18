@@ -311,6 +311,7 @@
 					};
 					6B3E79E519D48B7F006071F7 = {
 						CreatedOnToolsVersion = 6.0.1;
+						LastSwiftMigration = 0800;
 					};
 					6B3E79F019D48B7F006071F7 = {
 						CreatedOnToolsVersion = 6.0.1;
@@ -647,6 +648,7 @@
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -670,6 +672,7 @@
 				PRODUCT_NAME = Starscream;
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
