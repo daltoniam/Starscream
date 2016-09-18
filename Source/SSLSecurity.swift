@@ -162,9 +162,9 @@ public class SSLSecurity {
                 collect.append(SecCertificateCreateWithData(nil,cert)!)
             }
             SecTrustSetAnchorCertificates(trust,collect)
-            var result = SecTrustResultType.Unspecified
+            var result: SecTrustResultType = .Unspecified
             SecTrustEvaluate(trust,&result)
-            if result == SecTrustResultType.Unspecified || result == SecTrustResultType.Proceed {
+            if result == .Unspecified || result == .Proceed {
                 var trustedCount = 0
                 for serverCert in serverCerts {
                     for cert in certs {
@@ -207,8 +207,7 @@ public class SSLSecurity {
         SecTrustCreateWithCertificates(cert, policy, &possibleTrust)
         
         guard let trust = possibleTrust else { return nil }
-        
-        var result = SecTrustResultType.Unspecified
+        var result: SecTrustResultType = .Unspecified
         SecTrustEvaluate(trust, &result)
         return SecTrustCopyPublicKey(trust)
     }
