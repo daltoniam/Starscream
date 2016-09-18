@@ -175,9 +175,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
     @available(OSX 10.10, *)
     public convenience init(url: NSURL, writeQueueQOS: NSQualityOfService, protocols: [String]? = nil) {
         self.init(url: url, protocols: protocols)
-        if #available(OSX 10.10, *) {
-            writeQueue.qualityOfService = writeQueueQOS
-        }
+        writeQueue.qualityOfService = writeQueueQOS
     }
 
     /// Connect to the WebSocket server on a background thread.
