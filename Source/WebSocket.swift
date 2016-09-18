@@ -172,6 +172,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
     }
     
     // Used for specifically setting the QOS for the write queue.
+    @available(OSX 10.10, *)
     public convenience init(url: NSURL, writeQueueQOS: NSQualityOfService, protocols: [String]? = nil) {
         self.init(url: url, protocols: protocols)
         writeQueue.qualityOfService = writeQueueQOS
