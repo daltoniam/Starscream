@@ -325,34 +325,34 @@ public class WebSocket : NSObject, StreamDelegate {
         if supportedSSLSchemes.contains(url.scheme!) {
             inStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
             outStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
+            if disableSSLCertValidation {
+                let settings: [NSObject: NSObject] = [kCFStreamSSLValidatesCertificateChain: NSNumber(value: false), kCFStreamSSLPeerName: kCFNull]
+                inStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
+                outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
+            }
+            if let cipherSuites = self.enabledSSLCipherSuites {
+                if let sslContextIn = CFReadStreamCopyProperty(inputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext?,
+                    let sslContextOut = CFWriteStreamCopyProperty(outputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext? {
+                    let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
+                    let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
+                    if resIn != errSecSuccess {
+                        let error = self.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
+                        disconnectStream(error)
+                        return
+                    }
+                    if resOut != errSecSuccess {
+                        let error = self.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
+                        disconnectStream(error)
+                        return
+                    }
+                }
+            }
         } else {
             certValidated = true //not a https session, so no need to check SSL pinning
         }
         if voipEnabled {
             inStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
             outStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
-        }
-        if disableSSLCertValidation {
-            let settings: [NSObject: NSObject] = [kCFStreamSSLValidatesCertificateChain: NSNumber(value: false), kCFStreamSSLPeerName: kCFNull]
-            inStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
-            outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
-        }
-        if let cipherSuites = self.enabledSSLCipherSuites {
-            if let sslContextIn = CFReadStreamCopyProperty(inputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext?,
-                let sslContextOut = CFWriteStreamCopyProperty(outputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext? {
-                let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
-                let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
-                if resIn != errSecSuccess {
-                    let error = self.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
-                    disconnectStream(error)
-                    return
-                }
-                if resOut != errSecSuccess {
-                    let error = self.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
-                    disconnectStream(error)
-                    return
-                }
-            }
         }
         
         CFReadStreamSetDispatchQueue(inStream, WebSocket.sharedWorkQueue)
