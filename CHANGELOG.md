@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [1.1.4](https://github.com/daltoniam/Starscream/tree/1.1.4)
+
+Swift 2.3 support.
+
 #### [1.1.3](https://github.com/daltoniam/Starscream/tree/1.1.3)
 
 Changed: 

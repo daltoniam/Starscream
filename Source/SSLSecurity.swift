@@ -207,7 +207,6 @@ public class SSLSecurity {
         SecTrustCreateWithCertificates(cert, policy, &possibleTrust)
         
         guard let trust = possibleTrust else { return nil }
-        
         var result: SecTrustResultType = .Unspecified
         SecTrustEvaluate(trust, &result)
         return SecTrustCopyPublicKey(trust)

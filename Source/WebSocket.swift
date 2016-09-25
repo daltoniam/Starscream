@@ -170,6 +170,12 @@ public class WebSocket: NSObject, NSStreamDelegate {
         writeQueue.maxConcurrentOperationCount = 1
         optionalProtocols = protocols
     }
+    
+    // Used for specifically setting the QOS for the write queue.
+    public convenience init(url: NSURL, writeQueueQOS: NSQualityOfService, protocols: [String]? = nil) {
+        self.init(url: url, protocols: protocols)
+        writeQueue.qualityOfService = writeQueueQOS
+    }
 
     /// Connect to the WebSocket server on a background thread.
     public func connect() {
@@ -246,7 +252,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
 
         var port = url.port
         if port == nil {
-            if let scheme = url.scheme where ["wss", "https"].contains(scheme) {
+            if supportedSSLSchemes.contains(url.scheme!) {
                 port = 443
             } else {
                 port = 80
@@ -304,7 +310,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
         guard let inStream = inputStream, let outStream = outputStream else { return }
         inStream.delegate = self
         outStream.delegate = self
-        if let scheme = url.scheme where ["wss", "https"].contains(scheme) {
+        if supportedSSLSchemes.contains(url.scheme!) {
             inStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
             outStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
         } else {
@@ -800,7 +806,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
             }
             buffer[1] |= s.MaskMask
             let maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
-            SecRandomCopyBytes(kSecRandomDefault, Int(sizeof(UInt32)), maskKey)
+            _ = SecRandomCopyBytes(kSecRandomDefault, Int(sizeof(UInt32)), maskKey)
             offset += sizeof(UInt32)
 
             for i in 0..<dataLength {
