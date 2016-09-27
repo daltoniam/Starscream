@@ -160,6 +160,14 @@ public class WebSocket: NSObject, NSStreamDelegate {
         return canWork
     }
 
+    private var scheme: String {
+        #if swift(>=2.3)
+            return url.scheme!
+        #else
+            return url.scheme
+        #endif
+    }
+
     /// The shared processing queue used for all WebSocket.
     private static let sharedWorkQueue = dispatch_queue_create("com.vluxe.starscream.websocket", DISPATCH_QUEUE_SERIAL)
 
@@ -252,7 +260,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
 
         var port = url.port
         if port == nil {
-            if supportedSSLSchemes.contains(url.scheme!) {
+            if supportedSSLSchemes.contains(scheme) {
                 port = 443
             } else {
                 port = 80
@@ -310,7 +318,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
         guard let inStream = inputStream, let outStream = outputStream else { return }
         inStream.delegate = self
         outStream.delegate = self
-        if supportedSSLSchemes.contains(url.scheme!) {
+        if supportedSSLSchemes.contains(scheme) {
             inStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
             outStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
         } else {
