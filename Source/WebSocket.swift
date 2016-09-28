@@ -201,7 +201,8 @@ public class WebSocket : NSObject, StreamDelegate {
     public func disconnect(forceTimeout: TimeInterval? = nil, closeCode: UInt16 = CloseCode.normal.rawValue) {
         switch forceTimeout {
         case .some(let seconds) where seconds > 0:
-            callbackQueue.asyncAfter(deadline: DispatchTime.now() + Double(Int64(seconds * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { [weak self] in
+            let milliseconds = Int(seconds * 1_000)
+            callbackQueue.asyncAfter(deadline: .now() + .milliseconds(milliseconds)) { [weak self] in
                 self?.disconnectStream(nil)
             }
             fallthrough
@@ -365,7 +366,7 @@ public class WebSocket : NSObject, StreamDelegate {
         self.mutex.unlock()
         
         let bytes = UnsafeRawPointer((data as NSData).bytes).assumingMemoryBound(to: UInt8.self)
-        var out = timeout * 1000000 // wait 5 seconds before giving up
+        var out = timeout * 1_000_000 // wait 5 seconds before giving up
         writeQueue.addOperation { [weak self] in
             while !outStream.hasSpaceAvailable {
                 usleep(100) // wait until the socket is ready
