@@ -82,7 +82,7 @@ public class SSLSecurity {
     /**
     Designated init
     
-    - parameter keys: is the certificates or public keys to use
+    - parameter certs: is the certificates or public keys to use
     - parameter usePublicKeys: is to specific if the publicKeys or certificates should be used for SSL pinning validation
     
     - returns: a representation security object to be used with
