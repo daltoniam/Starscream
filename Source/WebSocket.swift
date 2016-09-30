@@ -218,7 +218,7 @@ public class WebSocket : NSObject, StreamDelegate {
 
      If you supply a non-nil completion block, I will perform it when the write completes.
 
-     - parameter str:        The string to write.
+     - parameter string:        The string to write.
      - parameter completion: The (optional) completion handler.
      */
     public func write(string: String, completion: (() -> ())? = nil) {
