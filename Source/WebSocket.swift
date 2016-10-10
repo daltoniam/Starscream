@@ -38,7 +38,7 @@ public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocket, data: Data?)
 }
 
-public class WebSocket : NSObject, StreamDelegate {
+open class WebSocket : NSObject, StreamDelegate {
     
     enum OpCode : UInt8 {
         case continueFrame = 0x0

@@ -23,7 +23,7 @@
 import Foundation
 import Security
 
-public class SSLCert {
+open class SSLCert {
     var certData: Data?
     var key: SecKey?
     
@@ -50,7 +50,7 @@ public class SSLCert {
     }
 }
 
-public class SSLSecurity {
+open class SSLSecurity {
     public var validatedDN = true //should the domain name be validated?
     
     var isReady = false //is the key processing done?
