@@ -36,6 +36,12 @@ public protocol WebSocketDelegate: class {
 
 public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocket)
+    func websocketDidSendPong(socket: WebSocket)
+}
+
+public protocol WebSocketPingDelegate: class {
+    func websocketDidReceivePing(socket: WebSocket)
+    func websocketDidSendPing(socket: WebSocket)
 }
 
 public class WebSocket: NSObject, NSStreamDelegate {
@@ -115,16 +121,22 @@ public class WebSocket: NSObject, NSStreamDelegate {
 
     /// Recives a callback for each pong message recived.
     public weak var pongDelegate: WebSocketPongDelegate?
-
-
+    
+    /// Recives a callback for each ping message received.
+    public weak var pingDelegate: WebSocketPingDelegate?
+    
+    
     // MARK: - Block based API.
 
     public var onConnect: ((Void) -> Void)?
     public var onDisconnect: ((NSError?) -> Void)?
     public var onText: ((String) -> Void)?
     public var onData: ((NSData) -> Void)?
-    public var onPong: ((Void) -> Void)?
-
+    public var onPingSend: ((Void) -> Void)?
+    public var onPingReceive: ((Void) -> Void)?
+    public var onPongSend: ((Void) -> Void)?
+    public var onPongReceive: ((Void) -> Void)?
+    
     public var headers = [String: String]()
     public var voipEnabled = false
     public var selfSignedSSL = false
@@ -241,7 +253,14 @@ public class WebSocket: NSObject, NSStreamDelegate {
     // Yodel a   sound  to the planet.    This sends it as an astroid. http://youtu.be/Eu5ZJELRiJ8?t=42s
     public func writePing(data: NSData, completion: (() -> ())? = nil) {
         guard isConnected else { return }
-        dequeueWrite(data, code: .Ping, writeCompletion: completion)
+        let callback: () -> Void = { [weak self] in
+            // invoke the original completion handler
+            completion?()
+            guard let sself = self else { return }
+            sself.onPingSend?()
+            sself.pingDelegate?.websocketDidSendPing(sself)
+        }
+        dequeueWrite(data, code: .Ping, writeCompletion: callback)
     }
 
     /// Private method that starts the connection.
@@ -252,7 +271,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
 
         var port = url.port
         if port == nil {
-            if supportedSSLSchemes.contains(url.scheme!) {
+            if supportedSSLSchemes.contains(url.scheme) {
                 port = 443
             } else {
                 port = 80
@@ -310,7 +329,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
         guard let inStream = inputStream, let outStream = outputStream else { return }
         inStream.delegate = self
         outStream.delegate = self
-        if supportedSSLSchemes.contains(url.scheme!) {
+        if supportedSSLSchemes.contains(url.scheme) {
             inStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
             outStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
         } else {
@@ -592,7 +611,17 @@ public class WebSocket: NSObject, NSStreamDelegate {
                 writeError(errCode)
                 return emptyBuffer
             }
-            let isControlFrame = (receivedOpcode == .ConnectionClose || receivedOpcode == .Ping)
+            let receivedPing: Bool = (receivedOpcode == .Ping)
+            if receivedPing {
+                if canDispatch {
+                    dispatch_async(callbackQueue) { [weak self] in
+                        guard let s = self else { return }
+                        s.onPingReceive?()
+                        s.pingDelegate?.websocketDidReceivePing(s)
+                    }
+                }
+            }
+            let isControlFrame = (receivedOpcode == .ConnectionClose || receivedPing)
             if !isControlFrame && (receivedOpcode != .BinaryFrame && receivedOpcode != .ContinueFrame &&
                 receivedOpcode != .TextFrame && receivedOpcode != .Pong) {
                 let errCode = CloseCode.ProtocolError.rawValue
@@ -664,7 +693,7 @@ public class WebSocket: NSObject, NSStreamDelegate {
                 if canDispatch {
                     dispatch_async(callbackQueue) { [weak self] in
                         guard let s = self else { return }
-                        s.onPong?()
+                        s.onPongReceive?()
                         s.pongDelegate?.websocketDidReceivePong(s)
                     }
                 }
@@ -737,7 +766,12 @@ public class WebSocket: NSObject, NSStreamDelegate {
         if response.isFin && response.bytesLeft <= 0 {
             if response.code == .Ping {
                 let data = response.buffer! // local copy so it's not perverse for writing
-                dequeueWrite(data, code: OpCode.Pong)
+                let callback: () -> Void = { [weak self] in
+                    guard let sself = self else { return }
+                    sself.onPongSend?()
+                    sself.pongDelegate?.websocketDidSendPong(sself)
+                }
+                dequeueWrite(data, code: OpCode.Pong, writeCompletion: callback)
             } else if response.code == .TextFrame {
                 let str: NSString? = NSString(data: response.buffer!, encoding: NSUTF8StringEncoding)
                 if str == nil {
