@@ -447,7 +447,6 @@ open class WebSocket : NSObject, StreamDelegate {
         let buf = NSMutableData(capacity: BUFFER_MAX)
         let buffer = UnsafeMutableRawPointer(mutating: buf!.bytes).assumingMemoryBound(to: UInt8.self)
         let length = inputStream!.read(buffer, maxLength: BUFFER_MAX)
-
         guard length > 0 else { return }
         var process = false
         if inputQueue.count == 0 {
@@ -643,34 +642,22 @@ open class WebSocket : NSObject, StreamDelegate {
                 writeError(errCode)
                 return emptyBuffer
             }
+            var closeCode = CloseCode.normal.rawValue
             if receivedOpcode == .connectionClose {
-                var code = CloseCode.normal.rawValue
                 if payloadLen == 1 {
-                    code = CloseCode.protocolError.rawValue
+                    closeCode = CloseCode.protocolError.rawValue
                 } else if payloadLen > 1 {
-                    code = WebSocket.readUint16(baseAddress, offset: offset)
-                    if code < 1000 || (code > 1003 && code < 1007) || (code > 1011 && code < 3000) {
-                        code = CloseCode.protocolError.rawValue
-                    }
-                    offset += 2
-                }
-                var closeReason = "connection closed by server"
-                if payloadLen > 2 {
-                    let len = Int(payloadLen - 2)
-                    if len > 0 {
-                        let bytes = baseAddress + offset
-                        if let customCloseReason = String(data: Data(bytes: bytes, count: len), encoding: .utf8) {
-                            closeReason = customCloseReason
-                        } else {
-                            code = CloseCode.protocolError.rawValue
-                        }
+                    closeCode = WebSocket.readUint16(baseAddress, offset: offset)
+                    if closeCode < 1000 || (closeCode > 1003 && closeCode < 1007) || (closeCode > 1011 && closeCode < 3000) {
+                        closeCode = CloseCode.protocolError.rawValue
                     }
                 }
-                doDisconnect(errorWithDetail(closeReason, code: code))
-                writeError(code)
-                return emptyBuffer
-            }
-            if isControlFrame && payloadLen > 125 {
+                if payloadLen < 2 {
+                    doDisconnect(errorWithDetail("connection closed by server", code: closeCode))
+                    writeError(closeCode)
+                    return emptyBuffer
+                }
+            } else if isControlFrame && payloadLen > 125 {
                 writeError(CloseCode.protocolError.rawValue)
                 return emptyBuffer
             }
@@ -695,7 +682,23 @@ open class WebSocket : NSObject, StreamDelegate {
                 len = 0
                 data = Data()
             } else {
+                if receivedOpcode == .connectionClose && len > 0 {
+                    let size = MemoryLayout<UInt16>.size
+                    offset += size
+                    len -= UInt64(size)
+                }
                 data = Data(bytes: baseAddress+offset, count: Int(len))
+            }
+            if receivedOpcode == .connectionClose {
+                var closeReason = "connection closed by server"
+                if let customCloseReason = String(data: data, encoding: .utf8) {
+                    closeReason = customCloseReason
+                } else {
+                    closeCode = CloseCode.protocolError.rawValue
+                }
+                doDisconnect(errorWithDetail(closeReason, code: closeCode))
+                writeError(closeCode)
+                return emptyBuffer
             }
             if receivedOpcode == .pong {
                 if canDispatch {
