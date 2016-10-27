@@ -128,7 +128,7 @@ open class WebSocket : NSObject, StreamDelegate {
     public var headers = [String: String]()
     public var voipEnabled = false
     public var disableSSLCertValidation = false
-    public var security: SSLSecurity?
+    public var security: SSLTrustValidator?
     public var enabledSSLCipherSuites: [SSLCipherSuite]?
     public var origin: String?
     public var timeout = 5
