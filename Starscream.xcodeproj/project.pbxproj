@@ -152,7 +152,8 @@
 				6B3E7A0019D48C2F006071F7 /* Info.plist */,
 				742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */,
 			);
-			path = Tests;
+			name = StarscreamTests;
+			path = Tests/StarscreamTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
