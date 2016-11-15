@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [2.0.2](https://github.com/daltoniam/Starscream/tree/2.0.2)
+
+Fix for the Swift Package Manager.
+
+Fixed: 
+[#277](https://github.com/daltoniam/Starscream/issues/277)
+
 #### [2.0.1](https://github.com/daltoniam/Starscream/tree/2.0.1)
 
 Bug fixes.
