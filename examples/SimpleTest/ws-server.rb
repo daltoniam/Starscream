@@ -8,7 +8,7 @@ EM.run {
       puts "origin: #{handshake.origin}"
       puts "headers: #{handshake.headers}"
 
-      ws.send "Hello Client, you connected to #{handshake.path}"
+      ws.send "Hello Client, you connected to #{handshake.path} with origin #{handshake.origin}"
     }
 
     ws.onerror do |error|
