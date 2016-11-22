@@ -463,22 +463,24 @@ open class WebSocket : NSObject, StreamDelegate {
      */
     private func dequeueInput() {
         while !inputQueue.isEmpty {
-            let data = inputQueue[0]
-            var work = data
-            if let fragBuffer = fragBuffer {
-                var combine = NSData(data: fragBuffer) as Data
-                combine.append(data)
-                work = combine
-                self.fragBuffer = nil
+            autoreleasepool {
+                let data = inputQueue[0]
+                var work = data
+                if let fragBuffer = fragBuffer {
+                    var combine = NSData(data: fragBuffer) as Data
+                    combine.append(data)
+                    work = combine
+                    self.fragBuffer = nil
+                }
+                let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
+                let length = work.count
+                if !connected {
+                    processTCPHandshake(buffer, bufferLen: length)
+                } else {
+                    processRawMessagesInBuffer(buffer, bufferLen: length)
+                }
+                inputQueue = inputQueue.filter{ $0 != data }
             }
-            let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
-            let length = work.count
-            if !connected {
-                processTCPHandshake(buffer, bufferLen: length)
-            } else {
-                processRawMessagesInBuffer(buffer, bufferLen: length)
-            }
-            inputQueue = inputQueue.filter{ $0 != data }
         }
     }
     
