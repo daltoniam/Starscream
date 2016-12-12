@@ -166,6 +166,7 @@ open class WebSocket : NSObject, StreamDelegate {
     /// Used for setting protocols.
     public init(url: URL, protocols: [String]? = nil) {
         self.url = url
+        self.origin = url.absoluteString
         if let hostUrl = URL (string: "/", relativeTo: url) {
             var origin = hostUrl.absoluteString
             origin.remove(at: origin.index(before: origin.endIndex))
