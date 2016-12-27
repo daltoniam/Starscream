@@ -190,7 +190,6 @@ open class WebSocket : NSObject, StreamDelegate {
         didDisconnect = false
         isConnecting = true
         createHTTPRequest()
-        isConnecting = false
     }
 
     /**
@@ -494,6 +493,7 @@ open class WebSocket : NSObject, StreamDelegate {
         let code = processHTTP(buffer, bufferLen: bufferLen)
         switch code {
         case 0:
+            isConnecting = false
             connected = true
             guard canDispatch else {return}
             callbackQueue.async { [weak self] in
@@ -906,6 +906,7 @@ open class WebSocket : NSObject, StreamDelegate {
     private func doDisconnect(_ error: NSError?) {
         guard !didDisconnect else { return }
         didDisconnect = true
+        isConnecting = false
         connected = false
         guard canDispatch else {return}
         callbackQueue.async { [weak self] in
