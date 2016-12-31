@@ -500,6 +500,7 @@ open class WebSocket : NSObject, StreamDelegate {
         case 0:
             isConnecting = false
             connected = true
+            didDisconnect = false
             guard canDispatch else {return}
             callbackQueue.async { [weak self] in
                 guard let s = self else { return }
