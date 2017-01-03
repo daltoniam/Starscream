@@ -36,6 +36,12 @@ public protocol WebSocketDelegate: class {
 
 public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocket, data: Data?)
+    func websocketDidSendPong(socket: WebSocket, data: Data?)
+}
+
+public protocol WebSocketPingDelegate: class {
+    func websocketDidReceivePing(socket: WebSocket, data: Data?)
+    func websocketDidSendPing(socket: WebSocket, data: Data?)
 }
 
 open class WebSocket : NSObject, StreamDelegate {
@@ -115,7 +121,9 @@ open class WebSocket : NSObject, StreamDelegate {
 
     /// Receives a callback for each pong message recived.
     public weak var pongDelegate: WebSocketPongDelegate?
-
+    
+    /// Recives a callback for each ping message received.
+    public weak var pingDelegate: WebSocketPingDelegate?
 
     // MARK: - Block based API.
 
@@ -123,7 +131,11 @@ open class WebSocket : NSObject, StreamDelegate {
     public var onDisconnect: ((NSError?) -> Void)?
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
-    public var onPong: ((Data?) -> Void)?
+    
+    public var onPongSend: ((Data?) -> Void)?
+    public var onPongReceive: ((Data?) -> Void)?
+    public var onPingSend: ((Data?) -> Void)?
+    public var onPingReceive: ((Data?) -> Void)?
 
     public var headers = [String: String]()
     public var voipEnabled = false
@@ -250,7 +262,13 @@ open class WebSocket : NSObject, StreamDelegate {
      */
     open func write(ping: Data, completion: (() -> ())? = nil) {
         guard isConnected else { return }
-        dequeueWrite(ping, code: .ping, writeCompletion: completion)
+        let callback = { [weak self] in
+            completion?()
+            guard let s = self else { return }
+            s.onPingSend?(ping)
+            s.pingDelegate?.websocketDidSendPing(socket: s, data: ping)
+        }
+        dequeueWrite(ping, code: .ping, writeCompletion: callback)
     }
 
     /**
@@ -715,7 +733,7 @@ open class WebSocket : NSObject, StreamDelegate {
                     callbackQueue.async { [weak self] in
                         guard let s = self else { return }
                         let pongData: Data? = data.count > 0 ? data : nil
-                        s.onPong?(pongData)
+                        s.onPongReceive?(pongData)
                         s.pongDelegate?.websocketDidReceivePong(socket: s, data: pongData)
                     }
                 }
@@ -791,8 +809,25 @@ open class WebSocket : NSObject, StreamDelegate {
     private func processResponse(_ response: WSResponse) -> Bool {
         if response.isFin && response.bytesLeft <= 0 {
             if response.code == .ping {
+                
                 let data = response.buffer! // local copy so it is perverse for writing
-                dequeueWrite(data as Data, code: .pong)
+                
+                if canDispatch {
+                    callbackQueue.async { [weak self] in
+                        guard let s = self else { return }
+                        s.onPingReceive?(data as Data)
+                        s.pingDelegate?.websocketDidReceivePing(socket: s, data: data as Data)
+                    }
+                }
+                
+                let completion = { [weak self ] in
+                    guard let s = self else { return }
+                    s.onPongSend?(data as Data)
+                    s.pongDelegate?.websocketDidSendPong(socket: s, data: data as Data)
+                }
+                
+                dequeueWrite(data as Data, code: .pong, writeCompletion: completion)
+                
             } else if response.code == .textFrame {
                 let str: NSString? = NSString(data: response.buffer! as Data, encoding: String.Encoding.utf8.rawValue)
                 if str == nil {
