@@ -519,14 +519,32 @@ open class WebSocket : NSObject, StreamDelegate {
      Finds the HTTP Packet in the TCP stream, by looking for the CRLF.
      */
     private func processHTTP(_ buffer: UnsafePointer<UInt8>, bufferLen: Int) -> Int {
+        // Find the start of the packet
+        let HTTPBytes = [UInt8(ascii: "H"), UInt8(ascii: "T"), UInt8(ascii: "T"), UInt8(ascii: "P")]
+        var l = 0
+        var startingIndex = 0
+        for i in 0..<bufferLen {
+            if buffer[i] == HTTPBytes[l] {
+                l += 1
+                if l == HTTPBytes.count {
+                    startingIndex = i + 1 - HTTPBytes.count
+                    break
+                }
+                
+            } else {
+                l = 0
+            }
+        }
+        
+        
         let CRLFBytes = [UInt8(ascii: "\r"), UInt8(ascii: "\n"), UInt8(ascii: "\r"), UInt8(ascii: "\n")]
         var k = 0
         var totalSize = 0
-        for i in 0..<bufferLen {
+        for i in startingIndex..<bufferLen {
             if buffer[i] == CRLFBytes[k] {
                 k += 1
                 if k == 3 {
-                    totalSize = i + 1
+                    totalSize = i + 1 - startingIndex
                     break
                 }
             } else {
@@ -534,14 +552,14 @@ open class WebSocket : NSObject, StreamDelegate {
             }
         }
         if totalSize > 0 {
-            let code = validateResponse(buffer, bufferLen: totalSize)
+            let code = validateResponse(buffer + startingIndex, bufferLen: totalSize)
             if code != 0 {
                 return code
             }
             totalSize += 1 //skip the last \n
-            let restSize = bufferLen - totalSize
+            let restSize = bufferLen - totalSize - startingIndex
             if restSize > 0 {
-                processRawMessagesInBuffer(buffer + totalSize, bufferLen: restSize)
+                processRawMessagesInBuffer(buffer + totalSize + startingIndex, bufferLen: restSize)
             }
             return 0 //success
         }
