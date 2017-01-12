@@ -454,6 +454,7 @@ open class WebSocket : NSObject, StreamDelegate {
         }
         outputStream = nil
         inputStream = nil
+        fragBuffer = nil
     }
 
     /**
@@ -482,11 +483,11 @@ open class WebSocket : NSObject, StreamDelegate {
             autoreleasepool {
                 let data = inputQueue[0]
                 var work = data
-                if let fragBuffer = fragBuffer {
-                    var combine = NSData(data: fragBuffer) as Data
+                if let buffer = fragBuffer {
+                    var combine = NSData(data: buffer) as Data
                     combine.append(data)
                     work = combine
-                    self.fragBuffer = nil
+                    fragBuffer = nil
                 }
                 let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
                 let length = work.count
