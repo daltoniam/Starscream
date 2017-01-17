@@ -35,12 +35,28 @@ public protocol WebSocketDelegate: class {
 }
 
 public protocol WebSocketPongDelegate: class {
+    /**
+     Called when a pong is received from the server.
+     */
     func websocketDidReceivePong(socket: WebSocket, data: Data?)
+    
+    /**
+     Called when a pong is succesfully sent to the server.
+     */
     func websocketDidSendPong(socket: WebSocket, data: Data?)
 }
 
 public protocol WebSocketPingDelegate: class {
+    
+    /**
+     Called when a ping is received by the server. Responding to the
+     ping is handled internally.
+     */
     func websocketDidReceivePing(socket: WebSocket, data: Data?)
+    
+    /**
+     Called when a ping is successfully sent to the server.
+     */
     func websocketDidSendPing(socket: WebSocket, data: Data?)
 }
 
@@ -132,9 +148,25 @@ open class WebSocket : NSObject, StreamDelegate {
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
     
+    /**
+     Called when a pong is sucessfully sent to the server.
+     */
     public var onPongSend: ((Data?) -> Void)?
+    
+    /**
+     Called when a pong is received from the server.
+     */
     public var onPongReceive: ((Data?) -> Void)?
+    
+    /**
+     Called when a ping is successfully sent to the server.
+     */
     public var onPingSend: ((Data?) -> Void)?
+
+    /**
+     Called when a ping is received by the server. Responding to the
+     ping is handled internally.
+     */
     public var onPingReceive: ((Data?) -> Void)?
 
     public var headers = [String: String]()
