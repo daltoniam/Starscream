@@ -11,10 +11,6 @@ It's Objective-C counter part can be found here: [Jetfire](https://github.com/ac
 - TLS/WSS support.
 - Simple concise codebase at just a few hundred LOC.
 
-## Swift 2.3
-
-See release/tag 1.1.4 for Swift 2.3 support.
-
 ## Example
 
 First thing is to import the framework. See the Installation instructions on how to add the framework to your project.
@@ -231,7 +227,7 @@ To use Starscream in your project add the following 'Podfile' to your project
 	platform :ios, '9.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 2.0.0'
+	pod 'Starscream', '~> 2.0.3'
 
 Then run:
 
@@ -253,7 +249,7 @@ $ brew install carthage
 To integrate Starscream into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```
-github "daltoniam/Starscream" >= 2.0.0
+github "daltoniam/Starscream" >= 2.0.3
 ```
 
 ### Rogue
