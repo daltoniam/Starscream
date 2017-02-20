@@ -27,6 +27,15 @@ public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
 public let WebsocketDisconnectionErrorKeyName = "WebsocketDisconnectionErrorKeyName"
 
+public protocol WebSocketClient: class {
+    func connect()
+    func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
+    func write(string: String, completion: (() -> ())?)
+    func write(data: Data, completion: (() -> ())?)
+    func write(ping: Data, completion: (() -> ())?)
+    func stream(_ aStream: Stream, handle eventCode: Stream.Event)
+}
+
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocket)
     func websocketDidDisconnect(socket: WebSocket, error: NSError?)
@@ -38,7 +47,7 @@ public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocket, data: Data?)
 }
 
-open class WebSocket : NSObject, StreamDelegate {
+open class WebSocket : NSObject, StreamDelegate, WebSocketClient {
     
     enum OpCode : UInt8 {
         case continueFrame = 0x0
