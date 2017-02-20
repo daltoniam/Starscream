@@ -28,6 +28,8 @@ public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotificat
 public let WebsocketDisconnectionErrorKeyName = "WebsocketDisconnectionErrorKeyName"
 
 public protocol WebSocketClient: class {
+    var delegate: WebSocketDelegate? {get set }
+
     func connect()
     func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
     func write(string: String, completion: (() -> ())?)
