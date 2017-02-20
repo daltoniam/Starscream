@@ -80,18 +80,17 @@ extension WebSocketClient {
 }
 
 public protocol WebSocketDelegate: class {
-    func websocketDidConnect(socket: WebSocket)
-    func websocketDidDisconnect(socket: WebSocket, error: NSError?)
-    func websocketDidReceiveMessage(socket: WebSocket, text: String)
-    func websocketDidReceiveData(socket: WebSocket, data: Data)
+    func websocketDidConnect(socket: WebSocketClient)
+    func websocketDidDisconnect(socket: WebSocketClient, error: NSError?)
+    func websocketDidReceiveMessage(socket: WebSocketClient, text: String)
+    func websocketDidReceiveData(socket: WebSocketClient, data: Data)
 }
 
 public protocol WebSocketPongDelegate: class {
-    func websocketDidReceivePong(socket: WebSocket, data: Data?)
+    func websocketDidReceivePong(socket: WebSocketClient, data: Data?)
 }
 
 open class WebSocket : NSObject, StreamDelegate, WebSocketClient {
-    
     enum OpCode : UInt8 {
         case continueFrame = 0x0
         case textFrame = 0x1
