@@ -27,15 +27,35 @@ public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
 public let WebsocketDisconnectionErrorKeyName = "WebsocketDisconnectionErrorKeyName"
 
+public enum CloseCode : UInt16 {
+    case normal                 = 1000
+    case goingAway              = 1001
+    case protocolError          = 1002
+    case protocolUnhandledType  = 1003
+    // 1004 reserved.
+    case noStatusReceived       = 1005
+    //1006 reserved.
+    case encoding               = 1007
+    case policyViolated         = 1008
+    case messageTooBig          = 1009
+}
+
 public protocol WebSocketClient: class {
     var delegate: WebSocketDelegate? {get set }
 
     func connect()
+    func disconnect()
     func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
     func write(string: String, completion: (() -> ())?)
     func write(data: Data, completion: (() -> ())?)
     func write(ping: Data, completion: (() -> ())?)
     func stream(_ aStream: Stream, handle eventCode: Stream.Event)
+}
+
+extension WebSocketClient {
+    public func disconnect() {
+        disconnect(forceTimeout: nil, closeCode: CloseCode.normal.rawValue)
+    }
 }
 
 public protocol WebSocketDelegate: class {
@@ -60,19 +80,6 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient {
         case ping = 0x9
         case pong = 0xA
         // B-F reserved.
-    }
-    
-    public enum CloseCode : UInt16 {
-        case normal                 = 1000
-        case goingAway              = 1001
-        case protocolError          = 1002
-        case protocolUnhandledType  = 1003
-        // 1004 reserved.
-        case noStatusReceived       = 1005
-        //1006 reserved.
-        case encoding               = 1007
-        case policyViolated         = 1008
-        case messageTooBig          = 1009
     }
 
     public static let ErrorDomain = "WebSocket"
@@ -213,7 +220,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient {
      - Parameter forceTimeout: Maximum time to wait for the server to close the socket.
      - Parameter closeCode: The code to send on disconnect. The default is the normal close code for cleanly disconnecting a webSocket.
     */
-    open func disconnect(forceTimeout: TimeInterval? = nil, closeCode: UInt16 = CloseCode.normal.rawValue) {
+    open func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16) {
         guard isConnected else { return }
         switch forceTimeout {
         case .some(let seconds) where seconds > 0:
