@@ -43,8 +43,17 @@ public enum CloseCode : UInt16 {
 public protocol WebSocketClient: class {
     var delegate: WebSocketDelegate? {get set }
 
+    var headers:[String: String] { get set }
+    var voipEnabled: Bool { get set }
+    var disableSSLCertValidation: Bool { get set }
+    var security: SSLTrustValidator? { get set }
+    var enabledSSLCipherSuites: [SSLCipherSuite]? { get set }
+    var origin: String? { get set }
+    var timeout: Int { get set }
+    var isConnected: Bool { get }
+
+
     func connect()
-    func disconnect()
     func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
     func write(string: String, completion: (() -> ())?)
     func write(data: Data, completion: (() -> ())?)
@@ -53,6 +62,18 @@ public protocol WebSocketClient: class {
 }
 
 extension WebSocketClient {
+    public func write(string: String) {
+        write(string: string, completion: nil)
+    }
+
+    public func write(data: Data) {
+        write(data: data, completion: nil)
+    }
+
+    public func write(ping: Data) {
+        write(ping: ping, completion: nil)
+    }
+
     public func disconnect() {
         disconnect(forceTimeout: nil, closeCode: CloseCode.normal.rawValue)
     }
