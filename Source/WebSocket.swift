@@ -641,7 +641,14 @@ open class WebSocket : NSObject, StreamDelegate {
             return buffer.fromOffset(bufferLen - extra)
         } else {
             let isFin = (FinMask & baseAddress[0])
-            let receivedOpcode = OpCode(rawValue: (OpCodeMask & baseAddress[0]))
+            let rawOpCode = OpCodeMask & baseAddress[0]
+            guard let receivedOpcode = OpCode(rawValue: rawOpCode) else {
+                let errCode = CloseCode.protocolError.rawValue
+                doDisconnect(errorWithDetail("unknown opcode: \(rawOpCode)", code: errCode))
+                writeError(errCode)
+                return emptyBuffer
+            }
+
             let isMasked = (MaskMask & baseAddress[1])
             let payloadLen = (PayloadLenMask & baseAddress[1])
             var offset = 2
@@ -652,13 +659,6 @@ open class WebSocket : NSObject, StreamDelegate {
                 return emptyBuffer
             }
             let isControlFrame = (receivedOpcode == .connectionClose || receivedOpcode == .ping)
-            if !isControlFrame && (receivedOpcode != .binaryFrame && receivedOpcode != .continueFrame &&
-                receivedOpcode != .textFrame && receivedOpcode != .pong) {
-                    let errCode = CloseCode.protocolError.rawValue
-                    doDisconnect(errorWithDetail("unknown opcode: \(receivedOpcode)", code: errCode))
-                    writeError(errCode)
-                    return emptyBuffer
-            }
             if isControlFrame && isFin == 0 {
                 let errCode = CloseCode.protocolError.rawValue
                 doDisconnect(errorWithDetail("control frames can't be fragmented", code: errCode))
@@ -701,17 +701,13 @@ open class WebSocket : NSObject, StreamDelegate {
                 len = UInt64(bufferLen-offset)
             }
             let data: Data
-            if len < 0 {
-                len = 0
-                data = Data()
-            } else {
-                if receivedOpcode == .connectionClose && len > 0 {
-                    let size = MemoryLayout<UInt16>.size
-                    offset += size
-                    len -= UInt64(size)
-                }
-                data = Data(bytes: baseAddress+offset, count: Int(len))
+            if receivedOpcode == .connectionClose && len > 0 {
+                let size = MemoryLayout<UInt16>.size
+                offset += size
+                len -= UInt64(size)
             }
+            data = Data(bytes: baseAddress+offset, count: Int(len))
+
             if receivedOpcode == .connectionClose {
                 var closeReason = "connection closed by server"
                 if let customCloseReason = String(data: data, encoding: .utf8) {
@@ -755,7 +751,7 @@ open class WebSocket : NSObject, StreamDelegate {
                 }
                 isNew = true
                 response = WSResponse()
-                response!.code = receivedOpcode!
+                response!.code = receivedOpcode
                 response!.bytesLeft = Int(dataLength)
                 response!.buffer = NSMutableData(data: data)
             } else {
