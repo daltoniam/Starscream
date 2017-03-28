@@ -160,9 +160,7 @@ open class WebSocket : NSObject, StreamDelegate {
         mutex.unlock()
         return canWork
     }
-    /// The shared processing queue used for all WebSocket.
-    private let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
-    
+
     /// Queue used for processing reads from the socket.
     private let readStreamQueue = DispatchQueue(label: "com.vluxe.starscream.websocket.read")
     
@@ -179,6 +177,7 @@ open class WebSocket : NSObject, StreamDelegate {
             self.origin = origin
         }
         writeQueue.maxConcurrentOperationCount = 1
+        writeQueue.underlyingQueue = writeStreamQueue
         optionalProtocols = protocols
     }
     
@@ -395,10 +394,8 @@ open class WebSocket : NSObject, StreamDelegate {
                 guard !sOperation.isCancelled else { return }
                 out -= 100
                 if out < 0 {
-                    self?.sharedWorkQueue.async {
-                        self?.cleanupStream()
-                        self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: 2))
-                    }
+                    self?.cleanupStream()
+                    self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: 2))
                     return
                 } else if outStream.streamError != nil {
                     return // disconnectStream will be called.
@@ -411,7 +408,7 @@ open class WebSocket : NSObject, StreamDelegate {
                 let domain = outStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as? String
                 s.certValidated = sec.isValid(trust, domain: domain)
                 if !s.certValidated {
-                    self?.sharedWorkQueue.async {
+                    self?.writeStreamQueue.async {
                         let error = s.errorWithDetail("Invalid SSL certificate", code: 1)
                         s.disconnectStream(error)
                     }
@@ -459,13 +456,13 @@ open class WebSocket : NSObject, StreamDelegate {
      */
     private func cleanupStream() {
         if let stream = inputStream {
-            sharedWorkQueue.async {
+            readStreamQueue.async {
                 CFReadStreamSetDispatchQueue(stream, nil)
                 stream.close()
             }
         }
         if let stream = outputStream {
-            sharedWorkQueue.async {
+            writeStreamQueue.async {
                 CFWriteStreamSetDispatchQueue(stream, nil)
                 stream.close()
             }
