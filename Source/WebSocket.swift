@@ -162,7 +162,13 @@ open class WebSocket : NSObject, StreamDelegate {
     }
     /// The shared processing queue used for all WebSocket.
     private static let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
-    
+
+    /// Queue used for processing reads from the socket.
+    private let readStreamQueue = DispatchQueue(label: "com.vluxe.starscream.websocket.read")
+
+    /// Queue used for processing writes to the socket. This is also used as the shared work queue.
+    private let writeStreamQueue = DispatchQueue(label: "com.vluxe.starscream.websocket.write")
+
     /// Used for setting protocols.
     public init(url: URL, protocols: [String]? = nil) {
         self.url = url
@@ -173,14 +179,23 @@ open class WebSocket : NSObject, StreamDelegate {
             self.origin = origin
         }
         writeQueue.maxConcurrentOperationCount = 1
+        writeQueue.underlyingQueue = writeStreamQueue
         optionalProtocols = protocols
     }
     
     // Used for specifically setting the QOS for the write queue.
-    public convenience init(url: URL, writeQueueQOS: QualityOfService, protocols: [String]? = nil) {
+    public convenience init(url: URL,
+                            writeQueueQOS: QualityOfService,
+                            protocols: [String]? = nil,
+                            readStreamQOS: DispatchQoS.QoSClass = .default,
+                            writeStreamQOS: DispatchQoS.QoSClass = .default) {
         self.init(url: url, protocols: protocols)
         writeQueue.qualityOfService = writeQueueQOS
+
+        readStreamQueue.setTarget(queue: DispatchQueue.global(qos: readStreamQOS))
+        writeStreamQueue.setTarget(queue: DispatchQueue.global(qos: writeStreamQOS))
     }
+
 
     /**
      Connect to the WebSocket server on a background thread.
@@ -362,11 +377,13 @@ open class WebSocket : NSObject, StreamDelegate {
             inStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
             outStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
         }
-        
-        CFReadStreamSetDispatchQueue(inStream, WebSocket.sharedWorkQueue)
-        CFWriteStreamSetDispatchQueue(outStream, WebSocket.sharedWorkQueue)
-        inStream.open()
-        outStream.open()
+
+        WebSocket.sharedWorkQueue.sync {
+            CFReadStreamSetDispatchQueue(inStream, self.readStreamQueue)
+            CFWriteStreamSetDispatchQueue(outStream, self.writeStreamQueue)
+            inStream.open()
+            outStream.open()
+        }
 
         self.mutex.lock()
         self.readyToWrite = true
@@ -434,7 +451,9 @@ open class WebSocket : NSObject, StreamDelegate {
         } else {
             writeQueue.cancelAllOperations()
         }
-        cleanupStream()
+        WebSocket.sharedWorkQueue.sync {
+            self.cleanupStream()
+        }
         connected = false
         if runDelegate {
             doDisconnect(error)
@@ -808,7 +827,7 @@ open class WebSocket : NSObject, StreamDelegate {
         if response.isFin && response.bytesLeft <= 0 {
             if response.code == .ping {
                 let data = response.buffer! // local copy so it is perverse for writing
-                dequeueWrite(data as Data, code: .pong)
+                dequeueWrite(data as Data, code: .pong, priority: .veryHigh)
             } else if response.code == .textFrame {
                 let str: NSString? = NSString(data: response.buffer! as Data, encoding: String.Encoding.utf8.rawValue)
                 if str == nil {
@@ -860,8 +879,9 @@ open class WebSocket : NSObject, StreamDelegate {
     /**
      Used to write things to the stream
      */
-    private func dequeueWrite(_ data: Data, code: OpCode, writeCompletion: (() -> ())? = nil) {
+    private func dequeueWrite(_ data: Data, code: OpCode, priority: Operation.QueuePriority = .normal, writeCompletion: (() -> ())? = nil) {
         let operation = BlockOperation()
+        operation.queuePriority = priority
         operation.addExecutionBlock { [weak self, weak operation] in
             //stream isn't ready, let's wait
             guard let s = self else { return }
