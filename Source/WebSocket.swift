@@ -331,6 +331,7 @@ open class WebSocket : NSObject, StreamDelegate {
         inStream.delegate = self
         outStream.delegate = self
         if supportedSSLSchemes.contains(url.scheme!) {
+            certValidated = false
             inStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
             outStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
             if disableSSLCertValidation {
@@ -644,7 +645,8 @@ open class WebSocket : NSObject, StreamDelegate {
             return buffer.fromOffset(bufferLen - extra)
         } else {
             let isFin = (FinMask & baseAddress[0])
-            let receivedOpcode = OpCode(rawValue: (OpCodeMask & baseAddress[0]))
+            let receivedOpcodeRawValue = (OpCodeMask & baseAddress[0])
+            let receivedOpcode = OpCode(rawValue: receivedOpcodeRawValue)
             let isMasked = (MaskMask & baseAddress[1])
             let payloadLen = (PayloadLenMask & baseAddress[1])
             var offset = 2
@@ -658,7 +660,7 @@ open class WebSocket : NSObject, StreamDelegate {
             if !isControlFrame && (receivedOpcode != .binaryFrame && receivedOpcode != .continueFrame &&
                 receivedOpcode != .textFrame && receivedOpcode != .pong) {
                     let errCode = CloseCode.protocolError.rawValue
-                    doDisconnect(errorWithDetail("unknown opcode: \(receivedOpcode)", code: errCode))
+                    doDisconnect(errorWithDetail("unknown opcode: \(receivedOpcodeRawValue)", code: errCode))
                     writeError(errCode)
                     return emptyBuffer
             }
@@ -703,18 +705,13 @@ open class WebSocket : NSObject, StreamDelegate {
             if dataLength > UInt64(bufferLen) {
                 len = UInt64(bufferLen-offset)
             }
-            let data: Data
-            if len < 0 {
-                len = 0
-                data = Data()
-            } else {
-                if receivedOpcode == .connectionClose && len > 0 {
-                    let size = MemoryLayout<UInt16>.size
-                    offset += size
-                    len -= UInt64(size)
-                }
-                data = Data(bytes: baseAddress+offset, count: Int(len))
+            if receivedOpcode == .connectionClose && len > 0 {
+                let size = MemoryLayout<UInt16>.size
+                offset += size
+                len -= UInt64(size)
             }
+            let data = Data(bytes: baseAddress+offset, count: Int(len))
+            
             if receivedOpcode == .connectionClose {
                 var closeReason = "connection closed by server"
                 if let customCloseReason = String(data: data, encoding: .utf8) {

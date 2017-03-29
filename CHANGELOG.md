@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [2.0.4](https://github.com/daltoniam/Starscream/tree/2.0.4)
+
+SSL Pinning fix by Giuliano Galea as reported by Lukas Futera of [Centralway](https://www.centralway.com/de/).
+Warning fixes for Swift 3.1
+
 #### [2.0.3](https://github.com/daltoniam/Starscream/tree/2.0.3)
 
 [#302](https://github.com/daltoniam/Starscream/issues/302)
