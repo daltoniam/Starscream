@@ -187,7 +187,7 @@ socket.disableSSLCertValidation = true
 
 ### SSL Pinning
 
-SSL Pinning is also supported in Starscream. 
+SSL Pinning is also supported in Starscream.
 
 ```swift
 socket = WebSocket(url: URL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
@@ -263,6 +263,18 @@ rogue add https://github.com/daltoniam/starscream
 ```
 
 Next open the `libs` folder and add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in your "Build Phases" add the `Starscream.framework` to your "Link Binary with Libraries" phase. Make sure to add the `libs` folder to your `.gitignore` file.
+
+### Swift Package Manager
+
+The [Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler.
+
+Once you have your Swift package set up, adding Starscream as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
+
+```swift
+dependencies: [
+    .Package(url: "https://github.com/daltoniam/Starscream.git", majorVersion: 2)
+]
+```
 
 ### Other
 
