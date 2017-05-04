@@ -197,6 +197,19 @@ socket.security = SSLSecurity(certs: [SSLCert(data: data)], usePublicKeys: true)
 ```
 You load either a `Data` blob of your certificate or you can use a `SecKeyRef` if you have a public key you want to use. The `usePublicKeys` bool is whether to use the certificates for validation or the public keys. The public keys will be extracted from the certificates automatically if `usePublicKeys` is choosen.
 
+### SSL Cipher Suites
+
+To use an SSL encrypted connection, you need to tell Starscream about the cipher suites your server supports. 
+
+```swift
+socket = WebSocket(url: URL(string: "wss://localhost:8080/")!, protocols: ["chat","superchat"])
+
+// Set enabled cipher suites to AES 256 and AES 128
+socket.enabledSSLCipherSuites = [TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256] 
+```
+
+If you don't know which cipher suites are supported by your server, you can try pointing [SSL Labs](https://www.ssllabs.com/ssltest/) at it and checking the results.
+
 ### Custom Queue
 
 A custom queue can be specified when delegate methods are called. By default `DispatchQueue.main` is used, thus making all delegate methods calls run on the main thread. It is important to note that all WebSocket processing is done on a background thread, only the delegate method calls are changed when modifying the queue. The actual processing is always on a background thread and will not pause your app.
