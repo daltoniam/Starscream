@@ -160,8 +160,12 @@ open class WebSocket : NSObject, StreamDelegate {
         mutex.unlock()
         return canWork
     }
-    /// The shared processing queue used for all WebSocket.
-    private static let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
+
+    /// Queue used for processing reads from the socket.
+    private let readStreamQueue = DispatchQueue(label: "com.vluxe.starscream.websocket.read")
+    
+    /// Queue used for processing writes to the socket. This is also used as the shared work queue.
+    private let writeStreamQueue = DispatchQueue(label: "com.vluxe.starscream.websocket.write")
     
     /// Used for setting protocols.
     public init(url: URL, protocols: [String]? = nil) {
@@ -173,13 +177,21 @@ open class WebSocket : NSObject, StreamDelegate {
             self.origin = origin
         }
         writeQueue.maxConcurrentOperationCount = 1
+        writeQueue.underlyingQueue = writeStreamQueue
         optionalProtocols = protocols
     }
     
     // Used for specifically setting the QOS for the write queue.
-    public convenience init(url: URL, writeQueueQOS: QualityOfService, protocols: [String]? = nil) {
+    public convenience init(url: URL,
+                            writeQueueQOS: QualityOfService,
+                            protocols: [String]? = nil,
+                            readStreamQOS: DispatchQoS.QoSClass = .default,
+                            writeStreamQOS: DispatchQoS.QoSClass = .default) {
         self.init(url: url, protocols: protocols)
         writeQueue.qualityOfService = writeQueueQOS
+        
+        readStreamQueue.setTarget(queue: DispatchQueue.global(qos: readStreamQOS))
+        writeStreamQueue.setTarget(queue: DispatchQueue.global(qos: writeStreamQOS))
     }
 
     /**
@@ -364,8 +376,8 @@ open class WebSocket : NSObject, StreamDelegate {
             outStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
         }
         
-        CFReadStreamSetDispatchQueue(inStream, WebSocket.sharedWorkQueue)
-        CFWriteStreamSetDispatchQueue(outStream, WebSocket.sharedWorkQueue)
+        CFReadStreamSetDispatchQueue(inStream, readStreamQueue)
+        CFWriteStreamSetDispatchQueue(outStream, writeStreamQueue)
         inStream.open()
         outStream.open()
 
@@ -383,9 +395,7 @@ open class WebSocket : NSObject, StreamDelegate {
                 guard !sOperation.isCancelled else { return }
                 out -= 100
                 if out < 0 {
-                    WebSocket.sharedWorkQueue.async {
-                        self?.cleanupStream()
-                    }
+                    self?.cleanupStream()
                     self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: 2))
                     return
                 } else if outStream.streamError != nil {
@@ -399,7 +409,7 @@ open class WebSocket : NSObject, StreamDelegate {
                 let domain = outStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as? String
                 s.certValidated = sec.isValid(trust, domain: domain)
                 if !s.certValidated {
-                    WebSocket.sharedWorkQueue.async {
+                    self?.writeStreamQueue.async {
                         let error = s.errorWithDetail("Invalid SSL certificate", code: 1)
                         s.disconnectStream(error)
                     }
@@ -446,16 +456,20 @@ open class WebSocket : NSObject, StreamDelegate {
      cleanup the streams.
      */
     private func cleanupStream() {
-        outputStream?.delegate = nil
-        inputStream?.delegate = nil
         if let stream = inputStream {
-            CFReadStreamSetDispatchQueue(stream, nil)
-            stream.close()
+            readStreamQueue.async {
+                CFReadStreamSetDispatchQueue(stream, nil)
+                stream.close()
+            }
         }
         if let stream = outputStream {
-            CFWriteStreamSetDispatchQueue(stream, nil)
-            stream.close()
+            writeStreamQueue.async {
+                CFWriteStreamSetDispatchQueue(stream, nil)
+                stream.close()
+            }
         }
+        outputStream?.delegate = nil
+        inputStream?.delegate = nil
         outputStream = nil
         inputStream = nil
         fragBuffer = nil
@@ -805,7 +819,8 @@ open class WebSocket : NSObject, StreamDelegate {
         if response.isFin && response.bytesLeft <= 0 {
             if response.code == .ping {
                 let data = response.buffer! // local copy so it is perverse for writing
-                dequeueWrite(data as Data, code: .pong)
+                dequeueWrite(data as Data, code: .pong, priority: .veryHigh)
+                
             } else if response.code == .textFrame {
                 let str: NSString? = NSString(data: response.buffer! as Data, encoding: String.Encoding.utf8.rawValue)
                 if str == nil {
@@ -857,8 +872,9 @@ open class WebSocket : NSObject, StreamDelegate {
     /**
      Used to write things to the stream
      */
-    private func dequeueWrite(_ data: Data, code: OpCode, writeCompletion: (() -> ())? = nil) {
+    private func dequeueWrite(_ data: Data, code: OpCode, priority: Operation.QueuePriority = .normal, writeCompletion: (() -> ())? = nil) {
         let operation = BlockOperation()
+        operation.queuePriority = priority
         operation.addExecutionBlock { [weak self, weak operation] in
             //stream isn't ready, let's wait
             guard let s = self else { return }
