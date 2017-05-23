@@ -119,7 +119,7 @@ open class WebSocket : NSObject, StreamDelegate {
 
     // MARK: - Block based API.
 
-    public var onConnect: ((Void) -> Void)?
+    public var onConnect: (() -> Void)?
     public var onDisconnect: ((NSError?) -> Void)?
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
