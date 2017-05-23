@@ -41,14 +41,14 @@ class Decompressor {
         guard initInflate() else { throw NSError() }
     }
     
-    func decompress(_ data: Data) throws -> Data {
+    func decompress(_ data: Data, finish: Bool) throws -> Data {
         let data = data
         let tail = Data([0x00, 0x00, 0xFF, 0xFF])
         
         var decompressed = Data()
         
         try decompress(in: data, out: &decompressed)
-        try decompress(in: tail, out: &decompressed)
+        if finish { try decompress(in: tail, out: &decompressed) }
         
         return decompressed
         
@@ -68,8 +68,7 @@ class Decompressor {
                 
                 let byteCount = buffer.count - Int(strm.avail_out)
                 out.append(buffer, count: byteCount)
-            }
-                while res == Z_OK && strm.avail_out == 0
+            } while res == Z_OK && strm.avail_out == 0
             
         }
         guard (res == Z_OK && strm.avail_out > 0)
