@@ -143,16 +143,24 @@ open class WebSocket : NSObject, StreamDelegate {
     public var currentURL: URL { return url }
 
     // MARK: - Private
+    
+    private struct CompressionState {
+        var supportsCompression = false
+        var messageNeedsDecompression = false
+        var serverMaxWindowBits = 15
+        var clientMaxWindowBits = 15
+        var clientNoContextTakeover = false
+        var serverNoContextTakeover = false
+        var decompressor:Decompressor? = nil
+        var compressor:Compressor? = nil
+    }
 
     private var url: URL
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
     private var connected = false
     private var isConnecting = false
-    private var supportsCompression = false
-    private var serverMaxWindowBits = 15
-    private var decompressor:Decompressor? = nil
-    private var compressor:Compressor? = nil
+    private var compressionState = CompressionState()
     private var writeQueue = OperationQueue()
     private var readStack = [WSResponse]()
     private var inputQueue = [Data]()
@@ -594,15 +602,26 @@ open class WebSocket : NSObject, StreamDelegate {
                 for p in parts {
                     let part = p.trimmingCharacters(in: .whitespaces)
                     if part == "permessage-deflate" {
-                        supportsCompression = true
+                        compressionState.supportsCompression = true
                     } else if part.hasPrefix("server_max_window_bits="){
                         let valString = part.components(separatedBy: "=")[1]
                         if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
-                            decompressor = Decompressor(windowBits: serverMaxWindowBits)
-                            compressor = Compressor(windowBits: serverMaxWindowBits)
-                            serverMaxWindowBits = val
+                            compressionState.serverMaxWindowBits = val
                         }
+                    } else if part.hasPrefix("client_max_window_bits="){
+                        let valString = part.components(separatedBy: "=")[1]
+                        if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
+                            compressionState.clientMaxWindowBits = val
+                        }
+                    } else if part == "client_no_context_takeover"{
+                        compressionState.clientNoContextTakeover = true
+                    } else if part == "server_no_context_takeover"{
+                        compressionState.serverNoContextTakeover = true
                     }
+                }
+                if compressionState.supportsCompression {
+                    compressionState.decompressor = Decompressor(windowBits: compressionState.serverMaxWindowBits)
+                    compressionState.compressor = Compressor(windowBits: compressionState.clientMaxWindowBits)
                 }
             }
             
@@ -650,8 +669,6 @@ open class WebSocket : NSObject, StreamDelegate {
         }
     }
 
-    
-    var messageNeedsDecompression = false
     /**
      Process one message at the start of `buffer`. Return another buffer (sharing storage) that contains the leftover contents of `buffer` that I didn't process.
      */
@@ -681,10 +698,10 @@ open class WebSocket : NSObject, StreamDelegate {
             let isMasked = (MaskMask & baseAddress[1])
             let payloadLen = (PayloadLenMask & baseAddress[1])
             var offset = 2
-            if supportsCompression && receivedOpcode != .continueFrame {
-                messageNeedsDecompression = (RSV1Mask & baseAddress[0]) > 0
+            if compressionState.supportsCompression && receivedOpcode != .continueFrame {
+                compressionState.messageNeedsDecompression = (RSV1Mask & baseAddress[0]) > 0
             }
-            if (isMasked > 0 || (RSVMask & baseAddress[0]) > 0) && receivedOpcode != .pong && !messageNeedsDecompression {
+            if (isMasked > 0 || (RSVMask & baseAddress[0]) > 0) && receivedOpcode != .pong && !compressionState.messageNeedsDecompression {
                 let errCode = CloseCode.protocolError.rawValue
                 doDisconnect(errorWithDetail("masked and rsv data is not currently supported", code: errCode))
                 writeError(errCode)
@@ -745,9 +762,12 @@ open class WebSocket : NSObject, StreamDelegate {
                 len -= UInt64(size)
             }
             let data: Data
-            if messageNeedsDecompression, let decompressor = decompressor {
+            if compressionState.messageNeedsDecompression, let decompressor = compressionState.decompressor {
                 do {
                     data = try decompressor.decompress(Data(bytes: baseAddress+offset, count: Int(len)), finish: isFin > 0)
+                    if isFin > 0 && compressionState.serverNoContextTakeover{
+                        try decompressor.reset()
+                    }
                 } catch {
                     let closeReason = "Decompression failed: \(error)"
                     let closeCode = CloseCode.encoding.rawValue
@@ -913,9 +933,12 @@ open class WebSocket : NSObject, StreamDelegate {
             var offset = 2
             var firstByte:UInt8 = s.FinMask | code.rawValue
             var data = data
-            if [.textFrame, .binaryFrame].contains(code), let compressor = s.compressor {
+            if [.textFrame, .binaryFrame].contains(code), let compressor = s.compressionState.compressor {
                 do {
                     data = try compressor.compress(data)
+                    if s.compressionState.clientNoContextTakeover {
+                        try compressor.reset()
+                    }
                     firstByte |= s.RSV1Mask
                 } catch {
                     // TODO: report error?  We can just send the uncompressed frame.

@@ -16,10 +16,10 @@ private let Z_BUF_ERROR:CInt = -5
 private let Z_SYNC_FLUSH:CInt = 2
 
 class Decompressor {
-    var strm = z_stream()
-    var buffer = [UInt8](repeating: 0, count: 0x2000)
-    var inflateInitialized = false
-    let windowBits:Int
+    private var strm = z_stream()
+    private var buffer = [UInt8](repeating: 0, count: 0x2000)
+    private var inflateInitialized = false
+    private let windowBits:Int
     
     init?(windowBits:Int) {
         self.windowBits = windowBits
@@ -88,18 +88,18 @@ class Decompressor {
         teardownInflate()
     }
     
-    @_silgen_name("inflateInit2_") func inflateInit2(strm: UnsafeMutableRawPointer, windowBits: CInt,
+    @_silgen_name("inflateInit2_") private func inflateInit2(strm: UnsafeMutableRawPointer, windowBits: CInt,
                                                     version: UnsafePointer<CChar>, streamSize: CInt) -> CInt
-    @_silgen_name("inflate") func inflate(strm: UnsafeMutableRawPointer, flush: CInt) -> CInt
+    @_silgen_name("inflate") private func inflate(strm: UnsafeMutableRawPointer, flush: CInt) -> CInt
     @discardableResult
-    @_silgen_name("inflateEnd") func inflateEnd(strm: UnsafeMutableRawPointer) -> CInt
+    @_silgen_name("inflateEnd") private func inflateEnd(strm: UnsafeMutableRawPointer) -> CInt
 }
 
 class Compressor {
-    var strm = z_stream()
-    var buffer = [UInt8](repeating: 0, count: 0x2000)
-    var deflateInitialized = false
-    let windowBits:Int
+    private var strm = z_stream()
+    private var buffer = [UInt8](repeating: 0, count: 0x2000)
+    private var deflateInitialized = false
+    private let windowBits:Int
     
     init?(windowBits: Int) {
         self.windowBits = windowBits
@@ -163,19 +163,19 @@ class Compressor {
         teardownDeflate()
     }
     
-    @_silgen_name("deflateInit2_") func deflateInit2(strm: UnsafeMutableRawPointer, level: CInt, method: CInt,
+    @_silgen_name("deflateInit2_") private func deflateInit2(strm: UnsafeMutableRawPointer, level: CInt, method: CInt,
                                                      windowBits: CInt, memLevel: CInt, strategy: CInt,
                                                      version: UnsafePointer<CChar>, streamSize: CInt) -> CInt
-    @_silgen_name("deflate") func deflate(strm: UnsafeMutableRawPointer, flush: CInt) -> CInt
+    @_silgen_name("deflate") private func deflate(strm: UnsafeMutableRawPointer, flush: CInt) -> CInt
     @discardableResult
-    @_silgen_name("deflateEnd") func deflateEnd(strm: UnsafeMutableRawPointer) -> CInt
+    @_silgen_name("deflateEnd") private func deflateEnd(strm: UnsafeMutableRawPointer) -> CInt
     
     private let Z_DEFAULT_COMPRESSION:CInt = -1
     private let Z_DEFLATED:CInt = 8
     private let Z_DEFAULT_STRATEGY:CInt = 0
 }
 
-struct z_stream {
+private struct z_stream {
     var next_in: UnsafePointer<UInt8>? = nil            /* next input byte */
     var avail_in: CUnsignedInt = 0                      /* number of bytes available at next_in */
     var total_in: CUnsignedLong = 0                     /* total number of input bytes read so far */
