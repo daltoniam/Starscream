@@ -38,6 +38,16 @@ public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocket, data: Data?)
 }
 
+// A Delegate with more advanced info on messages and connection etc.
+public protocol WebSocketAdvancedDelegate: class {
+    func websocketDidConnect(socket: WebSocket)
+    func websocketDidDisconnect(socket: WebSocket, error: NSError?)
+    func websocketDidReceiveMessage(socket: WebSocket, text: String, response: WebSocket.WSResponse)
+    func websocketDidReceiveData(socket: WebSocket, data: Data, response: WebSocket.WSResponse)
+    func websocketHttpUpgrade(socket: WebSocket, request: CFHTTPMessage)
+    func websocketHttpUpgrade(socket: WebSocket, response: CFHTTPMessage)
+}
+
 open class WebSocket : NSObject, StreamDelegate {
     
     enum OpCode : UInt8 {
@@ -99,12 +109,15 @@ open class WebSocket : NSObject, StreamDelegate {
     let httpSwitchProtocolCode  = 101
     let supportedSSLSchemes     = ["wss", "https"]
 
-    class WSResponse {
+    public class WSResponse {
         var isFin = false
         var code: OpCode = .continueFrame
         var bytesLeft = 0
         var frameCount = 0
         var buffer: NSMutableData?
+        let firstFrame = {
+            return Date()
+        }()
     }
 
     // MARK: - Delegates
@@ -113,11 +126,36 @@ open class WebSocket : NSObject, StreamDelegate {
     /// and also connection/disconnect messages.
     public weak var delegate: WebSocketDelegate?
 
+    /// The optional advanced delegate can be used insteadof of the delegate
+    public weak var advancedDelegate: WebSocketAdvancedDelegate?
+
     /// Receives a callback for each pong message recived.
     public weak var pongDelegate: WebSocketPongDelegate?
 
 
     // MARK: - Block based API.
+
+    public enum HTTPMethod {
+        case get
+        case post
+        case put
+        case connect
+        case custom(value: String)
+        var representation: String {
+            switch self {
+                case .get:
+                    return "GET"
+                case .post:
+                    return "POST"
+                case .put:
+                    return "PUT"
+                case .connect:
+                    return "CONNECT"
+                case .custom(let value):
+                    return value.capitalized
+            }
+        }
+    }
 
     public var onConnect: (() -> Void)?
     public var onDisconnect: ((NSError?) -> Void)?
@@ -125,6 +163,7 @@ open class WebSocket : NSObject, StreamDelegate {
     public var onData: ((Data) -> Void)?
     public var onPong: ((Data?) -> Void)?
 
+    public var httpMethod: HTTPMethod = .get
     public var headers = [String: String]()
     public var voipEnabled = false
     public var disableSSLCertValidation = false
@@ -258,7 +297,7 @@ open class WebSocket : NSObject, StreamDelegate {
      Private method that starts the connection.
      */
     private func createHTTPRequest() {
-        let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "GET" as CFString,
+        let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, httpMethod.representation as CFString,
                                                     url as CFURL, kCFHTTPVersion1_1).takeRetainedValue()
 
         var port = url.port
@@ -286,6 +325,7 @@ open class WebSocket : NSObject, StreamDelegate {
         if let cfHTTPMessage = CFHTTPMessageCopySerializedMessage(urlRequest) {
             let serializedRequest = cfHTTPMessage.takeRetainedValue()
             initStreamsWithData(serializedRequest as Data, Int(port!))
+            self.advancedDelegate?.websocketHttpUpgrade(socket: self, request: urlRequest)
         }
     }
     
@@ -552,6 +592,7 @@ open class WebSocket : NSObject, StreamDelegate {
                     guard let s = self else { return }
                     s.onConnect?()
                     s.delegate?.websocketDidConnect(socket: s)
+                    s.advancedDelegate?.websocketDidConnect(socket: s)
                     s.notificationCenter.post(name: NSNotification.Name(WebsocketDidConnectNotification), object: self)
                 }
             }
@@ -572,6 +613,7 @@ open class WebSocket : NSObject, StreamDelegate {
         let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
         CFHTTPMessageAppendBytes(response, buffer, bufferLen)
         let code = CFHTTPMessageGetResponseStatusCode(response)
+        self.advancedDelegate?.websocketHttpUpgrade(socket: self, response: response)
         if code != httpSwitchProtocolCode {
             return code
         }
@@ -817,6 +859,7 @@ open class WebSocket : NSObject, StreamDelegate {
                         guard let s = self else { return }
                         s.onText?(str! as String)
                         s.delegate?.websocketDidReceiveMessage(socket: s, text: str! as String)
+                        s.advancedDelegate?.websocketDidReceiveMessage(socket: s, text: str! as String, response: response)
                     }
                 }
             } else if response.code == .binaryFrame {
@@ -826,6 +869,7 @@ open class WebSocket : NSObject, StreamDelegate {
                         guard let s = self else { return }
                         s.onData?(data as Data)
                         s.delegate?.websocketDidReceiveData(socket: s, data: data as Data)
+                        s.advancedDelegate?.websocketDidReceiveData(socket: s, data: data as Data, response: response)
                     }
                 }
             }
@@ -933,6 +977,7 @@ open class WebSocket : NSObject, StreamDelegate {
             guard let s = self else { return }
             s.onDisconnect?(error)
             s.delegate?.websocketDidDisconnect(socket: s, error: error)
+            s.advancedDelegate?.websocketDidDisconnect(socket: s, error: error)
             let userInfo = error.map{ [WebsocketDisconnectionErrorKeyName: $0] }
             s.notificationCenter.post(name: NSNotification.Name(WebsocketDidDisconnectNotification), object: self, userInfo: userInfo)
         }
