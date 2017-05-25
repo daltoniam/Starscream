@@ -764,7 +764,7 @@ open class WebSocket : NSObject, StreamDelegate {
             let data: Data
             if compressionState.messageNeedsDecompression, let decompressor = compressionState.decompressor {
                 do {
-                    data = try decompressor.decompress(Data(bytes: baseAddress+offset, count: Int(len)), finish: isFin > 0)
+                    data = try decompressor.decompress(bytes: baseAddress+offset, count: Int(len), finish: isFin > 0)
                     if isFin > 0 && compressionState.serverNoContextTakeover{
                         try decompressor.reset()
                     }

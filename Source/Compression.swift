@@ -42,39 +42,43 @@ class Decompressor {
     }
     
     func decompress(_ data: Data, finish: Bool) throws -> Data {
-        let data = data
-        let tail = Data([0x00, 0x00, 0xFF, 0xFF])
-        
+        return try data.withUnsafeBytes { (bytes:UnsafePointer<UInt8>) -> Data in
+            return try decompress(bytes: bytes, count: data.count, finish: finish)
+        }
+    }
+    
+    func decompress(bytes: UnsafePointer<UInt8>, count: Int, finish: Bool) throws -> Data {
         var decompressed = Data()
+        try decompress(bytes: bytes, count: count, out: &decompressed)
         
-        try decompress(in: data, out: &decompressed)
-        if finish { try decompress(in: tail, out: &decompressed) }
+        if finish {
+            let tail:[UInt8] = [0x00, 0x00, 0xFF, 0xFF]
+            try decompress(bytes: tail, count: tail.count, out: &decompressed)
+        }
         
         return decompressed
         
     }
     
-    private func decompress(in data: Data, out:inout Data) throws {
+    private func decompress(bytes: UnsafePointer<UInt8>, count: Int, out:inout Data) throws {
         var res:CInt = 0
-        data.withUnsafeBytes { (ptr:UnsafePointer<UInt8>) -> Void in
-            strm.next_in = ptr
-            strm.avail_in = CUnsignedInt(data.count)
+        strm.next_in = bytes
+        strm.avail_in = CUnsignedInt(count)
+        
+        repeat {
+            strm.next_out = UnsafeMutablePointer<UInt8>(&buffer)
+            strm.avail_out = CUnsignedInt(buffer.count)
             
-            repeat {
-                strm.next_out = UnsafeMutablePointer<UInt8>(&buffer)
-                strm.avail_out = CUnsignedInt(buffer.count)
-                
-                res = inflate(strm: &strm, flush: 0)
-                
-                let byteCount = buffer.count - Int(strm.avail_out)
-                out.append(buffer, count: byteCount)
-            } while res == Z_OK && strm.avail_out == 0
+            res = inflate(strm: &strm, flush: 0)
             
-        }
+            let byteCount = buffer.count - Int(strm.avail_out)
+            out.append(buffer, count: byteCount)
+        } while res == Z_OK && strm.avail_out == 0
+        
         guard (res == Z_OK && strm.avail_out > 0)
             || (res == Z_BUF_ERROR && Int(strm.avail_out) == buffer.count)
             else {
-                throw NSError()//"Error during inflate: \(res)")
+                throw NSError(domain: WebSocket.ErrorDomain, code: Int(WebSocket.InternalErrorCode.compressionError.rawValue), userInfo: nil)
         }
     }
     
@@ -145,8 +149,7 @@ class Compressor {
         guard res == Z_OK && strm.avail_out > 0
             || (res == Z_BUF_ERROR && Int(strm.avail_out) == buffer.count)
         else {
-            NSLog("Error during deflate: \(res)")
-            throw NSError()
+            throw NSError(domain: WebSocket.ErrorDomain, code: Int(WebSocket.InternalErrorCode.compressionError.rawValue), userInfo: nil)
         }
         
         compressed.removeLast(4)

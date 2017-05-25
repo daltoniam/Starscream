@@ -20,6 +20,8 @@
 		742419BC1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */; };
 		742419BD1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */; };
 		742419BE1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */; };
+		D85927D01ED65933003460CB /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1360011C473BEF00AA3A01 /* WebSocket.swift */; };
+		D85927D11ED65963003460CB /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
 		D88EAF7F1ED4DFB5004FE2C3 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */; };
 		D88EAF821ED4DFD3004FE2C3 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		D88EAF841ED4E7D8004FE2C3 /* CompressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */; };
@@ -467,6 +469,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D88EAF871ED4E88C004FE2C3 /* Compression.swift in Sources */,
+				D85927D11ED65963003460CB /* SSLSecurity.swift in Sources */,
+				D85927D01ED65933003460CB /* WebSocket.swift in Sources */,
 				D88EAF841ED4E7D8004FE2C3 /* CompressionTests.swift in Sources */,
 				742419BC1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */,
 			);

@@ -27,7 +27,7 @@ class CompressionTests: XCTestCase {
         let rawData = "Hello, World! Hello, World! Hello, World! Hello, World! Hello, World!".data(using: .utf8)!
         
         let compressed = try! compressor.compress(rawData)
-        let uncompressed = try! decompressor.decompress(compressed)
+        let uncompressed = try! decompressor.decompress(compressed, finish: true)
         
         XCTAssert(rawData == uncompressed)
     }
@@ -44,7 +44,7 @@ class CompressionTests: XCTestCase {
         }
         
         let compressed = try! compressor.compress(rawData)
-        let uncompressed = try! decompressor.decompress(compressed)
+        let uncompressed = try! decompressor.decompress(compressed, finish: true)
         
         XCTAssert(rawData == uncompressed)
     }
