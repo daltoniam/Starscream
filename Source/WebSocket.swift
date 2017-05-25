@@ -597,32 +597,8 @@ open class WebSocket : NSObject, StreamDelegate {
         }
         if let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response) {
             let headers = cfHeaders.takeRetainedValue() as NSDictionary
-            if let extensionHeader = headers[headerWSExtensionName as NSString] as? NSString {
-                let parts = extensionHeader.components(separatedBy: ";")
-                for p in parts {
-                    let part = p.trimmingCharacters(in: .whitespaces)
-                    if part == "permessage-deflate" {
-                        compressionState.supportsCompression = true
-                    } else if part.hasPrefix("server_max_window_bits="){
-                        let valString = part.components(separatedBy: "=")[1]
-                        if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
-                            compressionState.serverMaxWindowBits = val
-                        }
-                    } else if part.hasPrefix("client_max_window_bits="){
-                        let valString = part.components(separatedBy: "=")[1]
-                        if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
-                            compressionState.clientMaxWindowBits = val
-                        }
-                    } else if part == "client_no_context_takeover"{
-                        compressionState.clientNoContextTakeover = true
-                    } else if part == "server_no_context_takeover"{
-                        compressionState.serverNoContextTakeover = true
-                    }
-                }
-                if compressionState.supportsCompression {
-                    compressionState.decompressor = Decompressor(windowBits: compressionState.serverMaxWindowBits)
-                    compressionState.compressor = Compressor(windowBits: compressionState.clientMaxWindowBits)
-                }
+            if let extensionHeader = headers[headerWSExtensionName as NSString] as? String {
+                processExtensionHeader(extensionHeader)
             }
             
             if let acceptKey = headers[headerWSAcceptName as NSString] as? NSString {
@@ -632,6 +608,37 @@ open class WebSocket : NSObject, StreamDelegate {
             }
         }
         return -1
+    }
+    
+    /**
+     Parses the extension header, setting up the compression parameters.
+     */
+    func processExtensionHeader(_ extensionHeader: String) {
+        let parts = extensionHeader.components(separatedBy: ";")
+        for p in parts {
+            let part = p.trimmingCharacters(in: .whitespaces)
+            if part == "permessage-deflate" {
+                compressionState.supportsCompression = true
+            } else if part.hasPrefix("server_max_window_bits="){
+                let valString = part.components(separatedBy: "=")[1]
+                if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
+                    compressionState.serverMaxWindowBits = val
+                }
+            } else if part.hasPrefix("client_max_window_bits="){
+                let valString = part.components(separatedBy: "=")[1]
+                if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
+                    compressionState.clientMaxWindowBits = val
+                }
+            } else if part == "client_no_context_takeover"{
+                compressionState.clientNoContextTakeover = true
+            } else if part == "server_no_context_takeover"{
+                compressionState.serverNoContextTakeover = true
+            }
+        }
+        if compressionState.supportsCompression {
+            compressionState.decompressor = Decompressor(windowBits: compressionState.serverMaxWindowBits)
+            compressionState.compressor = Compressor(windowBits: compressionState.clientMaxWindowBits)
+        }
     }
     
     /**

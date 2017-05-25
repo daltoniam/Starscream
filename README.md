@@ -9,6 +9,7 @@ It's Objective-C counter part can be found here: [Jetfire](https://github.com/ac
 - Conforms to all of the base [Autobahn test suite](http://autobahn.ws/testsuite/).
 - Nonblocking. Everything happens in the background, thanks to GCD.
 - TLS/WSS support.
+- Compression Extensions support ([RFC 7692](https://tools.ietf.org/html/rfc7692))
 - Simple concise codebase at just a few hundred LOC.
 
 ## Example
@@ -196,6 +197,17 @@ socket.security = SSLSecurity(certs: [SSLCert(data: data)], usePublicKeys: true)
 //socket.security = SSLSecurity() //uses the .cer files in your app's bundle
 ```
 You load either a `Data` blob of your certificate or you can use a `SecKeyRef` if you have a public key you want to use. The `usePublicKeys` bool is whether to use the certificates for validation or the public keys. The public keys will be extracted from the certificates automatically if `usePublicKeys` is choosen.
+
+### Compression Extensions
+
+Compression Extensions ([RFC 7692](https://tools.ietf.org/html/rfc7692)) is supported in Starscream.  Compression is enabled by default, however compression will only be used if it is supported by the server as well.  You may enable or disable compression via the `.enableCompression` property:
+
+```swift
+socket = WebSocket(url: URL(string: "ws://localhost:8080/")!)
+socket.enableCompression = false
+```
+
+Compression should be disabled if your application is transmitting already-compressed, random, or other uncompressable data.
 
 ### Custom Queue
 
