@@ -2,7 +2,7 @@
 
 Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6455)) client library in Swift for iOS and OSX.
 
-It's Objective-C counter part can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
+Its Objective-C counterpart can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
 
 ## Features
 
