@@ -50,7 +50,7 @@ public protocol WebSocketAdvancedDelegate: class {
 
 open class WebSocket : NSObject, StreamDelegate {
     
-    enum OpCode : UInt8 {
+    public enum OpCode : UInt8 {
         case continueFrame = 0x0
         case textFrame = 0x1
         case binaryFrame = 0x2
@@ -111,11 +111,11 @@ open class WebSocket : NSObject, StreamDelegate {
 
     public class WSResponse {
         var isFin = false
-        var code: OpCode = .continueFrame
+        public var code: OpCode = .continueFrame
         var bytesLeft = 0
-        var frameCount = 0
-        var buffer: NSMutableData?
-        let firstFrame = {
+        public var frameCount = 0
+        public var buffer: NSMutableData?
+        public let firstFrame = {
             return Date()
         }()
     }
