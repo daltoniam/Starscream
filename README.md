@@ -161,6 +161,21 @@ socket.headers["Sec-WebSocket-Version"] = "14"
 socket.headers["My-Awesome-Header"] = "Everything is Awesome!"
 ```
 
+### Custom HTTP Method
+
+Your server may use a different HTTP method when connecting to the websocket:
+
+```swift
+socket.httpMethod = .post
+```
+you can use a custom string:
+
+```swift
+socket.httpMethod = .custom(value: "mycustomhttpmethod")
+```
+
+
+
 ### Protocols
 
 If you need to specify a protocol, simple add it to the init:
@@ -297,6 +312,46 @@ Add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in 
 ### Add Copy Frameworks Phase
 
 If you are running this in an OSX app or on a physical iOS device you will need to make sure you add the `Starscream.framework` to be included in your app bundle. To do this, in Xcode, navigate to the target configuration window by clicking on the blue project icon, and selecting the application target under the "Targets" heading in the sidebar. In the tab bar at the top of that window, open the "Build Phases" panel. Expand the "Link Binary with Libraries" group, and add `Starscream.framework`. Click on the + button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add `Starscream.framework` respectively.
+
+
+## WebSocketAdvancedDelegate
+The advanced delegate acts just like the simpler delegate but provides some additional information on the connection and incoming frames.
+
+```swift
+socket.advancedDelegate = self
+```
+
+In most cases you do not need the extra info and should use the normal delegate.
+
+#### websocketDidReceiveMessage
+```swift
+func websocketDidReceiveMessage(socket: WebSocket, text: String, response: WebSocket.WSResponse {
+	print("got some text: \(text)")
+	print("First frame for this message arrived on \(response.firstFrame)")
+}
+```
+
+#### websocketDidReceiveData
+```swift
+func websocketDidReceiveData(socket: WebSocket, data: Date, response: WebSocket.WSResponse) {
+	print("got some data it long: \(data.count)")
+	print("A total of \(response.frameCount) frames were used to send this data")
+}
+```
+
+#### websocketHttpUpgrade
+These methods are called when the HTTP upgrade request is sent and when the response returns.
+```swift
+func  websocketHttpUpgrade(socket: WebSocket, request: CFHTTPMessage) {
+	print("the http request was sent we can check the raw http if we need to")
+}
+```
+
+```swift
+func  websocketHttpUpgrade(socket: WebSocket, response: CFHTTPMessage) {
+	print("the http response has returned.")
+}
+```
 
 ## TODOs
 
