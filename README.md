@@ -187,15 +187,10 @@ socket.delegate = self
 socket.connect()
 ```
 
-### Self Signed SSL and VOIP
-
-There are a couple of other properties that modify the stream:
+### Self Signed SSL
 
 ```swift
 socket = WebSocket(url: URL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
-
-//set this if you are planning on using the socket in a VOIP background setting (using the background VOIP service).
-socket.voipEnabled = true
 
 //set this you want to ignore SSL cert validation, so a self signed SSL certificate can be used.
 socket.disableSSLCertValidation = true

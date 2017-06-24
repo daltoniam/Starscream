@@ -21,7 +21,7 @@
 
 import Foundation
 import CoreFoundation
-import Security
+import CommonCrypto
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
@@ -80,6 +80,8 @@ open class WebSocket : NSObject, StreamDelegate {
         // 0-999 WebSocket status codes not used
         case outputStreamWriteError = 1
         case compressionError = 2
+        case invalidSSLError = 3
+        case writeTimeoutError = 4
     }
 
     // Where the callback is executed. It defaults to the main UI thread queue.
@@ -168,7 +170,6 @@ open class WebSocket : NSObject, StreamDelegate {
 
     public var httpMethod: HTTPMethod = .get
     public var headers = [String: String]()
-    public var voipEnabled = false
     public var disableSSLCertValidation = false
     public var enableCompression = true
     public var security: SSLTrustValidator?
@@ -207,6 +208,7 @@ open class WebSocket : NSObject, StreamDelegate {
     private var certValidated = false
     private var didDisconnect = false
     private var readyToWrite = false
+    private var headerSecKey = ""
     private let mutex = NSLock()
     private let notificationCenter = NotificationCenter.default
     private var canDispatch: Bool {
@@ -329,8 +331,9 @@ open class WebSocket : NSObject, StreamDelegate {
         if let protocols = optionalProtocols {
             addHeader(urlRequest, key: headerWSProtocolName, val: protocols.joined(separator: ","))
         }
+        headerSecKey = generateWebSocketKey()
         addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
-        addHeader(urlRequest, key: headerWSKeyName, val: generateWebSocketKey())
+        addHeader(urlRequest, key: headerWSKeyName, val: headerSecKey)
         if let origin = origin {
             addHeader(urlRequest, key: headerOriginName, val: origin)
         }
@@ -419,10 +422,6 @@ open class WebSocket : NSObject, StreamDelegate {
         } else {
             certValidated = true //not a https session, so no need to check SSL pinning
         }
-        if voipEnabled {
-            inStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
-            outStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
-        }
         
         CFReadStreamSetDispatchQueue(inStream, WebSocket.sharedWorkQueue)
         CFWriteStreamSetDispatchQueue(outStream, WebSocket.sharedWorkQueue)
@@ -446,7 +445,8 @@ open class WebSocket : NSObject, StreamDelegate {
                     WebSocket.sharedWorkQueue.async {
                         self?.cleanupStream()
                     }
-                    self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: 2))
+                    let errCode = InternalErrorCode.writeTimeoutError.rawValue
+                    self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: errCode))
                     return
                 } else if outStream.streamError != nil {
                     return // disconnectStream will be called.
@@ -460,7 +460,8 @@ open class WebSocket : NSObject, StreamDelegate {
                 s.certValidated = sec.isValid(trust, domain: domain)
                 if !s.certValidated {
                     WebSocket.sharedWorkQueue.async {
-                        let error = s.errorWithDetail("Invalid SSL certificate", code: 1)
+                        let errCode = InternalErrorCode.invalidSSLError.rawValue
+                        let error = s.errorWithDetail("Invalid SSL certificate", code: errCode)
                         s.disconnectStream(error)
                     }
                     return
@@ -645,6 +646,12 @@ open class WebSocket : NSObject, StreamDelegate {
             
             if let acceptKey = headers[headerWSAcceptName as NSString] as? NSString {
                 if acceptKey.length > 0 {
+                    if headerSecKey.characters.count > 0 {
+                        let sha = "\(headerSecKey)258EAFA5-E914-47DA-95CA-C5AB0DC85B11".sha1Base64()
+                        if sha != acceptKey as String {
+                            return -1
+                        }
+                    }
                     return 0
                 }
             }
@@ -661,19 +668,19 @@ open class WebSocket : NSObject, StreamDelegate {
             let part = p.trimmingCharacters(in: .whitespaces)
             if part == "permessage-deflate" {
                 compressionState.supportsCompression = true
-            } else if part.hasPrefix("server_max_window_bits="){
+            } else if part.hasPrefix("server_max_window_bits=") {
                 let valString = part.components(separatedBy: "=")[1]
                 if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
                     compressionState.serverMaxWindowBits = val
                 }
-            } else if part.hasPrefix("client_max_window_bits="){
+            } else if part.hasPrefix("client_max_window_bits=") {
                 let valString = part.components(separatedBy: "=")[1]
                 if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
                     compressionState.clientMaxWindowBits = val
                 }
-            } else if part == "client_no_context_takeover"{
+            } else if part == "client_no_context_takeover" {
                 compressionState.clientNoContextTakeover = true
-            } else if part == "server_no_context_takeover"{
+            } else if part == "server_no_context_takeover" {
                 compressionState.serverNoContextTakeover = true
             }
         }
@@ -1080,6 +1087,15 @@ open class WebSocket : NSObject, StreamDelegate {
         writeQueue.cancelAllOperations()
     }
 
+}
+
+private extension String {
+    func sha1Base64() -> String {
+        let data = self.data(using: String.Encoding.utf8)!
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
+        data.withUnsafeBytes { _ = CC_SHA1($0, CC_LONG(data.count), &digest) }
+        return Data(bytes: digest).base64EncodedString()
+    }
 }
 
 private extension Data {
