@@ -69,6 +69,7 @@ open class WebSocket : NSObject, StreamDelegate {
     enum InternalErrorCode: UInt16 {
         // 0-999 WebSocket status codes not used
         case outputStreamWriteError = 1
+        case compressionError = 2
     }
 
     // Where the callback is executed. It defaults to the main UI thread queue.
@@ -86,6 +87,7 @@ open class WebSocket : NSObject, StreamDelegate {
     let headerWSProtocolName    = "Sec-WebSocket-Protocol"
     let headerWSVersionName     = "Sec-WebSocket-Version"
     let headerWSVersionValue    = "13"
+    let headerWSExtensionName   = "Sec-WebSocket-Extensions"
     let headerWSKeyName         = "Sec-WebSocket-Key"
     let headerOriginName        = "Origin"
     let headerWSAcceptName      = "Sec-WebSocket-Accept"
@@ -93,6 +95,7 @@ open class WebSocket : NSObject, StreamDelegate {
     let FinMask: UInt8          = 0x80
     let OpCodeMask: UInt8       = 0x0F
     let RSVMask: UInt8          = 0x70
+    let RSV1Mask: UInt8         = 0x40
     let MaskMask: UInt8         = 0x80
     let PayloadLenMask: UInt8   = 0x7F
     let MaxFrameSize: Int       = 32
@@ -128,6 +131,7 @@ open class WebSocket : NSObject, StreamDelegate {
     public var headers = [String: String]()
     public var voipEnabled = false
     public var disableSSLCertValidation = false
+    public var enableCompression = true
     public var security: SSLTrustValidator?
     public var enabledSSLCipherSuites: [SSLCipherSuite]?
     public var origin: String?
@@ -139,12 +143,24 @@ open class WebSocket : NSObject, StreamDelegate {
     public var currentURL: URL { return url }
 
     // MARK: - Private
+    
+    private struct CompressionState {
+        var supportsCompression = false
+        var messageNeedsDecompression = false
+        var serverMaxWindowBits = 15
+        var clientMaxWindowBits = 15
+        var clientNoContextTakeover = false
+        var serverNoContextTakeover = false
+        var decompressor:Decompressor? = nil
+        var compressor:Compressor? = nil
+    }
 
     private var url: URL
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
     private var connected = false
     private var isConnecting = false
+    private var compressionState = CompressionState()
     private var writeQueue = OperationQueue()
     private var readStack = [WSResponse]()
     private var inputQueue = [Data]()
@@ -278,6 +294,10 @@ open class WebSocket : NSObject, StreamDelegate {
         addHeader(urlRequest, key: headerWSKeyName, val: generateWebSocketKey())
         if let origin = origin {
             addHeader(urlRequest, key: headerOriginName, val: origin)
+        }
+        if enableCompression {
+            let val = "permessage-deflate; client_max_window_bits; server_max_window_bits=15"
+            addHeader(urlRequest, key: headerWSExtensionName, val: val)
         }
         addHeader(urlRequest, key: headerWSHostName, val: "\(url.host!):\(port!)")
         for (key, value) in headers {
@@ -577,6 +597,10 @@ open class WebSocket : NSObject, StreamDelegate {
         }
         if let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response) {
             let headers = cfHeaders.takeRetainedValue() as NSDictionary
+            if let extensionHeader = headers[headerWSExtensionName as NSString] as? String {
+                processExtensionHeader(extensionHeader)
+            }
+            
             if let acceptKey = headers[headerWSAcceptName as NSString] as? NSString {
                 if acceptKey.length > 0 {
                     return 0
@@ -584,6 +608,37 @@ open class WebSocket : NSObject, StreamDelegate {
             }
         }
         return -1
+    }
+    
+    /**
+     Parses the extension header, setting up the compression parameters.
+     */
+    func processExtensionHeader(_ extensionHeader: String) {
+        let parts = extensionHeader.components(separatedBy: ";")
+        for p in parts {
+            let part = p.trimmingCharacters(in: .whitespaces)
+            if part == "permessage-deflate" {
+                compressionState.supportsCompression = true
+            } else if part.hasPrefix("server_max_window_bits="){
+                let valString = part.components(separatedBy: "=")[1]
+                if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
+                    compressionState.serverMaxWindowBits = val
+                }
+            } else if part.hasPrefix("client_max_window_bits="){
+                let valString = part.components(separatedBy: "=")[1]
+                if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
+                    compressionState.clientMaxWindowBits = val
+                }
+            } else if part == "client_no_context_takeover"{
+                compressionState.clientNoContextTakeover = true
+            } else if part == "server_no_context_takeover"{
+                compressionState.serverNoContextTakeover = true
+            }
+        }
+        if compressionState.supportsCompression {
+            compressionState.decompressor = Decompressor(windowBits: compressionState.serverMaxWindowBits)
+            compressionState.compressor = Compressor(windowBits: compressionState.clientMaxWindowBits)
+        }
     }
     
     /**
@@ -650,7 +705,10 @@ open class WebSocket : NSObject, StreamDelegate {
             let isMasked = (MaskMask & baseAddress[1])
             let payloadLen = (PayloadLenMask & baseAddress[1])
             var offset = 2
-            if (isMasked > 0 || (RSVMask & baseAddress[0]) > 0) && receivedOpcode != .pong {
+            if compressionState.supportsCompression && receivedOpcode != .continueFrame {
+                compressionState.messageNeedsDecompression = (RSV1Mask & baseAddress[0]) > 0
+            }
+            if (isMasked > 0 || (RSVMask & baseAddress[0]) > 0) && receivedOpcode != .pong && !compressionState.messageNeedsDecompression {
                 let errCode = CloseCode.protocolError.rawValue
                 doDisconnect(errorWithDetail("masked and rsv data is not currently supported", code: errCode))
                 writeError(errCode)
@@ -710,7 +768,23 @@ open class WebSocket : NSObject, StreamDelegate {
                 offset += size
                 len -= UInt64(size)
             }
-            let data = Data(bytes: baseAddress+offset, count: Int(len))
+            let data: Data
+            if compressionState.messageNeedsDecompression, let decompressor = compressionState.decompressor {
+                do {
+                    data = try decompressor.decompress(bytes: baseAddress+offset, count: Int(len), finish: isFin > 0)
+                    if isFin > 0 && compressionState.serverNoContextTakeover{
+                        try decompressor.reset()
+                    }
+                } catch {
+                    let closeReason = "Decompression failed: \(error)"
+                    let closeCode = CloseCode.encoding.rawValue
+                    doDisconnect(errorWithDetail(closeReason, code: closeCode))
+                    writeError(closeCode)
+                    return emptyBuffer
+                }
+            } else {
+                data = Data(bytes: baseAddress+offset, count: Int(len))
+            }
             
             if receivedOpcode == .connectionClose {
                 var closeReason = "connection closed by server"
@@ -864,10 +938,23 @@ open class WebSocket : NSObject, StreamDelegate {
             guard let s = self else { return }
             guard let sOperation = operation else { return }
             var offset = 2
+            var firstByte:UInt8 = s.FinMask | code.rawValue
+            var data = data
+            if [.textFrame, .binaryFrame].contains(code), let compressor = s.compressionState.compressor {
+                do {
+                    data = try compressor.compress(data)
+                    if s.compressionState.clientNoContextTakeover {
+                        try compressor.reset()
+                    }
+                    firstByte |= s.RSV1Mask
+                } catch {
+                    // TODO: report error?  We can just send the uncompressed frame.
+                }
+            }
             let dataLength = data.count
             let frame = NSMutableData(capacity: dataLength + s.MaxFrameSize)
             let buffer = UnsafeMutableRawPointer(frame!.mutableBytes).assumingMemoryBound(to: UInt8.self)
-            buffer[0] = s.FinMask | code.rawValue
+            buffer[0] = firstByte
             if dataLength < 126 {
                 buffer[1] = CUnsignedChar(dataLength)
             } else if dataLength <= Int(UInt16.max) {
