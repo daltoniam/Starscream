@@ -22,5 +22,9 @@ import PackageDescription
 
 let package = Package(
     name: "Starscream",
-    exclude: ["Tests"]
+    dependencies: [
+        .Package(url: "https://github.com/daltoniam/zlib-spm.git",
+                 majorVersion: 1),
+        ],
+    exclude: ["Tests", "examples"]
 )
