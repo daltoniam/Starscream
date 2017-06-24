@@ -27,19 +27,70 @@ public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
 public let WebsocketDisconnectionErrorKeyName = "WebsocketDisconnectionErrorKeyName"
 
+public enum CloseCode : UInt16 {
+    case normal                 = 1000
+    case goingAway              = 1001
+    case protocolError          = 1002
+    case protocolUnhandledType  = 1003
+    // 1004 reserved.
+    case noStatusReceived       = 1005
+    //1006 reserved.
+    case encoding               = 1007
+    case policyViolated         = 1008
+    case messageTooBig          = 1009
+}
+
+public protocol WebSocketClient: class {
+    var delegate: WebSocketDelegate? {get set }
+
+    var headers:[String: String] { get set }
+    var voipEnabled: Bool { get set }
+    var disableSSLCertValidation: Bool { get set }
+    var security: SSLTrustValidator? { get set }
+    var enabledSSLCipherSuites: [SSLCipherSuite]? { get set }
+    var origin: String? { get set }
+    var timeout: Int { get set }
+    var isConnected: Bool { get }
+
+
+    func connect()
+    func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
+    func write(string: String, completion: (() -> ())?)
+    func write(data: Data, completion: (() -> ())?)
+    func write(ping: Data, completion: (() -> ())?)
+    func stream(_ aStream: Stream, handle eventCode: Stream.Event)
+}
+
+extension WebSocketClient {
+    public func write(string: String) {
+        write(string: string, completion: nil)
+    }
+
+    public func write(data: Data) {
+        write(data: data, completion: nil)
+    }
+
+    public func write(ping: Data) {
+        write(ping: ping, completion: nil)
+    }
+
+    public func disconnect() {
+        disconnect(forceTimeout: nil, closeCode: CloseCode.normal.rawValue)
+    }
+}
+
 public protocol WebSocketDelegate: class {
-    func websocketDidConnect(socket: WebSocket)
-    func websocketDidDisconnect(socket: WebSocket, error: NSError?)
-    func websocketDidReceiveMessage(socket: WebSocket, text: String)
-    func websocketDidReceiveData(socket: WebSocket, data: Data)
+    func websocketDidConnect(socket: WebSocketClient)
+    func websocketDidDisconnect(socket: WebSocketClient, error: NSError?)
+    func websocketDidReceiveMessage(socket: WebSocketClient, text: String)
+    func websocketDidReceiveData(socket: WebSocketClient, data: Data)
 }
 
 public protocol WebSocketPongDelegate: class {
-    func websocketDidReceivePong(socket: WebSocket, data: Data?)
+    func websocketDidReceivePong(socket: WebSocketClient, data: Data?)
 }
 
-open class WebSocket : NSObject, StreamDelegate {
-    
+open class WebSocket : NSObject, StreamDelegate, WebSocketClient {
     enum OpCode : UInt8 {
         case continueFrame = 0x0
         case textFrame = 0x1
@@ -49,19 +100,6 @@ open class WebSocket : NSObject, StreamDelegate {
         case ping = 0x9
         case pong = 0xA
         // B-F reserved.
-    }
-    
-    public enum CloseCode : UInt16 {
-        case normal                 = 1000
-        case goingAway              = 1001
-        case protocolError          = 1002
-        case protocolUnhandledType  = 1003
-        // 1004 reserved.
-        case noStatusReceived       = 1005
-        //1006 reserved.
-        case encoding               = 1007
-        case policyViolated         = 1008
-        case messageTooBig          = 1009
     }
 
     public static let ErrorDomain = "WebSocket"
@@ -218,7 +256,7 @@ open class WebSocket : NSObject, StreamDelegate {
      - Parameter forceTimeout: Maximum time to wait for the server to close the socket.
      - Parameter closeCode: The code to send on disconnect. The default is the normal close code for cleanly disconnecting a webSocket.
     */
-    open func disconnect(forceTimeout: TimeInterval? = nil, closeCode: UInt16 = CloseCode.normal.rawValue) {
+    open func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16) {
         guard isConnected else { return }
         switch forceTimeout {
         case .some(let seconds) where seconds > 0:
