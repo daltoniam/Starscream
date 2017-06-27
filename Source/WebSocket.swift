@@ -455,9 +455,12 @@ open class WebSocket : NSObject, StreamDelegate {
             guard !sOperation.isCancelled, let s = self else { return }
             // Do the pinning now if needed
             if let sec = s.security, !s.certValidated {
-                let trust = outStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust
-                let domain = outStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as? String
-                s.certValidated = sec.isValid(trust, domain: domain)
+                if let possibleTrust = outStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) {
+                    let domain = outStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as? String
+                    s.certValidated = sec.isValid(possibleTrust as! SecTrust, domain: domain)
+                } else {
+                    s.certValidated = false
+                }
                 if !s.certValidated {
                     WebSocket.sharedWorkQueue.async {
                         let errCode = InternalErrorCode.invalidSSLError.rawValue
