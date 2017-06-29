@@ -8,11 +8,13 @@ Adds WebSocket compression. Also adds advance WebSocket delegate for extra contr
 
 [#349](https://github.com/daltoniam/Starscream/pull/349)
 [#344](https://github.com/daltoniam/Starscream/pull/344)
+[#339](https://github.com/daltoniam/Starscream/pull/339)
 [#337](https://github.com/daltoniam/Starscream/pull/337)
 [#334](https://github.com/daltoniam/Starscream/issues/334)
 [#333](https://github.com/daltoniam/Starscream/pull/333)
 [#319](https://github.com/daltoniam/Starscream/issues/319)
 [#309](https://github.com/daltoniam/Starscream/issues/309)
+[#329](https://github.com/daltoniam/Starscream/issues/329)
 
 #### [2.0.4](https://github.com/daltoniam/Starscream/tree/2.0.4)
 
