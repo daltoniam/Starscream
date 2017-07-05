@@ -355,9 +355,6 @@ open class WebSocket : NSObject, StreamDelegate {
                         return
                     }
                 }
-            } else {
-                let error = self.errorWithDetail("Tried to connect to encrypted websocket, but no cipher suites defined. Please set the enabledSSLCipherSuites property to all cipher suites your server supports.", code: 0)
-                disconnectStream(error)
             }
         } else {
             certValidated = true //not a https session, so no need to check SSL pinning
