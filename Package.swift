@@ -23,7 +23,7 @@ import PackageDescription
 let package = Package(
     name: "Starscream",
     dependencies: [
-        .Package(url: "https://github.com/daltoniam/zlib-spm.git",
+        .Package(url: "https://github.com/pixelspark/zlib-spm.git",
                  majorVersion: 1),
         .Package(url: "https://github.com/IBM-Swift/CommonCrypto.git",
                  majorVersion: 0),
