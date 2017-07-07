@@ -13,4 +13,8 @@ Pod::Spec.new do |s|
   s.source_files = 'Source/*.swift'
   s.requires_arc = 'true'
   s.libraries    = 'z'
+  s.preserve_paths = 'zlib/**/'
+  s.pod_target_xcconfig = {
+  'SWIFT_INCLUDE_PATHS' => '$(PODS_ROOT)/Starscream/zlib'
+  }
 end
