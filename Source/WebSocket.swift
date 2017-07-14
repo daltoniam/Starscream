@@ -595,7 +595,7 @@ open class WebSocket : NSObject, StreamDelegate {
         for i in 0..<bufferLen {
             if buffer[i] == CRLFBytes[k] {
                 k += 1
-                if k == 3 {
+                if k == 4 {
                     totalSize = i + 1
                     break
                 }
