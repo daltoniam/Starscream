@@ -34,32 +34,6 @@ public protocol WebSocketDelegate: class {
     func websocketDidReceiveData(socket: WebSocket, data: Data)
 }
 
-public protocol WebSocketPongDelegate: class {
-    /**
-     Called when a pong is received from the server.
-     */
-    func websocketDidReceivePong(socket: WebSocket, data: Data?)
-    
-    /**
-     Called when a pong is succesfully sent to the server.
-     */
-    func websocketDidSendPong(socket: WebSocket, data: Data?)
-}
-
-public protocol WebSocketPingDelegate: class {
-    
-    /**
-     Called when a ping is received by the server. Responding to the
-     ping is handled internally.
-     */
-    func websocketDidReceivePing(socket: WebSocket, data: Data?)
-    
-    /**
-     Called when a ping is successfully sent to the server.
-     */
-    func websocketDidSendPing(socket: WebSocket, data: Data?)
-}
-
 // A Delegate with more advanced info on messages and connection etc.
 public protocol WebSocketAdvancedDelegate: class {
     func websocketDidConnect(socket: WebSocket)
@@ -68,6 +42,10 @@ public protocol WebSocketAdvancedDelegate: class {
     func websocketDidReceiveData(socket: WebSocket, data: Data, response: WebSocket.WSResponse)
     func websocketHttpUpgrade(socket: WebSocket, request: CFHTTPMessage)
     func websocketHttpUpgrade(socket: WebSocket, response: CFHTTPMessage)
+    func websocketDidReceivePong(socket: WebSocket, data: Data?)
+    func websocketDidSendPong(socket: WebSocket, data: Data?)
+    func websocketDidReceivePing(socket: WebSocket, data: Data?)
+    func websocketDidSendPing(socket: WebSocket, data: Data?)
 }
 
 open class WebSocket : NSObject, StreamDelegate {
@@ -156,12 +134,6 @@ open class WebSocket : NSObject, StreamDelegate {
     /// The optional advanced delegate can be used insteadof of the delegate
     public weak var advancedDelegate: WebSocketAdvancedDelegate?
 
-    /// Receives a callback for each pong message recived.
-    public weak var pongDelegate: WebSocketPongDelegate?
-    
-    /// Recives a callback for each ping message received.
-    public weak var pingDelegate: WebSocketPingDelegate?
-
     // MARK: - Block based API.
 
     public enum HTTPMethod {
@@ -190,26 +162,9 @@ open class WebSocket : NSObject, StreamDelegate {
     public var onDisconnect: ((NSError?) -> Void)?
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
-    
-    /**
-     Called when a pong is sucessfully sent to the server.
-     */
     public var onPongSend: ((Data?) -> Void)?
-    
-    /**
-     Called when a pong is received from the server.
-     */
     public var onPongReceive: ((Data?) -> Void)?
-    
-    /**
-     Called when a ping is successfully sent to the server.
-     */
     public var onPingSend: ((Data?) -> Void)?
-
-    /**
-     Called when a ping is received by the server. Responding to the
-     ping is handled internally.
-     */
     public var onPingReceive: ((Data?) -> Void)?
 
     public var httpMethod: HTTPMethod = .get
@@ -356,7 +311,7 @@ open class WebSocket : NSObject, StreamDelegate {
             completion?()
             guard let s = self else { return }
             s.onPingSend?(ping)
-            s.pingDelegate?.websocketDidSendPing(socket: s, data: ping)
+            s.advancedDelegate?.websocketDidSendPing(socket: s, data: ping)
         }
         dequeueWrite(ping, code: .ping, writeCompletion: callback)
     }
@@ -905,7 +860,7 @@ open class WebSocket : NSObject, StreamDelegate {
                         guard let s = self else { return }
                         let pongData: Data? = data.count > 0 ? data : nil
                         s.onPongReceive?(pongData)
-                        s.pongDelegate?.websocketDidReceivePong(socket: s, data: pongData)
+                        s.advancedDelegate?.websocketDidReceivePong(socket: s, data: pongData)
                     }
                 }
                 return buffer.fromOffset(offset + Int(len))
@@ -987,14 +942,14 @@ open class WebSocket : NSObject, StreamDelegate {
                     callbackQueue.async { [weak self] in
                         guard let s = self else { return }
                         s.onPingReceive?(data as Data)
-                        s.pingDelegate?.websocketDidReceivePing(socket: s, data: data as Data)
+                        s.advancedDelegate?.websocketDidReceivePing(socket: s, data: data as Data)
                     }
                 }
                 
                 let completion = { [weak self ] in
                     guard let s = self else { return }
                     s.onPongSend?(data as Data)
-                    s.pongDelegate?.websocketDidSendPong(socket: s, data: data as Data)
+                    s.advancedDelegate?.websocketDidSendPong(socket: s, data: data as Data)
                 }
                 
                 dequeueWrite(data as Data, code: .pong, writeCompletion: completion)
