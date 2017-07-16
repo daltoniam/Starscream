@@ -20,6 +20,29 @@
 		742419BC1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */; };
 		742419BD1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */; };
 		742419BE1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */; };
+		D85927D01ED65933003460CB /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1360011C473BEF00AA3A01 /* WebSocket.swift */; };
+		D85927D11ED65963003460CB /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
+		D85927D81ED76F25003460CB /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; };
+		D85927D91ED76F25003460CB /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; };
+		D85927DA1ED76F25003460CB /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; };
+		D85927DB1ED7737C003460CB /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1360011C473BEF00AA3A01 /* WebSocket.swift */; };
+		D85927DC1ED7737C003460CB /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1360011C473BEF00AA3A01 /* WebSocket.swift */; };
+		D85927DD1ED773AC003460CB /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
+		D85927DE1ED773AD003460CB /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
+		D88EAF7F1ED4DFB5004FE2C3 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */; };
+		D88EAF821ED4DFD3004FE2C3 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
+		D88EAF841ED4E7D8004FE2C3 /* CompressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */; };
+		D88EAF851ED4E7D8004FE2C3 /* CompressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */; };
+		D88EAF861ED4E7D8004FE2C3 /* CompressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */; };
+		D88EAF871ED4E88C004FE2C3 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */; };
+		D88EAF881ED4E88C004FE2C3 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */; };
+		D88EAF891ED4E88D004FE2C3 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */; };
+		D88EAF8A1ED4E88D004FE2C3 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */; };
+		D88EAF8B1ED4E88D004FE2C3 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */; };
+		D88EAF8E1ED4E92E004FE2C3 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF8D1ED4E92E004FE2C3 /* libz.tbd */; };
+		D88EAF911ED4E949004FE2C3 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF901ED4E949004FE2C3 /* libz.tbd */; };
+		D88EAF921ED4E95D004FE2C3 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B3E79E619D48B7F006071F7 /* Starscream.framework */; };
+		D88EAF931ED4E975004FE2C3 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		D9C3E36A19E48FF1009FC285 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C3E35F19E48FF1009FC285 /* Starscream.framework */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +75,13 @@
 		6B3E79F119D48B7F006071F7 /* Starscream iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Starscream iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B3E7A0019D48C2F006071F7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StarscreamTests.swift; path = StarscreamTests/StarscreamTests.swift; sourceTree = "<group>"; };
+		D85927D61ED761A0003460CB /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		D85927D71ED76F25003460CB /* include.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = include.h; sourceTree = "<group>"; };
+		D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Source/Compression.swift; sourceTree = SOURCE_ROOT; };
+		D88EAF811ED4DFD3004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompressionTests.swift; sourceTree = "<group>"; };
+		D88EAF8D1ED4E92E004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
+		D88EAF901ED4E949004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS10.2.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		D9C3E35F19E48FF1009FC285 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C3E36919E48FF1009FC285 /* Starscream OSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Starscream OSXTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -61,6 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF911ED4E949004FE2C3 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,6 +107,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF821ED4DFD3004FE2C3 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +115,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF931ED4E975004FE2C3 /* libz.tbd in Frameworks */,
+				D88EAF921ED4E95D004FE2C3 /* Starscream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +124,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF8E1ED4E92E004FE2C3 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,9 +142,11 @@
 		6B3E79DC19D48B7F006071F7 = {
 			isa = PBXGroup;
 			children = (
+				D85927D51ED761A0003460CB /* zlib */,
 				6B3E79E819D48B7F006071F7 /* Starscream */,
 				6B3E79FF19D48C2F006071F7 /* Tests */,
 				6B3E79E719D48B7F006071F7 /* Products */,
+				D88EAF801ED4DFD3004FE2C3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -132,6 +169,7 @@
 				5C1360001C473BEF00AA3A01 /* Starscream.h */,
 				5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */,
 				5C1360011C473BEF00AA3A01 /* WebSocket.swift */,
+				D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */,
 				6B3E79E919D48B7F006071F7 /* Supporting Files */,
 			);
 			path = Starscream;
@@ -151,8 +189,28 @@
 			children = (
 				6B3E7A0019D48C2F006071F7 /* Info.plist */,
 				742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */,
+				D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		D85927D51ED761A0003460CB /* zlib */ = {
+			isa = PBXGroup;
+			children = (
+				D85927D61ED761A0003460CB /* module.modulemap */,
+				D85927D71ED76F25003460CB /* include.h */,
+			);
+			path = zlib;
+			sourceTree = "<group>";
+		};
+		D88EAF801ED4DFD3004FE2C3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D88EAF901ED4E949004FE2C3 /* libz.tbd */,
+				D88EAF8D1ED4E92E004FE2C3 /* libz.tbd */,
+				D88EAF811ED4DFD3004FE2C3 /* libz.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -163,6 +221,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C1360071C473BEF00AA3A01 /* Starscream.h in Headers */,
+				D85927DA1ED76F25003460CB /* include.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,6 +230,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C1360051C473BEF00AA3A01 /* Starscream.h in Headers */,
+				D85927D81ED76F25003460CB /* include.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,6 +239,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C1360061C473BEF00AA3A01 /* Starscream.h in Headers */,
+				D85927D91ED76F25003460CB /* include.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,6 +460,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF8A1ED4E88D004FE2C3 /* Compression.swift in Sources */,
 				5C13600A1C473BEF00AA3A01 /* WebSocket.swift in Sources */,
 				5C1360041C473BEF00AA3A01 /* SSLSecurity.swift in Sources */,
 			);
@@ -408,6 +470,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF8B1ED4E88D004FE2C3 /* Compression.swift in Sources */,
+				D85927DE1ED773AD003460CB /* SSLSecurity.swift in Sources */,
+				D85927DB1ED7737C003460CB /* WebSocket.swift in Sources */,
+				D88EAF861ED4E7D8004FE2C3 /* CompressionTests.swift in Sources */,
 				742419BE1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -416,6 +482,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF7F1ED4DFB5004FE2C3 /* Compression.swift in Sources */,
 				5C1360081C473BEF00AA3A01 /* WebSocket.swift in Sources */,
 				5C1360021C473BEF00AA3A01 /* SSLSecurity.swift in Sources */,
 			);
@@ -425,6 +492,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF871ED4E88C004FE2C3 /* Compression.swift in Sources */,
+				D85927D11ED65963003460CB /* SSLSecurity.swift in Sources */,
+				D85927D01ED65933003460CB /* WebSocket.swift in Sources */,
+				D88EAF841ED4E7D8004FE2C3 /* CompressionTests.swift in Sources */,
 				742419BC1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -433,6 +504,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF881ED4E88C004FE2C3 /* Compression.swift in Sources */,
 				5C1360091C473BEF00AA3A01 /* WebSocket.swift in Sources */,
 				5C1360031C473BEF00AA3A01 /* SSLSecurity.swift in Sources */,
 			);
@@ -442,6 +514,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D88EAF891ED4E88D004FE2C3 /* Compression.swift in Sources */,
+				D85927DD1ED773AC003460CB /* SSLSecurity.swift in Sources */,
+				D85927DC1ED7737C003460CB /* WebSocket.swift in Sources */,
+				D88EAF851ED4E7D8004FE2C3 /* CompressionTests.swift in Sources */,
 				742419BD1DC6BDBA003ACE43 /* StarscreamTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -595,6 +671,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_INCLUDE_PATHS = $SRCROOT/zlib;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -638,6 +715,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_INCLUDE_PATHS = $SRCROOT/zlib;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";

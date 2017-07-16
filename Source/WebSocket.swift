@@ -21,7 +21,7 @@
 
 import Foundation
 import CoreFoundation
-import Security
+import CommonCrypto
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
@@ -38,9 +38,19 @@ public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocket, data: Data?)
 }
 
+// A Delegate with more advanced info on messages and connection etc.
+public protocol WebSocketAdvancedDelegate: class {
+    func websocketDidConnect(socket: WebSocket)
+    func websocketDidDisconnect(socket: WebSocket, error: NSError?)
+    func websocketDidReceiveMessage(socket: WebSocket, text: String, response: WebSocket.WSResponse)
+    func websocketDidReceiveData(socket: WebSocket, data: Data, response: WebSocket.WSResponse)
+    func websocketHttpUpgrade(socket: WebSocket, request: CFHTTPMessage)
+    func websocketHttpUpgrade(socket: WebSocket, response: CFHTTPMessage)
+}
+
 open class WebSocket : NSObject, StreamDelegate {
     
-    enum OpCode : UInt8 {
+    public enum OpCode : UInt8 {
         case continueFrame = 0x0
         case textFrame = 0x1
         case binaryFrame = 0x2
@@ -69,6 +79,9 @@ open class WebSocket : NSObject, StreamDelegate {
     enum InternalErrorCode: UInt16 {
         // 0-999 WebSocket status codes not used
         case outputStreamWriteError = 1
+        case compressionError = 2
+        case invalidSSLError = 3
+        case writeTimeoutError = 4
     }
 
     // Where the callback is executed. It defaults to the main UI thread queue.
@@ -86,6 +99,7 @@ open class WebSocket : NSObject, StreamDelegate {
     let headerWSProtocolName    = "Sec-WebSocket-Protocol"
     let headerWSVersionName     = "Sec-WebSocket-Version"
     let headerWSVersionValue    = "13"
+    let headerWSExtensionName   = "Sec-WebSocket-Extensions"
     let headerWSKeyName         = "Sec-WebSocket-Key"
     let headerOriginName        = "Origin"
     let headerWSAcceptName      = "Sec-WebSocket-Accept"
@@ -93,18 +107,22 @@ open class WebSocket : NSObject, StreamDelegate {
     let FinMask: UInt8          = 0x80
     let OpCodeMask: UInt8       = 0x0F
     let RSVMask: UInt8          = 0x70
+    let RSV1Mask: UInt8         = 0x40
     let MaskMask: UInt8         = 0x80
     let PayloadLenMask: UInt8   = 0x7F
     let MaxFrameSize: Int       = 32
     let httpSwitchProtocolCode  = 101
     let supportedSSLSchemes     = ["wss", "https"]
 
-    class WSResponse {
+    public class WSResponse {
         var isFin = false
-        var code: OpCode = .continueFrame
+        public var code: OpCode = .continueFrame
         var bytesLeft = 0
-        var frameCount = 0
-        var buffer: NSMutableData?
+        public var frameCount = 0
+        public var buffer: NSMutableData?
+        public let firstFrame = {
+            return Date()
+        }()
     }
 
     // MARK: - Delegates
@@ -113,21 +131,47 @@ open class WebSocket : NSObject, StreamDelegate {
     /// and also connection/disconnect messages.
     public weak var delegate: WebSocketDelegate?
 
+    /// The optional advanced delegate can be used insteadof of the delegate
+    public weak var advancedDelegate: WebSocketAdvancedDelegate?
+
     /// Receives a callback for each pong message recived.
     public weak var pongDelegate: WebSocketPongDelegate?
 
 
     // MARK: - Block based API.
 
-    public var onConnect: ((Void) -> Void)?
+    public enum HTTPMethod {
+        case get
+        case post
+        case put
+        case connect
+        case custom(value: String)
+        var representation: String {
+            switch self {
+                case .get:
+                    return "GET"
+                case .post:
+                    return "POST"
+                case .put:
+                    return "PUT"
+                case .connect:
+                    return "CONNECT"
+                case .custom(let value):
+                    return value.capitalized
+            }
+        }
+    }
+
+    public var onConnect: (() -> Void)?
     public var onDisconnect: ((NSError?) -> Void)?
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
     public var onPong: ((Data?) -> Void)?
 
+    public var httpMethod: HTTPMethod = .get
     public var headers = [String: String]()
-    public var voipEnabled = false
     public var disableSSLCertValidation = false
+    public var enableCompression = true
     public var security: SSLTrustValidator?
     public var enabledSSLCipherSuites: [SSLCipherSuite]?
     public var origin: String?
@@ -139,12 +183,24 @@ open class WebSocket : NSObject, StreamDelegate {
     public var currentURL: URL { return url }
 
     // MARK: - Private
+    
+    private struct CompressionState {
+        var supportsCompression = false
+        var messageNeedsDecompression = false
+        var serverMaxWindowBits = 15
+        var clientMaxWindowBits = 15
+        var clientNoContextTakeover = false
+        var serverNoContextTakeover = false
+        var decompressor:Decompressor? = nil
+        var compressor:Compressor? = nil
+    }
 
     private var url: URL
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
     private var connected = false
     private var isConnecting = false
+    private var compressionState = CompressionState()
     private var writeQueue = OperationQueue()
     private var readStack = [WSResponse]()
     private var inputQueue = [Data]()
@@ -152,6 +208,7 @@ open class WebSocket : NSObject, StreamDelegate {
     private var certValidated = false
     private var didDisconnect = false
     private var readyToWrite = false
+    private var headerSecKey = ""
     private let mutex = NSLock()
     private let notificationCenter = NotificationCenter.default
     private var canDispatch: Bool {
@@ -273,7 +330,7 @@ open class WebSocket : NSObject, StreamDelegate {
      Private method that starts the connection.
      */
     private func createHTTPRequest() {
-        let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "GET" as CFString,
+        let urlRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, httpMethod.representation as CFString,
                                                     url as CFURL, kCFHTTPVersion1_1).takeRetainedValue()
 
         var port = url.port
@@ -289,10 +346,15 @@ open class WebSocket : NSObject, StreamDelegate {
         if let protocols = optionalProtocols {
             addHeader(urlRequest, key: headerWSProtocolName, val: protocols.joined(separator: ","))
         }
+        headerSecKey = generateWebSocketKey()
         addHeader(urlRequest, key: headerWSVersionName, val: headerWSVersionValue)
-        addHeader(urlRequest, key: headerWSKeyName, val: generateWebSocketKey())
+        addHeader(urlRequest, key: headerWSKeyName, val: headerSecKey)
         if let origin = origin {
             addHeader(urlRequest, key: headerOriginName, val: origin)
+        }
+        if enableCompression {
+            let val = "permessage-deflate; client_max_window_bits; server_max_window_bits=15"
+            addHeader(urlRequest, key: headerWSExtensionName, val: val)
         }
         addHeader(urlRequest, key: headerWSHostName, val: "\(url.host!):\(port!)")
         for (key, value) in headers {
@@ -301,6 +363,7 @@ open class WebSocket : NSObject, StreamDelegate {
         if let cfHTTPMessage = CFHTTPMessageCopySerializedMessage(urlRequest) {
             let serializedRequest = cfHTTPMessage.takeRetainedValue()
             initStreamsWithData(serializedRequest as Data, Int(port!))
+            self.advancedDelegate?.websocketHttpUpgrade(socket: self, request: urlRequest)
         }
     }
     
@@ -346,6 +409,7 @@ open class WebSocket : NSObject, StreamDelegate {
         inStream.delegate = self
         outStream.delegate = self
         if supportedSSLSchemes.contains(url.scheme!) {
+            certValidated = false
             inStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
             outStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
             if disableSSLCertValidation {
@@ -373,11 +437,7 @@ open class WebSocket : NSObject, StreamDelegate {
         } else {
             certValidated = true //not a https session, so no need to check SSL pinning
         }
-        if voipEnabled {
-            inStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
-            outStream.setProperty(StreamNetworkServiceTypeValue.voIP as AnyObject, forKey: Stream.PropertyKey.networkServiceType)
-        }
-
+        
         WebSocket.sharedWorkQueue.sync {
             CFReadStreamSetDispatchQueue(inStream, self.readStreamQueue)
             CFWriteStreamSetDispatchQueue(outStream, self.writeStreamQueue)
@@ -402,7 +462,8 @@ open class WebSocket : NSObject, StreamDelegate {
                     WebSocket.sharedWorkQueue.async {
                         self?.cleanupStream()
                     }
-                    self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: 2))
+                    let errCode = InternalErrorCode.writeTimeoutError.rawValue
+                    self?.doDisconnect(self?.errorWithDetail("write wait timed out", code: errCode))
                     return
                 } else if outStream.streamError != nil {
                     return // disconnectStream will be called.
@@ -411,12 +472,16 @@ open class WebSocket : NSObject, StreamDelegate {
             guard !sOperation.isCancelled, let s = self else { return }
             // Do the pinning now if needed
             if let sec = s.security, !s.certValidated {
-                let trust = outStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust
-                let domain = outStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as? String
-                s.certValidated = sec.isValid(trust, domain: domain)
+                if let possibleTrust = outStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) {
+                    let domain = outStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as? String
+                    s.certValidated = sec.isValid(possibleTrust as! SecTrust, domain: domain)
+                } else {
+                    s.certValidated = false
+                }
                 if !s.certValidated {
                     WebSocket.sharedWorkQueue.async {
-                        let error = s.errorWithDetail("Invalid SSL certificate", code: 1)
+                        let errCode = InternalErrorCode.invalidSSLError.rawValue
+                        let error = s.errorWithDetail("Invalid SSL certificate", code: errCode)
                         s.disconnectStream(error)
                     }
                     return
@@ -570,6 +635,7 @@ open class WebSocket : NSObject, StreamDelegate {
                     guard let s = self else { return }
                     s.onConnect?()
                     s.delegate?.websocketDidConnect(socket: s)
+                    s.advancedDelegate?.websocketDidConnect(socket: s)
                     s.notificationCenter.post(name: NSNotification.Name(WebsocketDidConnectNotification), object: self)
                 }
             }
@@ -590,18 +656,60 @@ open class WebSocket : NSObject, StreamDelegate {
         let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
         CFHTTPMessageAppendBytes(response, buffer, bufferLen)
         let code = CFHTTPMessageGetResponseStatusCode(response)
+        self.advancedDelegate?.websocketHttpUpgrade(socket: self, response: response)
         if code != httpSwitchProtocolCode {
             return code
         }
         if let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response) {
             let headers = cfHeaders.takeRetainedValue() as NSDictionary
+            if let extensionHeader = headers[headerWSExtensionName as NSString] as? String {
+                processExtensionHeader(extensionHeader)
+            }
+            
             if let acceptKey = headers[headerWSAcceptName as NSString] as? NSString {
                 if acceptKey.length > 0 {
+                    if headerSecKey.characters.count > 0 {
+                        let sha = "\(headerSecKey)258EAFA5-E914-47DA-95CA-C5AB0DC85B11".sha1Base64()
+                        if sha != acceptKey as String {
+                            return -1
+                        }
+                    }
                     return 0
                 }
             }
         }
         return -1
+    }
+    
+    /**
+     Parses the extension header, setting up the compression parameters.
+     */
+    func processExtensionHeader(_ extensionHeader: String) {
+        let parts = extensionHeader.components(separatedBy: ";")
+        for p in parts {
+            let part = p.trimmingCharacters(in: .whitespaces)
+            if part == "permessage-deflate" {
+                compressionState.supportsCompression = true
+            } else if part.hasPrefix("server_max_window_bits=") {
+                let valString = part.components(separatedBy: "=")[1]
+                if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
+                    compressionState.serverMaxWindowBits = val
+                }
+            } else if part.hasPrefix("client_max_window_bits=") {
+                let valString = part.components(separatedBy: "=")[1]
+                if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
+                    compressionState.clientMaxWindowBits = val
+                }
+            } else if part == "client_no_context_takeover" {
+                compressionState.clientNoContextTakeover = true
+            } else if part == "server_no_context_takeover" {
+                compressionState.serverNoContextTakeover = true
+            }
+        }
+        if compressionState.supportsCompression {
+            compressionState.decompressor = Decompressor(windowBits: compressionState.serverMaxWindowBits)
+            compressionState.compressor = Compressor(windowBits: compressionState.clientMaxWindowBits)
+        }
     }
     
     /**
@@ -663,11 +771,15 @@ open class WebSocket : NSObject, StreamDelegate {
             return buffer.fromOffset(bufferLen - extra)
         } else {
             let isFin = (FinMask & baseAddress[0])
-            let receivedOpcode = OpCode(rawValue: (OpCodeMask & baseAddress[0]))
+            let receivedOpcodeRawValue = (OpCodeMask & baseAddress[0])
+            let receivedOpcode = OpCode(rawValue: receivedOpcodeRawValue)
             let isMasked = (MaskMask & baseAddress[1])
             let payloadLen = (PayloadLenMask & baseAddress[1])
             var offset = 2
-            if (isMasked > 0 || (RSVMask & baseAddress[0]) > 0) && receivedOpcode != .pong {
+            if compressionState.supportsCompression && receivedOpcode != .continueFrame {
+                compressionState.messageNeedsDecompression = (RSV1Mask & baseAddress[0]) > 0
+            }
+            if (isMasked > 0 || (RSVMask & baseAddress[0]) > 0) && receivedOpcode != .pong && !compressionState.messageNeedsDecompression {
                 let errCode = CloseCode.protocolError.rawValue
                 doDisconnect(errorWithDetail("masked and rsv data is not currently supported", code: errCode))
                 writeError(errCode)
@@ -677,7 +789,7 @@ open class WebSocket : NSObject, StreamDelegate {
             if !isControlFrame && (receivedOpcode != .binaryFrame && receivedOpcode != .continueFrame &&
                 receivedOpcode != .textFrame && receivedOpcode != .pong) {
                     let errCode = CloseCode.protocolError.rawValue
-                    doDisconnect(errorWithDetail("unknown opcode: \(receivedOpcode)", code: errCode))
+                    doDisconnect(errorWithDetail("unknown opcode: \(receivedOpcodeRawValue)", code: errCode))
                     writeError(errCode)
                     return emptyBuffer
             }
@@ -722,18 +834,29 @@ open class WebSocket : NSObject, StreamDelegate {
             if dataLength > UInt64(bufferLen) {
                 len = UInt64(bufferLen-offset)
             }
+            if receivedOpcode == .connectionClose && len > 0 {
+                let size = MemoryLayout<UInt16>.size
+                offset += size
+                len -= UInt64(size)
+            }
             let data: Data
-            if len < 0 {
-                len = 0
-                data = Data()
-            } else {
-                if receivedOpcode == .connectionClose && len > 0 {
-                    let size = MemoryLayout<UInt16>.size
-                    offset += size
-                    len -= UInt64(size)
+            if compressionState.messageNeedsDecompression, let decompressor = compressionState.decompressor {
+                do {
+                    data = try decompressor.decompress(bytes: baseAddress+offset, count: Int(len), finish: isFin > 0)
+                    if isFin > 0 && compressionState.serverNoContextTakeover{
+                        try decompressor.reset()
+                    }
+                } catch {
+                    let closeReason = "Decompression failed: \(error)"
+                    let closeCode = CloseCode.encoding.rawValue
+                    doDisconnect(errorWithDetail(closeReason, code: closeCode))
+                    writeError(closeCode)
+                    return emptyBuffer
                 }
+            } else {
                 data = Data(bytes: baseAddress+offset, count: Int(len))
             }
+            
             if receivedOpcode == .connectionClose {
                 var closeReason = "connection closed by server"
                 if let customCloseReason = String(data: data, encoding: .utf8) {
@@ -839,6 +962,7 @@ open class WebSocket : NSObject, StreamDelegate {
                         guard let s = self else { return }
                         s.onText?(str! as String)
                         s.delegate?.websocketDidReceiveMessage(socket: s, text: str! as String)
+                        s.advancedDelegate?.websocketDidReceiveMessage(socket: s, text: str! as String, response: response)
                     }
                 }
             } else if response.code == .binaryFrame {
@@ -848,6 +972,7 @@ open class WebSocket : NSObject, StreamDelegate {
                         guard let s = self else { return }
                         s.onData?(data as Data)
                         s.delegate?.websocketDidReceiveData(socket: s, data: data as Data)
+                        s.advancedDelegate?.websocketDidReceiveData(socket: s, data: data as Data, response: response)
                     }
                 }
             }
@@ -887,10 +1012,23 @@ open class WebSocket : NSObject, StreamDelegate {
             guard let s = self else { return }
             guard let sOperation = operation else { return }
             var offset = 2
+            var firstByte:UInt8 = s.FinMask | code.rawValue
+            var data = data
+            if [.textFrame, .binaryFrame].contains(code), let compressor = s.compressionState.compressor {
+                do {
+                    data = try compressor.compress(data)
+                    if s.compressionState.clientNoContextTakeover {
+                        try compressor.reset()
+                    }
+                    firstByte |= s.RSV1Mask
+                } catch {
+                    // TODO: report error?  We can just send the uncompressed frame.
+                }
+            }
             let dataLength = data.count
             let frame = NSMutableData(capacity: dataLength + s.MaxFrameSize)
             let buffer = UnsafeMutableRawPointer(frame!.mutableBytes).assumingMemoryBound(to: UInt8.self)
-            buffer[0] = s.FinMask | code.rawValue
+            buffer[0] = firstByte
             if dataLength < 126 {
                 buffer[1] = CUnsignedChar(dataLength)
             } else if dataLength <= Int(UInt16.max) {
@@ -956,6 +1094,7 @@ open class WebSocket : NSObject, StreamDelegate {
             guard let s = self else { return }
             s.onDisconnect?(error)
             s.delegate?.websocketDidDisconnect(socket: s, error: error)
+            s.advancedDelegate?.websocketDidDisconnect(socket: s, error: error)
             let userInfo = error.map{ [WebsocketDisconnectionErrorKeyName: $0] }
             s.notificationCenter.post(name: NSNotification.Name(WebsocketDidDisconnectNotification), object: self, userInfo: userInfo)
         }
@@ -971,6 +1110,15 @@ open class WebSocket : NSObject, StreamDelegate {
         writeQueue.cancelAllOperations()
     }
 
+}
+
+private extension String {
+    func sha1Base64() -> String {
+        let data = self.data(using: String.Encoding.utf8)!
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
+        data.withUnsafeBytes { _ = CC_SHA1($0, CC_LONG(data.count), &digest) }
+        return Data(bytes: digest).base64EncodedString()
+    }
 }
 
 private extension Data {

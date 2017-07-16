@@ -1,0 +1,9 @@
+module CZLib [system] {
+    header "include.h"
+    link "z"
+    export *
+}
+module CommonCrypto [system] {
+    header "include.h"
+    export *
+}
