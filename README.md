@@ -2,18 +2,15 @@
 
 Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6455)) client library in Swift for iOS and OSX.
 
-It's Objective-C counter part can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
+Its Objective-C counterpart can be found here: [Jetfire](https://github.com/acmacalister/jetfire)
 
 ## Features
 
 - Conforms to all of the base [Autobahn test suite](http://autobahn.ws/testsuite/).
 - Nonblocking. Everything happens in the background, thanks to GCD.
 - TLS/WSS support.
+- Compression Extensions support ([RFC 7692](https://tools.ietf.org/html/rfc7692))
 - Simple concise codebase at just a few hundred LOC.
-
-## Swift 2.3
-
-See release/tag 1.1.4 for Swift 2.3 support.
 
 ## Example
 
@@ -164,6 +161,21 @@ socket.headers["Sec-WebSocket-Version"] = "14"
 socket.headers["My-Awesome-Header"] = "Everything is Awesome!"
 ```
 
+### Custom HTTP Method
+
+Your server may use a different HTTP method when connecting to the websocket:
+
+```swift
+socket.httpMethod = .post
+```
+you can use a custom string:
+
+```swift
+socket.httpMethod = .custom(value: "mycustomhttpmethod")
+```
+
+
+
 ### Protocols
 
 If you need to specify a protocol, simple add it to the init:
@@ -175,15 +187,10 @@ socket.delegate = self
 socket.connect()
 ```
 
-### Self Signed SSL and VOIP
-
-There are a couple of other properties that modify the stream:
+### Self Signed SSL
 
 ```swift
 socket = WebSocket(url: URL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
-
-//set this if you are planning on using the socket in a VOIP background setting (using the background VOIP service).
-socket.voipEnabled = true
 
 //set this you want to ignore SSL cert validation, so a self signed SSL certificate can be used.
 socket.disableSSLCertValidation = true
@@ -191,7 +198,7 @@ socket.disableSSLCertValidation = true
 
 ### SSL Pinning
 
-SSL Pinning is also supported in Starscream. 
+SSL Pinning is also supported in Starscream.
 
 ```swift
 socket = WebSocket(url: URL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
@@ -200,6 +207,30 @@ socket.security = SSLSecurity(certs: [SSLCert(data: data)], usePublicKeys: true)
 //socket.security = SSLSecurity() //uses the .cer files in your app's bundle
 ```
 You load either a `Data` blob of your certificate or you can use a `SecKeyRef` if you have a public key you want to use. The `usePublicKeys` bool is whether to use the certificates for validation or the public keys. The public keys will be extracted from the certificates automatically if `usePublicKeys` is choosen.
+
+### SSL Cipher Suites
+
+To use an SSL encrypted connection, you need to tell Starscream about the cipher suites your server supports. 
+
+```swift
+socket = WebSocket(url: URL(string: "wss://localhost:8080/")!, protocols: ["chat","superchat"])
+
+// Set enabled cipher suites to AES 256 and AES 128
+socket.enabledSSLCipherSuites = [TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256] 
+```
+
+If you don't know which cipher suites are supported by your server, you can try pointing [SSL Labs](https://www.ssllabs.com/ssltest/) at it and checking the results.
+
+### Compression Extensions
+
+Compression Extensions ([RFC 7692](https://tools.ietf.org/html/rfc7692)) is supported in Starscream.  Compression is enabled by default, however compression will only be used if it is supported by the server as well.  You may enable or disable compression via the `.enableCompression` property:
+
+```swift
+socket = WebSocket(url: URL(string: "ws://localhost:8080/")!)
+socket.enableCompression = false
+```
+
+Compression should be disabled if your application is transmitting already-compressed, random, or other uncompressable data.
 
 ### Custom Queue
 
@@ -231,7 +262,7 @@ To use Starscream in your project add the following 'Podfile' to your project
 	platform :ios, '9.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 2.0.0'
+	pod 'Starscream', '~> 2.0.3'
 
 Then run:
 
@@ -253,7 +284,7 @@ $ brew install carthage
 To integrate Starscream into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```
-github "daltoniam/Starscream" >= 2.0.0
+github "daltoniam/Starscream" >= 2.0.3
 ```
 
 ### Rogue
@@ -268,6 +299,18 @@ rogue add https://github.com/daltoniam/starscream
 
 Next open the `libs` folder and add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in your "Build Phases" add the `Starscream.framework` to your "Link Binary with Libraries" phase. Make sure to add the `libs` folder to your `.gitignore` file.
 
+### Swift Package Manager
+
+The [Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler.
+
+Once you have your Swift package set up, adding Starscream as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
+
+```swift
+dependencies: [
+    .Package(url: "https://github.com/daltoniam/Starscream.git", majorVersion: 2)
+]
+```
+
 ### Other
 
 Simply grab the framework (either via git submodule or another package manager).
@@ -277,6 +320,46 @@ Add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in 
 ### Add Copy Frameworks Phase
 
 If you are running this in an OSX app or on a physical iOS device you will need to make sure you add the `Starscream.framework` to be included in your app bundle. To do this, in Xcode, navigate to the target configuration window by clicking on the blue project icon, and selecting the application target under the "Targets" heading in the sidebar. In the tab bar at the top of that window, open the "Build Phases" panel. Expand the "Link Binary with Libraries" group, and add `Starscream.framework`. Click on the + button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add `Starscream.framework` respectively.
+
+
+## WebSocketAdvancedDelegate
+The advanced delegate acts just like the simpler delegate but provides some additional information on the connection and incoming frames.
+
+```swift
+socket.advancedDelegate = self
+```
+
+In most cases you do not need the extra info and should use the normal delegate.
+
+#### websocketDidReceiveMessage
+```swift
+func websocketDidReceiveMessage(socket: WebSocket, text: String, response: WebSocket.WSResponse {
+	print("got some text: \(text)")
+	print("First frame for this message arrived on \(response.firstFrame)")
+}
+```
+
+#### websocketDidReceiveData
+```swift
+func websocketDidReceiveData(socket: WebSocket, data: Date, response: WebSocket.WSResponse) {
+	print("got some data it long: \(data.count)")
+	print("A total of \(response.frameCount) frames were used to send this data")
+}
+```
+
+#### websocketHttpUpgrade
+These methods are called when the HTTP upgrade request is sent and when the response returns.
+```swift
+func  websocketHttpUpgrade(socket: WebSocket, request: CFHTTPMessage) {
+	print("the http request was sent we can check the raw http if we need to")
+}
+```
+
+```swift
+func  websocketHttpUpgrade(socket: WebSocket, response: CFHTTPMessage) {
+	print("the http response has returned.")
+}
+```
 
 ## TODOs
 
