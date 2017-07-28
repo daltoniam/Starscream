@@ -192,7 +192,7 @@ socket.connect()
 ```swift
 socket = WebSocket(url: URL(string: "ws://localhost:8080/")!, protocols: ["chat","superchat"])
 
-//set this you want to ignore SSL cert validation, so a self signed SSL certificate can be used.
+//set this if you want to ignore SSL cert validation, so a self signed SSL certificate can be used.
 socket.disableSSLCertValidation = true
 ```
 
