@@ -177,7 +177,10 @@ open class WebSocket : NSObject, StreamDelegate {
     public var origin: String?
     public var timeout = 5
     public var isConnected: Bool {
-        return connected
+        connectedMutex.lock()
+        let isConnected = connected
+        connectedMutex.unlock()
+        return isConnected
     }
     
     public var currentURL: URL { return url }
@@ -200,6 +203,7 @@ open class WebSocket : NSObject, StreamDelegate {
     private var outputStream: OutputStream?
     private var connected = false
     private var isConnecting = false
+    private let connectedMutex = NSLock()
     private var compressionState = CompressionState()
     private var writeQueue = OperationQueue()
     private var readStack = [WSResponse]()
@@ -209,12 +213,12 @@ open class WebSocket : NSObject, StreamDelegate {
     private var didDisconnect = false
     private var readyToWrite = false
     private var headerSecKey = ""
-    private let mutex = NSLock()
+    private let readyToWriteMutex = NSLock()
     private let notificationCenter = NotificationCenter.default
     private var canDispatch: Bool {
-        mutex.lock()
+        readyToWriteMutex.lock()
         let canWork = readyToWrite
-        mutex.unlock()
+        readyToWriteMutex.unlock()
         return canWork
     }
     /// The shared processing queue used for all WebSocket.
@@ -428,9 +432,9 @@ open class WebSocket : NSObject, StreamDelegate {
         inStream.open()
         outStream.open()
 
-        self.mutex.lock()
+        self.readyToWriteMutex.lock()
         self.readyToWrite = true
-        self.mutex.unlock()
+        self.readyToWriteMutex.unlock()
         
         let bytes = UnsafeRawPointer((data as NSData).bytes).assumingMemoryBound(to: UInt8.self)
         var out = timeout * 1_000_000 // wait 5 seconds before giving up
@@ -500,7 +504,9 @@ open class WebSocket : NSObject, StreamDelegate {
             writeQueue.cancelAllOperations()
         }
         cleanupStream()
+        connectedMutex.lock()
         connected = false
+        connectedMutex.unlock()
         if runDelegate {
             doDisconnect(error)
         }
@@ -609,7 +615,9 @@ open class WebSocket : NSObject, StreamDelegate {
                 return code
             }
             isConnecting = false
+            connectedMutex.lock()
             connected = true
+            connectedMutex.unlock()
             didDisconnect = false
             if canDispatch {
                 callbackQueue.async { [weak self] in
@@ -1068,7 +1076,9 @@ open class WebSocket : NSObject, StreamDelegate {
         guard !didDisconnect else { return }
         didDisconnect = true
         isConnecting = false
+        connectedMutex.lock()
         connected = false
+        connectedMutex.unlock()
         guard canDispatch else {return}
         callbackQueue.async { [weak self] in
             guard let s = self else { return }
@@ -1083,9 +1093,9 @@ open class WebSocket : NSObject, StreamDelegate {
     // MARK: - Deinit
 
     deinit {
-        mutex.lock()
+        readyToWriteMutex.lock()
         readyToWrite = false
-        mutex.unlock()
+        readyToWriteMutex.unlock()
         cleanupStream()
         writeQueue.cancelAllOperations()
     }
