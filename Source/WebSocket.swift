@@ -269,13 +269,17 @@ open class WebSocket : NSObject, StreamDelegate {
         case .some(let seconds) where seconds > 0:
             let milliseconds = Int(seconds * 1_000)
             callbackQueue.asyncAfter(deadline: .now() + .milliseconds(milliseconds)) { [weak self] in
-                self?.disconnectStream(nil)
+                WebSocket.sharedWorkQueue.async {
+                    self?.disconnectStream(nil)
+                }
             }
             fallthrough
         case .none:
             writeError(closeCode)
         default:
-            disconnectStream(nil)
+            WebSocket.sharedWorkQueue.async { [weak self] in
+                self?.disconnectStream(nil)
+            }
             break
         }
     }
@@ -412,13 +416,17 @@ open class WebSocket : NSObject, StreamDelegate {
                     let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
                     let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
                     if resIn != errSecSuccess {
-                        let error = self.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
-                        disconnectStream(error)
+                        WebSocket.sharedWorkQueue.async { [weak self] in
+                            let error = self?.errorWithDetail("Error setting ingoing cypher suites", code: UInt16(resIn))
+                            self?.disconnectStream(error)
+                        }
                         return
                     }
                     if resOut != errSecSuccess {
-                        let error = self.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
-                        disconnectStream(error)
+                        WebSocket.sharedWorkQueue.async { [weak self] in
+                            let error = self?.errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut))
+                            self?.disconnectStream(error)
+                        }
                         return
                     }
                 }
