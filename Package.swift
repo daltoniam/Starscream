@@ -24,9 +24,9 @@ let package = Package(
     name: "Starscream",
     dependencies: [
         .Package(url: "https://github.com/daltoniam/zlib-spm.git",
-                 majorVersion: 1),
+    majorVersion: 1, minorVersion: 1),
         .Package(url: "https://github.com/daltoniam/common-crypto-spm",
-                 majorVersion: 0),
+                 majorVersion: 1, minorVersion: 1),
         ],
     exclude: ["Tests", "examples"]
 )

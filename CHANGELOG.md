@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [2.1.1](https://github.com/daltoniam/Starscream/tree/2.1.1)
+
+Fixes race condition. Updated to avoid SPM dependencies.
+
+[#370](https://github.com/daltoniam/Starscream/issues/370)
+[#367](https://github.com/daltoniam/Starscream/issues/367)
+[#364](https://github.com/daltoniam/Starscream/pull/364)
+[#357](https://github.com/daltoniam/Starscream/pull/357)
+[#355](https://github.com/daltoniam/Starscream/pull/355)
+
 #### [2.1.0](https://github.com/daltoniam/Starscream/tree/2.1.0)
 
 Adds WebSocket compression. Also adds advance WebSocket delegate for extra control. Bug Fixes.
