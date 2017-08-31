@@ -333,7 +333,7 @@ In most cases you do not need the extra info and should use the normal delegate.
 
 #### websocketDidReceiveMessage
 ```swift
-func websocketDidReceiveMessage(socket: WebSocket, text: String, response: WebSocket.WSResponse {
+func websocketDidReceiveMessage(socket: WebSocket, text: String, response: WebSocket.WSResponse) {
 	print("got some text: \(text)")
 	print("First frame for this message arrived on \(response.firstFrame)")
 }
