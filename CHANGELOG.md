@@ -2,6 +2,24 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [3.0.0](https://github.com/daltoniam/Starscream/tree/3.0.0)
+
+Major refactor and Swift 4 support. Additions include:
+
+- Watchos support.
+- Linux support.
+- New Stream class to allow custom socket implementations if desired.
+- Protocol add for mocking (dependency injection)
+- Single framework (no more platform suffixes! e.g. StarscreamOSX, StarscreamTVOS, etc) 
+
+[#384](https://github.com/daltoniam/Starscream/issues/384)
+[#377](https://github.com/daltoniam/Starscream/pull/377)
+[#374](https://github.com/daltoniam/Starscream/issues/374)
+[#346](https://github.com/daltoniam/Starscream/issues/346)
+[#335](https://github.com/daltoniam/Starscream/issues/335)
+[#311](https://github.com/daltoniam/Starscream/pull/311)
+[#269](https://github.com/daltoniam/Starscream/issues/269)
+
 #### [2.1.1](https://github.com/daltoniam/Starscream/tree/2.1.1)
 
 Fixes race condition. Updated to avoid SPM dependencies.
