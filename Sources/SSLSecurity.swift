@@ -19,7 +19,8 @@
 //  limitations under the License.
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////
-
+#if os(Linux)
+#else
 import Foundation
 import Security
 
@@ -258,3 +259,4 @@ open class SSLSecurity : SSLTrustValidator {
     
     
 }
+#endif
