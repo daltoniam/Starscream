@@ -334,7 +334,7 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
-				VALID_ARCHS = "i386 x86_64 armv7s arm64";
+				VALID_ARCHS = "x86_64 i386 arm64 armv7s armv7";
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
@@ -366,7 +366,7 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
-				VALID_ARCHS = "i386 x86_64 armv7s arm64";
+				VALID_ARCHS = "x86_64 i386 arm64 armv7s armv7";
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
