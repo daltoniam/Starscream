@@ -789,7 +789,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 guard responseSplit.count > 1 else { break }
                 let key = responseSplit[0].trimmingCharacters(in: .whitespaces)
                 let val = responseSplit[1].trimmingCharacters(in: .whitespaces)
-                headers[key] = val
+                headers[key.lowercased()] = val
             }
             i += 1
         }
@@ -798,11 +798,11 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             return code
         }
         
-        if let extensionHeader = headers[headerWSExtensionName] {
+        if let extensionHeader = headers[headerWSExtensionName.lowercased()] {
             processExtensionHeader(extensionHeader)
         }
         
-        if let acceptKey = headers[headerWSAcceptName] {
+        if let acceptKey = headers[headerWSAcceptName.lowercased()] {
             if acceptKey.characters.count > 0 {
                 if headerSecKey.characters.count > 0 {
                     let sha = "\(headerSecKey)258EAFA5-E914-47DA-95CA-C5AB0DC85B11".sha1Base64()
