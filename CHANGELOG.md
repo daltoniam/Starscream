@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [3.0.1](https://github.com/daltoniam/Starscream/tree/3.0.1)
+
+Small fixes for 3.0.0.
+
+[#389](https://github.com/daltoniam/Starscream/issues/389)
+[#354](https://github.com/daltoniam/Starscream/issues/354)
+[#386](https://github.com/daltoniam/Starscream/pull/386)
+[#388](https://github.com/daltoniam/Starscream/pull/388)
+[#390](https://github.com/daltoniam/Starscream/pull/390)
+
 #### [3.0.0](https://github.com/daltoniam/Starscream/tree/3.0.0)
 
 Major refactor and Swift 4 support. Additions include:
