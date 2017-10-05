@@ -86,10 +86,11 @@ class ViewController: UIViewController {
             if !once {
                 once = true
                 print("case:\(caseNum) finished")
-                //self?.verifyTest(caseNum) disabled since it slows down the tests
+                //self?.verifyTest(caseNum) //disabled since it slows down the tests
                 let nextCase = caseNum+1
                 if nextCase <= (self?.caseCount)! {
-                    self?.getTestInfo(nextCase)
+                    self?.runTest(nextCase)
+                    //self?.getTestInfo(nextCase) //disabled since it slows down the tests
                 } else {
                     self?.finishReports()
                 }

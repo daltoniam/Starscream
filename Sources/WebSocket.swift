@@ -529,13 +529,16 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             request.setValue(val, forHTTPHeaderField: headerWSExtensionName)
         }
         request.setValue("\(url.host!):\(port!)", forHTTPHeaderField: headerWSHostName)
-        var path = url.path
-        if !path.hasSuffix("/") {
-            path += "/"
+
+        var path = url.absoluteString
+        let offset = (url.scheme?.characters.count ?? 2) + 3
+        path = String(path[path.index(path.startIndex, offsetBy: offset)..<path.endIndex])
+        if let range = path.range(of: "/") {
+            path = String(path[range.lowerBound..<path.endIndex])
+        } else {
+            path = "/"
         }
-        if let query = url.query {
-            path += "?" + query
-        }
+        
         var httpBody = "\(request.httpMethod ?? "GET") \(path) HTTP/1.1\r\n"
         if let headers = request.allHTTPHeaderFields {
             for (key, val) in headers {
@@ -543,6 +546,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             }
         }
         httpBody += "\r\n"
+        
         initStreamsWithData(httpBody.data(using: .utf8)!, Int(port!))
         advancedDelegate?.websocketHttpUpgrade(socket: self, request: httpBody)
     }
@@ -978,7 +982,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             if compressionState.messageNeedsDecompression, let decompressor = compressionState.decompressor {
                 do {
                     data = try decompressor.decompress(bytes: baseAddress+offset, count: Int(len), finish: isFin > 0)
-                    if isFin > 0 && compressionState.serverNoContextTakeover{
+                    if isFin > 0 && compressionState.serverNoContextTakeover {
                         try decompressor.reset()
                     }
                 } catch {

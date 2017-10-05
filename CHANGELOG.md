@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [3.0.1](https://github.com/daltoniam/Starscream/tree/3.0.2)
+
+Small fixes for 3.0.1.
+
+[#394](https://github.com/daltoniam/Starscream/issues/394)
+[#392](https://github.com/daltoniam/Starscream/issues/392)
+[#391](https://github.com/daltoniam/Starscream/issues/391)
+
 #### [3.0.1](https://github.com/daltoniam/Starscream/tree/3.0.1)
 
 Small fixes for 3.0.0.
