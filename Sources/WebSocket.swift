@@ -479,7 +479,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      - parameter completion: The (optional) completion handler.
      */
     open func write(string: String, completion: (() -> ())? = nil) {
-        guard isConnected else { return }
+        guard !isConnected else { return }
         dequeueWrite(string.data(using: String.Encoding.utf8)!, code: .textFrame, writeCompletion: completion)
     }
 
@@ -492,7 +492,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      - parameter completion: The (optional) completion handler.
      */
     open func write(data: Data, completion: (() -> ())? = nil) {
-        guard isConnected else { return }
+        guard !isConnected else { return }
         dequeueWrite(data, code: .binaryFrame, writeCompletion: completion)
     }
 
@@ -501,7 +501,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      Yodel a   sound  to the planet.    This sends it as an astroid. http://youtu.be/Eu5ZJELRiJ8?t=42s
      */
     open func write(ping: Data, completion: (() -> ())? = nil) {
-        guard isConnected else { return }
+        guard !isConnected else { return }
         dequeueWrite(ping, code: .ping, writeCompletion: completion)
     }
 
