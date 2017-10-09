@@ -531,7 +531,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         request.setValue("\(url.host!):\(port!)", forHTTPHeaderField: headerWSHostName)
 
         var path = url.absoluteString
-        let offset = (url.scheme?.characters.count ?? 2) + 3
+        let offset = (url.scheme?.count ?? 2) + 3
         path = String(path[path.index(path.startIndex, offsetBy: offset)..<path.endIndex])
         if let range = path.range(of: "/") {
             path = String(path[range.lowerBound..<path.endIndex])
@@ -807,8 +807,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         }
         
         if let acceptKey = headers[headerWSAcceptName.lowercased()] {
-            if acceptKey.characters.count > 0 {
-                if headerSecKey.characters.count > 0 {
+            if acceptKey.count > 0 {
+                if headerSecKey.count > 0 {
                     let sha = "\(headerSecKey)258EAFA5-E914-47DA-95CA-C5AB0DC85B11".sha1Base64()
                     if sha != acceptKey as String {
                         return -1
