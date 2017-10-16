@@ -133,6 +133,25 @@ The writePing method is the same as write, but sends a ping control frame.
 socket.write(ping: Data()) //example on how to write a ping control frame over the socket!
 ```
 
+### write a pong frame
+
+
+the writePong method is the same as writePing, but sends a pong control frame.
+
+```swift
+socket.write(pong: Data()) //example on how to write a pong control frame over the socket!
+```
+
+Starscream will automatically respond to incoming `ping` control frames so you do not need to manually send `pong`s.
+
+However if for some reason you need to control this prosses you can turn off the automatic `ping` response by disabling `respondToPingWithPong`.
+
+```swift
+socket.respondToPingWithPong = false //Do not automaticaly respond to incoming pings with pongs.
+```
+
+In most cases you will not need to do this.
+
 ### disconnect
 
 The disconnect method does what you would expect and closes the socket.

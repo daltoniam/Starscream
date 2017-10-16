@@ -68,6 +68,7 @@ public protocol WebSocketClient: class {
     func write(string: String, completion: (() -> ())?)
     func write(data: Data, completion: (() -> ())?)
     func write(ping: Data, completion: (() -> ())?)
+    func write(pong: Data, completion: (() -> ())?)
 }
 
 //implements some of the base behaviors
@@ -82,6 +83,10 @@ extension WebSocketClient {
     
     public func write(ping: Data) {
         write(ping: ping, completion: nil)
+    }
+
+    public func write(pong: Data) {
+        write(pong: pong, completion: nil)
     }
     
     public func disconnect() {
@@ -367,6 +372,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
 
     public var currentURL: URL { return request.url! }
 
+    public var respondToPingWithPong: Bool = true
+
     // MARK: - Private
 
     private struct CompressionState {
@@ -503,6 +510,15 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     open func write(ping: Data, completion: (() -> ())? = nil) {
         guard isConnected else { return }
         dequeueWrite(ping, code: .ping, writeCompletion: completion)
+    }
+
+    /**
+     Write a pong to the websocket. This sends it as a control frame.
+     Respond to a Yodel.
+     */
+    open func write(pong: Data, completion: (() -> ())? = nil) {
+        guard isConnected else { return }
+        dequeueWrite(pong, code: .pong, writeCompletion: completion)
     }
 
     /**
@@ -1088,8 +1104,10 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     private func processResponse(_ response: WSResponse) -> Bool {
         if response.isFin && response.bytesLeft <= 0 {
             if response.code == .ping {
-                let data = response.buffer! // local copy so it is perverse for writing
-                dequeueWrite(data as Data, code: .pong)
+                if respondToPingWithPong {
+                    let data = response.buffer! // local copy so it is perverse for writing
+                    dequeueWrite(data as Data, code: .pong)
+                }
             } else if response.code == .textFrame {
                 guard let str = String(data: response.buffer! as Data, encoding: .utf8) else {
                     writeError(CloseCode.encoding.rawValue)
