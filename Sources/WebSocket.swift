@@ -566,6 +566,9 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             path = String(path[range.lowerBound..<path.endIndex])
         } else {
             path = "/"
+            if let query = url.query {
+                path += "?" + query
+            }
         }
         
         var httpBody = "\(request.httpMethod ?? "GET") \(path) HTTP/1.1\r\n"
