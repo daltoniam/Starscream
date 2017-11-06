@@ -57,7 +57,8 @@ open class SSLCert {
 
 open class SSLSecurity : SSLTrustValidator {
     public var validatedDN = true //should the domain name be validated?
-    
+    public var validateEntireChain = true //should the entire cert chain be validated
+
     var isReady = false //is the key processing done?
     var certificates: [Data]? //the certificates
     var pubKeys: [SecKey]? //the public keys
@@ -170,6 +171,9 @@ open class SSLSecurity : SSLTrustValidator {
             var result: SecTrustResultType = .unspecified
             SecTrustEvaluate(trust,&result)
             if result == .unspecified || result == .proceed {
+                if !validateEntireChain {
+                    return true
+                }
                 var trustedCount = 0
                 for serverCert in serverCerts {
                     for cert in certs {
