@@ -252,7 +252,7 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
             let _ = peerName.withUnsafeMutableBytes { (peerNamePtr: UnsafeMutablePointer<Int8>) in
                 SSLGetPeerDomainName(sslContextOut, peerNamePtr, &peerNameLen)
             }
-            if let peerDomain = String(bytes: peerName, encoding: .utf8), peerDomain.characters.count > 0 {
+            if let peerDomain = String(bytes: peerName, encoding: .utf8), peerDomain.count > 0 {
                 domain = peerDomain
             }
         }
