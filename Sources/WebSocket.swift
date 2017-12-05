@@ -178,6 +178,50 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
                     if resOut != errSecSuccess {
                         completion(errorWithDetail("Error setting outgoing cypher suites", code: UInt16(resOut)))
                     }
+                    
+                    // 设置个人证书到sslContextIn与sslContextOut中
+                    var securityError: OSStatus = errSecSuccess
+                    
+                    //读取文件
+                    var prePath:String?;
+                    let fileManager:FileManager = FileManager.default
+                    let enumer = fileManager.enumerator(atPath: "\(NSHomeDirectory())/Documents")
+                    while true {
+                        prePath = enumer?.nextObject() as? String
+                        if prePath != nil{
+                            if (prePath?.hasSuffix(".px12"))!{
+                                let path: String = "\(NSHomeDirectory())/Documents/" + prePath!
+                                let PKCS12Data = NSData(contentsOfFile: path)!
+                                let key: NSString = kSecImportExportPassphrase as NSString
+                                let options: NSDictionary = [key: "123456"] //客户端证书密码
+                                
+                                var items: CFArray?
+                                securityError = SecPKCS12Import(PKCS12Data, options, &items)
+                                if securityError == errSecSuccess {
+                                    let certItems: CFArray = items as CFArray!
+                                    let certItemsArray: Array = certItems as Array
+                                    let dict: AnyObject? = certItemsArray.first
+                                    if let certEntry: Dictionary = dict as? Dictionary<String, AnyObject> {
+                                        // grab the identity
+                                        let identityPointer: AnyObject? = certEntry["identity"]
+                                        let secIdentityRef: SecIdentity = identityPointer as! SecIdentity!
+                                        
+                                        // 设置个人证书
+                                        let secIdentityRefRawPointer = Unmanaged.passUnretained(secIdentityRef).toOpaque()
+                                        let secIdentityRefPointer =  UnsafeMutablePointer<UnsafeRawPointer?>.allocate(capacity: 1)
+                                        secIdentityRefPointer.initialize(to: secIdentityRefRawPointer)
+                                        
+                                        let certRefs: CFArray = CFArrayCreate(kCFAllocatorDefault, secIdentityRefPointer, 1, nil)
+                                        SSLSetCertificate(sslContextIn, certRefs)
+                                        SSLSetCertificate(sslContextOut, certRefs)
+                                    }
+                                }
+                                break
+                            }
+                        }else{
+                            break
+                        }
+                    }
                 }
                 #endif
             }
