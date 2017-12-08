@@ -143,6 +143,7 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
         inputStream = readStream!.takeRetainedValue()
         outputStream = writeStream!.takeRetainedValue()
 
+         #if os(watchOS) //watchOS us unfortunately is missing the kCFStream properties to make this work
 		if enableSOCKSProxy {
 			let proxyDict = CFNetworkCopySystemProxySettings()
 			let socksConfig = CFDictionaryCreateMutableCopy(nil, 0, proxyDict!.takeRetainedValue())
@@ -150,6 +151,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
 			CFWriteStreamSetProperty(outputStream, propertyKey, socksConfig)
 			CFReadStreamSetProperty(inputStream, propertyKey, socksConfig)
 		}
+        #else
+        #endif
 		
         guard let inStream = inputStream, let outStream = outputStream else { return }
         inStream.delegate = self
