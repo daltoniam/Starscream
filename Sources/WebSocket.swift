@@ -132,6 +132,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     private var outputStream: OutputStream?
     public weak var delegate: WSStreamDelegate?
     let BUFFER_MAX = 4096
+	
+	public var enableSOCKSProxy = false
     
     public func connect(url: URL, port: Int, timeout: TimeInterval, ssl: SSLSettings, completion: @escaping ((Error?) -> Void)) {
         var readStream: Unmanaged<CFReadStream>?
@@ -140,6 +142,15 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
         CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
         inputStream = readStream!.takeRetainedValue()
         outputStream = writeStream!.takeRetainedValue()
+
+		if enableSOCKSProxy {
+			let proxyDict = CFNetworkCopySystemProxySettings()
+			let socksConfig = CFDictionaryCreateMutableCopy(nil, 0, proxyDict!.takeRetainedValue())
+			let propertyKey = CFStreamPropertyKey(rawValue: kCFStreamPropertySOCKSProxy)
+			CFWriteStreamSetProperty(outputStream, propertyKey, socksConfig)
+			CFReadStreamSetProperty(inputStream, propertyKey, socksConfig)
+		}
+		
         guard let inStream = inputStream, let outStream = outputStream else { return }
         inStream.delegate = self
         outStream.delegate = self
