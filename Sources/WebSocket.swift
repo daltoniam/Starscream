@@ -1342,3 +1342,9 @@ private extension UnsafeBufferPointer {
 }
 
 private let emptyBuffer = UnsafeBufferPointer<UInt8>(start: nil, count: 0)
+
+fileprivate extension String {
+    var count: Int {
+        return self.characters.count
+    }
+}
