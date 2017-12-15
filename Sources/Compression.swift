@@ -52,7 +52,7 @@ class Decompressor {
 
     func reset() throws {
         teardownInflate()
-        guard initInflate() else { throw NSError() }
+        guard initInflate() else { throw NSError(domain: WebSocket.ErrorDomain, code: Int(InternalErrorCode.initError.rawValue), userInfo: nil) }
     }
 
     func decompress(_ data: Data, finish: Bool) throws -> Data {
@@ -131,7 +131,7 @@ class Compressor {
 
     func reset() throws {
         teardownDeflate()
-        guard initDeflate() else { throw NSError() }
+        guard initDeflate() else { throw NSError(domain: WebSocket.ErrorDomain, code: Int(InternalErrorCode.initError.rawValue), userInfo: nil) }
     }
 
     func compress(_ data: Data) throws -> Data {

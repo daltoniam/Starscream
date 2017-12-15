@@ -48,6 +48,7 @@ enum InternalErrorCode: UInt16 {
     case compressionError = 2
     case invalidSSLError = 3
     case writeTimeoutError = 4
+    case initError = 5
 }
 
 //WebSocketClient is setup to be dependency injection for testing
