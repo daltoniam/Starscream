@@ -587,7 +587,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             let val = "permessage-deflate; client_max_window_bits; server_max_window_bits=15"
             request.setValue(val, forHTTPHeaderField: headerWSExtensionName)
         }
-        request.setValue("\(url.host!):\(port!)", forHTTPHeaderField: headerWSHostName)
+        let hostValue = request.allHTTPHeaderFields?[headerWSHostName] ?? "\(url.host!):\(port!)"
+        request.setValue(hostValue, forHTTPHeaderField: headerWSHostName)
 
         var path = url.absoluteString
         let offset = (url.scheme?.count ?? 2) + 3
