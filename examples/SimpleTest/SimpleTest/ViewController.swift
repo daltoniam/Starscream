@@ -10,10 +10,13 @@ import UIKit
 import Starscream
 
 class ViewController: UIViewController, WebSocketDelegate {
-    var socket = WebSocket(url: URL(string: "http://echo.websocket.org")!, protocols: ["chat", "superchat"])
+    var socket: WebSocket!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        var request = URLRequest(url: URL(string: "http://localhost:8080")!)
+        request.timeoutInterval = 5
+        socket = WebSocket(request: request)
         socket.delegate = self
         socket.connect()
     }
@@ -25,7 +28,9 @@ class ViewController: UIViewController, WebSocketDelegate {
     }
     
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
-        if let e = error {
+        if let e = error as? WSError {
+            print("websocket is disconnected: \(e.message)")
+        } else if let e = error {
             print("websocket is disconnected: \(e.localizedDescription)")
         } else {
              print("websocket disconnected")

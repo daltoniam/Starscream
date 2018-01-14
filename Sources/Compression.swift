@@ -52,7 +52,7 @@ class Decompressor {
 
     func reset() throws {
         teardownInflate()
-        guard initInflate() else { throw NSError() }
+        guard initInflate() else { throw WSError(type: .compressionError, message: "Error for decompressor on reset", code: 0) }
     }
 
     func decompress(_ data: Data, finish: Bool) throws -> Data {
@@ -92,7 +92,7 @@ class Decompressor {
         guard (res == Z_OK && strm.avail_out > 0)
             || (res == Z_BUF_ERROR && Int(strm.avail_out) == buffer.count)
             else {
-                throw NSError(domain: WebSocket.ErrorDomain, code: Int(InternalErrorCode.compressionError.rawValue), userInfo: nil)
+                throw WSError(type: .compressionError, message: "Error on decompressing", code: 0)
         }
     }
 
@@ -131,7 +131,7 @@ class Compressor {
 
     func reset() throws {
         teardownDeflate()
-        guard initDeflate() else { throw NSError() }
+        guard initDeflate() else { throw WSError(type: .compressionError, message: "Error for compressor on reset", code: 0) }
     }
 
     func compress(_ data: Data) throws -> Data {
@@ -157,7 +157,7 @@ class Compressor {
         guard res == Z_OK && strm.avail_out > 0
             || (res == Z_BUF_ERROR && Int(strm.avail_out) == buffer.count)
         else {
-            throw NSError(domain: WebSocket.ErrorDomain, code: Int(InternalErrorCode.compressionError.rawValue), userInfo: nil)
+            throw WSError(type: .compressionError, message: "Error on compressing", code: 0)
         }
 
         compressed.removeLast(4)
