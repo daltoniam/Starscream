@@ -148,10 +148,10 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
         var writeStream: Unmanaged<CFWriteStream>?
         let h = NSString(string: url.host!)
         CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
-        inputStream = readStream!.takeRetainedValue()
-        outputStream = writeStream!.takeRetainedValue()
+        inputStream = unsafeBitCast(readStream!.takeRetainedValue(), to: InputStream.self)
+        outputStream = unsafeBitCast(writeStream!.takeRetainedValue(), to: OutputStream.self)
 
-        #if os(watchOS) //watchOS us unfortunately is missing the kCFStream properties to make this work
+        #if os(watchOS) || os(Linux)
         #else
             if enableSOCKSProxy {
                 let proxyDict = CFNetworkCopySystemProxySettings()
@@ -166,9 +166,9 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
         inStream.delegate = self
         outStream.delegate = self
         if ssl.useSSL {
-            inStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
-            outStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
-            #if os(watchOS) //watchOS us unfortunately is missing the kCFStream properties to make this work
+            inStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as! AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
+            outStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as! AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
+            #if os(watchOS) || os(Linux)
             #else
                 var settings = [NSObject: NSObject]()
                 if ssl.disableCertValidation {
@@ -185,11 +185,9 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
                 outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
             #endif
 
-            #if os(Linux)
+            #if os(watchOS) || os(Linux)
             #else
             if let cipherSuites = ssl.cipherSuites {
-                #if os(watchOS) //watchOS us unfortunately is missing the kCFStream properties to make this work
-                #else
                 if let sslContextIn = CFReadStreamCopyProperty(inputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext?,
                     let sslContextOut = CFWriteStreamCopyProperty(outputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext? {
                     let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
@@ -201,7 +199,6 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
                         completion(WSError(type: .invalidSSLError, message: "Error setting outgoing cypher suites", code: Int(resOut)))
                     }
                 }
-                #endif
             }
             #endif
         }
