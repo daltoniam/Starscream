@@ -146,7 +146,7 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     public func connect(url: URL, port: Int, timeout: TimeInterval, ssl: SSLSettings, completion: @escaping ((Error?) -> Void)) {
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
-        let h = url.host! as NSString
+        let h = NSString(string: url.host!)
         CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
         inputStream = readStream!.takeRetainedValue()
         outputStream = writeStream!.takeRetainedValue()
@@ -176,7 +176,7 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
                 }
                 if ssl.overrideTrustHostname {
                     if let hostname = ssl.desiredTrustHostname {
-                        settings[kCFStreamSSLPeerName] = hostname as NSString
+                        settings[kCFStreamSSLPeerName] = NSString(string: hostname)
                     } else {
                         settings[kCFStreamSSLPeerName] = kCFNull
                     }
