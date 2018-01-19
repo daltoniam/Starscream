@@ -327,7 +327,7 @@ public protocol WebSocketAdvancedDelegate: class {
 }
 
 
-open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelegate {
+open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
 
     public enum OpCode : UInt8 {
         case continueFrame = 0x0
