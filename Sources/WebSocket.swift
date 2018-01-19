@@ -21,6 +21,7 @@
 
 import Foundation
 import CoreFoundation
+import Dispatch
 import Cryptor
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
