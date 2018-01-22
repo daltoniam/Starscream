@@ -203,8 +203,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
             #endif
         }
         
-        CFReadStreamSetDispatchQueue(inStream as CFReadStream, FoundationStream.sharedWorkQueue)
-        CFWriteStreamSetDispatchQueue(outStream as CFWriteStream, FoundationStream.sharedWorkQueue)
+        CFReadStreamSetDispatchQueue(unsafeBitCast(inStream, to: CFReadStream.self), FoundationStream.sharedWorkQueue)
+        CFWriteStreamSetDispatchQueue(unsafeBitCast(outStream, to: CFWriteStream.self), FoundationStream.sharedWorkQueue)
         inStream.open()
         outStream.open()
         
@@ -249,12 +249,12 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     public func cleanup() {
         if let stream = inputStream {
             stream.delegate = nil
-            CFReadStreamSetDispatchQueue(stream, nil)
+            CFReadStreamSetDispatchQueue(unsafeBitCast(stream, to: CFReadStream.self), nil)
             stream.close()
         }
         if let stream = outputStream {
             stream.delegate = nil
-            CFWriteStreamSetDispatchQueue(stream, nil)
+            CFWriteStreamSetDispatchQueue(unsafeBitCast(stream,to: CFWriteStream.self), nil)
             stream.close()
         }
         outputStream = nil
