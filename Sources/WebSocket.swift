@@ -203,8 +203,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
             #endif
         }
         
-        CFReadStreamSetDispatchQueue(unsafeBitCast(inStream, to: CFReadStream.self), FoundationStream.sharedWorkQueue)
-        CFWriteStreamSetDispatchQueue(unsafeBitCast(outStream, to: CFWriteStream.self), FoundationStream.sharedWorkQueue)
+        CFReadStreamSetDispatchQueue(inStream as CFReadStream, FoundationStream.sharedWorkQueue)
+        CFWriteStreamSetDispatchQueue(outStream as CFWriteStream, FoundationStream.sharedWorkQueue)
         inStream.open()
         outStream.open()
         
@@ -230,7 +230,7 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     
     public func write(data: Data) -> Int {
         guard let outStream = outputStream else {return -1}
-        let buffer = UnsafeRawPointer((data as NSData).bytes).assumingMemoryBound(to: UInt8.self)
+        let buffer = UnsafeMutableRawPointer(mutating: (data as NSData).bytes).assumingMemoryBound(to: UInt8.self)
         return outStream.write(buffer, maxLength: data.count)
     }
     
