@@ -147,7 +147,7 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
         let h = NSString(string: url.host!)
-        CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
+        CFStreamCreatePairWithSocketToHost(nil, unsafeBitCast(h, to: CFString.self), UInt32(port), &readStream, &writeStream)
         inputStream = unsafeBitCast(readStream!.takeRetainedValue(), to: InputStream.self)
         outputStream = unsafeBitCast(writeStream!.takeRetainedValue(), to: OutputStream.self)
 
@@ -203,8 +203,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
             #endif
         }
         
-        CFReadStreamSetDispatchQueue(inStream, FoundationStream.sharedWorkQueue)
-        CFWriteStreamSetDispatchQueue(outStream, FoundationStream.sharedWorkQueue)
+        CFReadStreamSetDispatchQueue(unsafeBitCast(inStream, to: CFReadStream.self), FoundationStream.sharedWorkQueue)
+        CFWriteStreamSetDispatchQueue(unsafeBitCast(outStream, to: CFWriteStream.self), FoundationStream.sharedWorkQueue)
         inStream.open()
         outStream.open()
         
