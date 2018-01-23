@@ -665,7 +665,7 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
                 s.disconnectStream(error)
                 return
             }
-            let operation = BlockOperation()
+            let operation = BlockOperation(block: { })
             operation.addExecutionBlock { [weak self, weak operation] in
                 guard let sOperation = operation, let s = self else { return }
                 guard !sOperation.isCancelled else { return }
