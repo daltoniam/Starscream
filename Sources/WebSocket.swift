@@ -619,10 +619,10 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
      Generate a WebSocket key as needed in RFC.
      */
     private func generateWebSocketKey() -> String {
+        let randomBytes = try! Random.generate(byteCount: 16)
         var key = ""
-        let seed = 16
-        for _ in 0..<seed {
-            let uni = UnicodeScalar(UInt32(97 + arc4random_uniform(25)))
+        for byte in randomBytes {
+            let uni = UnicodeScalar(UInt32(97 + byte))
             key += "\(Character(uni!))"
         }
         let data = key.data(using: String.Encoding.utf8)
