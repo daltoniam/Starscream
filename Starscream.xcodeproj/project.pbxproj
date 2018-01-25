@@ -44,14 +44,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		B4A3C2762019D718003EC7DF /* PBXContainerItemProxy */ = {
+		B4A3C2782019DCE3003EC7DF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Socket::Socket";
 			remoteInfo = Socket;
 		};
-		B4A3C2772019D718003EC7DF /* PBXContainerItemProxy */ = {
+		B4A3C2792019DCE3003EC7DF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
@@ -405,12 +405,12 @@
 		OBJ_67 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Socket::Socket" /* Socket */;
-			targetProxy = B4A3C2762019D718003EC7DF /* PBXContainerItemProxy */;
+			targetProxy = B4A3C2782019DCE3003EC7DF /* PBXContainerItemProxy */;
 		};
 		OBJ_69 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Cryptor::Cryptor" /* Cryptor */;
-			targetProxy = B4A3C2772019D718003EC7DF /* PBXContainerItemProxy */;
+			targetProxy = B4A3C2792019DCE3003EC7DF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

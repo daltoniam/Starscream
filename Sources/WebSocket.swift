@@ -136,7 +136,7 @@ public protocol WSStream {
 }
 
 #if os(Linux)
-open class BlueSocketStream : NSObject, WSStream, StreamDelegate  {
+open class BlueSocketStream : NSObject, WSStream  {
     public var delegate: WSStreamDelegate?
     var socket: Socket?
 
@@ -167,7 +167,7 @@ open class BlueSocketStream : NSObject, WSStream, StreamDelegate  {
     }
 
     public func cleanup() {
-        socket.close()
+        socket?.close()
     }
 }
 #else
