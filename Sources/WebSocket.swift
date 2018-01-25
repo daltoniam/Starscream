@@ -670,7 +670,7 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
         let randomBytes = try! Random.generate(byteCount: 16)
         var key = ""
         for byte in randomBytes {
-            let uni = UnicodeScalar(UInt32(97 + byte))
+            let uni = UnicodeScalar(UInt32(byte))
             key += "\(Character(uni!))"
         }
         let data = key.data(using: String.Encoding.utf8)
@@ -1216,7 +1216,7 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
                     dequeueWrite(unsafeBitCast(data, to: Data.self), code: .pong)
                 }
             } else if response.code == .textFrame {
-                guard let str = String(data: unsafeBitCast(response.buffer!, to: Data.self), encoding: .utf8) else {
+                guard let str = String(data: response.buffer!.copy() as! Data, encoding: .utf8) else {
                     writeError(CloseCode.encoding.rawValue)
                     return false
                 }
