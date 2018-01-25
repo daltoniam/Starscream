@@ -1348,7 +1348,7 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
             s.delegate?.websocketDidDisconnect(socket: s, error: error)
             s.advancedDelegate?.websocketDidDisconnect(socket: s, error: error)
             let userInfo = error.map{ [WebsocketDisconnectionErrorKeyName: $0] }
-            NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidDisconnectNotification), object: self, userInfo: userInfo)
+            NotificationCenter.default.post(name: NSNotification.Name(rawValue: WebsocketDidDisconnectNotification), object: self, userInfo: userInfo)
         }
     }
 
