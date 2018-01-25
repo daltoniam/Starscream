@@ -1293,7 +1293,9 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
             }
             buffer[1] |= s.MaskMask
             let maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
-            _ = SecRandomCopyBytes(kSecRandomDefault, Int(MemoryLayout<UInt32>.size), maskKey)
+
+            let randomBytes = try! Random.generate(byteCount: Int(MemoryLayout<UInt32>.size))
+            maskKey.pointee = randomBytes.first!
             offset += MemoryLayout<UInt32>.size
 
             for i in 0..<dataLength {
