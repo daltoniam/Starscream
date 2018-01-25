@@ -822,14 +822,16 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
             work = combine
             fragBuffer = nil
         }
-        let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8)
-        let length = work.count
-        if !connected {
-            processTCPHandshake(buffer, bufferLen: length)
-        } else {
-            processRawMessagesInBuffer(buffer, bufferLen: length)
+        work.withUnsafeMutableBytes { (unsafePointer: UnsafeMutablePointer<UInt8>) -> Int in
+            let length = work.count
+            if !connected {
+                processTCPHandshake(unsafePointer, bufferLen: length)
+            } else {
+                processRawMessagesInBuffer(unsafePointer, bufferLen: length)
+            }
+            inputQueue = inputQueue.filter{ $0 != data }
+            return 0
         }
-        inputQueue = inputQueue.filter{ $0 != data }
     }
 
     /**
