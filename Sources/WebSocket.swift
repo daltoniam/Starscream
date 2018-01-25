@@ -817,7 +817,7 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
         let data = inputQueue[0]
         var work = data
         if let buffer = fragBuffer {
-            var combine = NSData(data: buffer) as Data
+            var combine = unsafeBitCast(NSData(data: buffer), to: Data.self)
             combine.append(data)
             work = combine
             fragBuffer = nil
@@ -1257,7 +1257,7 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
      Used to write things to the stream
      */
     private func dequeueWrite(_ data: Data, code: OpCode, writeCompletion: (() -> ())? = nil) {
-        let operation = BlockOperation()
+        let operation = BlockOperation(block: {})
         operation.addExecutionBlock { [weak self, weak operation] in
             //stream isn't ready, let's wait
             guard let s = self else { return }
