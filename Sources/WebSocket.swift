@@ -803,25 +803,33 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
      */
     private func dequeueInput() {
         while !inputQueue.isEmpty {
-            autoreleasepool {
-                let data = inputQueue[0]
-                var work = data
-                if let buffer = fragBuffer {
-                    var combine = NSData(data: buffer) as Data
-                    combine.append(data)
-                    work = combine
-                    fragBuffer = nil
+            #if os(Linux)
+                processIncomingInput()
+            #else
+                autoreleasepool {
+                    processIncomingInput()
                 }
-                let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
-                let length = work.count
-                if !connected {
-                    processTCPHandshake(buffer, bufferLen: length)
-                } else {
-                    processRawMessagesInBuffer(buffer, bufferLen: length)
-                }
-                inputQueue = inputQueue.filter{ $0 != data }
-            }
+            #endif
         }
+    }
+
+    fileprivate func processIncomingInput() {
+        let data = inputQueue[0]
+        var work = data
+        if let buffer = fragBuffer {
+            var combine = NSData(data: buffer) as Data
+            combine.append(data)
+            work = combine
+            fragBuffer = nil
+        }
+        let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
+        let length = work.count
+        if !connected {
+            processTCPHandshake(buffer, bufferLen: length)
+        } else {
+            processRawMessagesInBuffer(buffer, bufferLen: length)
+        }
+        inputQueue = inputQueue.filter{ $0 != data }
     }
 
     /**
@@ -874,7 +882,7 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
                     s.onConnect?()
                     s.delegate?.websocketDidConnect(socket: s)
                     s.advancedDelegate?.websocketDidConnect(socket: s)
-                    NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidConnectNotification), object: self)
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: WebsocketDidConnectNotification), object: self)
                 }
             }
             //totalSize += 1 //skip the last \n
@@ -1203,10 +1211,10 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
             if response.code == .ping {
                 if respondToPingWithPong {
                     let data = response.buffer! // local copy so it is perverse for writing
-                    dequeueWrite(data as Data, code: .pong)
+                    dequeueWrite(unsafeBitCast(data, to: Data.self), code: .pong)
                 }
             } else if response.code == .textFrame {
-                guard let str = String(data: response.buffer! as Data, encoding: .utf8) else {
+                guard let str = String(data: unsafeBitCast(response.buffer!, to: Data.self), encoding: .utf8) else {
                     writeError(CloseCode.encoding.rawValue)
                     return false
                 }
@@ -1223,9 +1231,9 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
                     let data = response.buffer! // local copy so it is perverse for writing
                     callbackQueue.async { [weak self] in
                         guard let s = self else { return }
-                        s.onData?(data as Data)
-                        s.delegate?.websocketDidReceiveData(socket: s, data: data as Data)
-                        s.advancedDelegate?.websocketDidReceiveData(socket: s, data: data as Data, response: response)
+                        s.onData?(unsafeBitCast(data, to: Data.self))
+                        s.delegate?.websocketDidReceiveData(socket: s, data: unsafeBitCast(data, to: Data.self))
+                        s.advancedDelegate?.websocketDidReceiveData(socket: s, data: unsafeBitCast(data, to: Data.self), response: response)
                     }
                 }
             }
