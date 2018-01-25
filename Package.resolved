@@ -36,6 +36,15 @@
           "revision": "2eb3aff0fb57f92f5722fac5d6d20bf64669ca66",
           "version": "1.1.0"
         }
+      },
+      {
+        "package": "Socket",
+        "repositoryURL": "https://github.com/IBM-Swift/BlueSocket",
+        "state": {
+          "branch": null,
+          "revision": "0dacaaa9482871142cb8dc869cf4b80396450e16",
+          "version": "0.12.86"
+        }
       }
     ]
   },

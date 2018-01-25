@@ -23,6 +23,7 @@ import Foundation
 import CoreFoundation
 import Dispatch
 import Cryptor
+import Socket
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
@@ -134,6 +135,42 @@ public protocol WSStream {
     #endif
 }
 
+#if os(Linux)
+open class BlueSocketStream : NSObject, WSStream, StreamDelegate  {
+    public var delegate: WSStreamDelegate?
+    var socket: Socket?
+
+    public func connect(url: URL, port: Int, timeout: TimeInterval, ssl: SSLSettings, completion: @escaping ((Error?) -> Void)) {
+        do {
+            let sign = try Socket.Signature(
+                protocolFamily: Socket.ProtocolFamily.inet,
+                socketType: Socket.SocketType.stream,
+                proto: Socket.SocketProtocol.tcp,
+                hostname: url.host,
+                port: Int32(port)
+            )
+            socket = try Socket.create(connectedUsing: sign!)
+            completion(nil)
+        } catch {
+            completion(error)
+        }
+    }
+
+    public func write(data: Data) -> Int {
+        return (try! socket?.write(from: data))!
+    }
+
+    public func read() -> Data? {
+        var data = Data()
+        try! socket?.read(into: &data)
+        return data
+    }
+
+    public func cleanup() {
+        socket.close()
+    }
+}
+#else
 open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     private static let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
     private var inputStream: InputStream?
@@ -298,6 +335,17 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
         }
     }
 }
+#endif
+
+class WSStreamFactory {
+    public static func make() -> WSStream {
+        #if os(Linux)
+            return BlueSocketStream()
+        #else
+            return FoundationStream()
+        #endif
+    }
+}
 
 //WebSocket implementation
 
@@ -454,7 +502,7 @@ open class WebSocket : NSObject, WebSocketClient, WSStreamDelegate {
     }
     
     /// Used for setting protocols.
-    public init(request: URLRequest, protocols: [String]? = nil, stream: WSStream = FoundationStream()) {
+    public init(request: URLRequest, protocols: [String]? = nil, stream: WSStream = WSStreamFactory.make()) {
         self.request = request
         self.stream = stream
         if request.value(forHTTPHeaderField: headerOriginName) == nil {
