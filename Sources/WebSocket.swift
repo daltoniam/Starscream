@@ -135,8 +135,8 @@ public protocol WSStream {
     #endif
 }
 
-#if os(Linux)
 open class BlueSocketStream : NSObject, WSStream  {
+
     public var delegate: WSStreamDelegate?
     var socket: Socket?
 
@@ -169,8 +169,13 @@ open class BlueSocketStream : NSObject, WSStream  {
     public func cleanup() {
         socket?.close()
     }
+
+    public func sslTrust() -> (trust: SecTrust?, domain: String?) {
+        return (trust: nil, domain: nil)
+    }
 }
-#else
+
+#if !os(Linux)
 open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     private static let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
     private var inputStream: InputStream?
@@ -339,11 +344,11 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
 
 class WSStreamFactory {
     public static func make() -> WSStream {
-        #if os(Linux)
+//        #if os(Linux)
             return BlueSocketStream()
-        #else
-            return FoundationStream()
-        #endif
+//        #else
+//            return FoundationStream()
+//        #endif
     }
 }
 
