@@ -27,6 +27,10 @@ let package = Package(
     majorVersion: 1, minor: 1),
         .Package(url: "https://github.com/daltoniam/common-crypto-spm",
                  majorVersion: 1, minor: 1),
+        .Package(url: "https://github.com/IBM-Swift/BlueCryptor",
+                 majorVersion: 0, minor: 8),
+        .Package(url: "https://github.com/IBM-Swift/BlueSocket",
+                 majorVersion: 0, minor: 12)
         ],
     exclude: ["Tests", "examples"]
 )
