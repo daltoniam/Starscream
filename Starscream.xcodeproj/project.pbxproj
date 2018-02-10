@@ -35,9 +35,7 @@
 		D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompressionTests.swift; sourceTree = "<group>"; };
 		D88EAF8D1ED4E92E004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		D88EAF901ED4E949004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS10.2.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
-		F27D4701202FA5760003DB9C /* StarscreamiPhoneOS.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = StarscreamiPhoneOS.modulemap; sourceTree = "<group>"; };
-		F27D4702202FAB990003DB9C /* StarscreamiPhoneSimulator.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = StarscreamiPhoneSimulator.modulemap; sourceTree = "<group>"; };
-		F27D4703202FABB00003DB9C /* StarscreammacOS.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = StarscreammacOS.modulemap; sourceTree = "<group>"; };
+		F27D4701202FA5760003DB9C /* Starscream.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = Starscream.modulemap; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,9 +111,7 @@
 		D85927D51ED761A0003460CB /* zlib */ = {
 			isa = PBXGroup;
 			children = (
-				F27D4701202FA5760003DB9C /* StarscreamiPhoneOS.modulemap */,
-				F27D4702202FAB990003DB9C /* StarscreamiPhoneSimulator.modulemap */,
-				F27D4703202FABB00003DB9C /* StarscreammacOS.modulemap */,
+				F27D4701202FA5760003DB9C /* Starscream.modulemap */,
 			);
 			path = zlib;
 			sourceTree = "<group>";
@@ -324,9 +320,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				"MODULEMAP_FILE[sdk=iphoneos*]" = zlib/StarscreamiPhoneOS.modulemap;
-				"MODULEMAP_FILE[sdk=iphonesimulator*]" = zlib/StarscreamiPhoneSimulator.modulemap;
-				"MODULEMAP_FILE[sdk=macosx*]" = zlib/StarscreammacOS.modulemap;
+				MODULEMAP_FILE = zlib/Starscream.modulemap;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.vluxe.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -360,9 +354,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				"MODULEMAP_FILE[sdk=iphoneos*]" = zlib/StarscreamiPhoneOS.modulemap;
-				"MODULEMAP_FILE[sdk=iphonesimulator*]" = zlib/StarscreamiPhoneSimulator.modulemap;
-				"MODULEMAP_FILE[sdk=macosx*]" = zlib/StarscreammacOS.modulemap;
+				MODULEMAP_FILE = zlib/Starscream.modulemap;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.vluxe.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";

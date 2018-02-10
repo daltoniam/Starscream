@@ -14,11 +14,9 @@ Pod::Spec.new do |s|
   s.source_files = 'Sources/*.swift'
   s.libraries    = 'z'
   s.pod_target_xcconfig = {
-    'SWIFT_VERSION' => '4.0',
-    'MODULEMAP_FILE[sdk=iphoneos*]' => 'zlib/StarscreamiPhoneOS.modulemap',
-    'MODULEMAP_FILE[sdk=iphonesimulator*]' => 'zlib/StarscreamiPhoneSimulator.modulemap',
-    'MODULEMAP_FILE[sdk=macosx*]' => 'zlib/StarscreammacOS.modulemap'
+    'SWIFT_VERSION' => '4.0'
   }
   s.preserve_paths = 'zlib/*'
+  s.module_map = 'zlib/Starscream.modulemap'
   s.prepare_command = 'zlib/injectXcodePath.sh'
 end

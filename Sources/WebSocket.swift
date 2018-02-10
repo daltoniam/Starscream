@@ -21,7 +21,27 @@
 
 import Foundation
 import CoreFoundation
-import SSCommonCrypto
+#if os(OSX)
+    import SSCommonCryptomacOS
+#elseif os(iOS)
+#if (arch(i386) || arch(x86_64))
+    import SSCommonCryptoiOSSim
+    #else
+    import SSCommonCryptoiOS
+#endif
+#elseif os(watchOS)
+#if (arch(i386) || arch(x86_64))
+    import SSCommonCryptowatchOSSim
+    #else
+    import SSCommonCryptowatchOS
+#endif
+#elseif os(tvOS)
+#if (arch(i386) || arch(x86_64))
+    import SSCommonCryptotvOSSim
+    #else
+    import SSCommonCryptotvOS
+#endif
+#endif
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
