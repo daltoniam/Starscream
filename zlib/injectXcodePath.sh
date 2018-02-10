@@ -28,8 +28,7 @@ for f in `find ${absScriptDir} -name Starscream.modulemap`; do
 cat ${f} | sed "s,${defaultXcodePath},${realXcodePath},g" > ${f}.new || fatal "Failed to update modulemap ${f}"
 mv ${f}.new ${f} || fatal "Failed to replace modulemap ${f}"
 done
-cd $(dirname $0)
-rm -f */module.modulemap
+rm -f module.modulemap
 }
 
 main $*
