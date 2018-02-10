@@ -24,7 +24,7 @@ scriptName="`basename $0`"
 absScriptDir="`cd $scriptDir; pwd`"
 
 main() {
-for f in `find ${absScriptDir} -name Starscream.modulemap`; do
+for f in `find ${absScriptDir} -name Starscream*.modulemap`; do
 cat ${f} | sed "s,${defaultXcodePath},${realXcodePath},g" > ${f}.new || fatal "Failed to update modulemap ${f}"
 mv ${f}.new ${f} || fatal "Failed to replace modulemap ${f}"
 done

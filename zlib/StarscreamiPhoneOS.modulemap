@@ -8,8 +8,4 @@ module SSCommonCrypto [system] {
     export *
 }
 framework module Starscream {
-    umbrella header "Starscream.h"
-    
-    export *
-    module * { export * }
 }
