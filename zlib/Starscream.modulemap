@@ -1,0 +1,69 @@
+module SSCZLibmacOS [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/zlib.h"
+    link "z"
+    export *
+}
+module SSCZLibiOS [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/zlib.h"
+    link "z"
+    export *
+}
+module SSCZLibiOSSim [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/include/zlib.h"
+    link "z"
+    export *
+}
+
+module SSCZLibwatchOS [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk/usr/include/zlib.h"
+    link "z"
+    export *
+}
+
+module SSCZLibwatchOSSim [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator.sdk/usr/include/zlib.h"
+    link "z"
+    export *
+}
+module SSCZLibtvOS [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS.sdk/usr/include/zlib.h"
+    link "z"
+    export *
+}
+
+module SSCZLibtvOSSim [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVSimulator.platform/Developer/SDKs/AppleTVSimulator.sdk/usr/include/zlib.h"
+    link "z"
+    export *
+}
+
+module SSCommonCryptomacOS [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/CommonCrypto/CommonCrypto.h"
+    export *
+}
+module SSCommonCryptoiOS [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/CommonCrypto/CommonCrypto.h"
+    export *
+}
+module SSCommonCryptoiOSSim [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/include/CommonCrypto/CommonCrypto.h"
+    export *
+}
+module SSCommonCryptowatchOS [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk/usr/include/CommonCrypto/CommonCrypto.h"
+    export *
+}
+module SSCommonCryptowatchOSSim [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator.sdk/CommonCrypto/CommonCrypto.h"
+    export *
+}
+module SSCommonCryptotvOS [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS.sdk/usr/include/CommonCrypto/CommonCrypto.h"
+    export *
+}
+module SSCommonCryptotvOSSim [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVSimulator.platform/Developer/SDKs/AppleTVSimulator.sdk/usr/include/CommonCrypto/CommonCrypto.h"
+    export *
+}
+framework module Starscream {
+}

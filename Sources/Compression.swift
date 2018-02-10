@@ -27,7 +27,27 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Foundation
-import SSCZLib
+#if os(OSX)
+    import SSCZLibmacOS
+#elseif os(iOS)
+#if (arch(i386) || arch(x86_64))
+    import SSCZLibiOSSim
+    #else
+    import SSCZLibiOS
+#endif
+#elseif os(watchOS)
+#if (arch(i386) || arch(x86_64))
+    import SSCZLibwatchOSSim
+    #else
+    import SSCZLibwatchOS
+#endif
+#elseif os(tvOS)
+#if (arch(i386) || arch(x86_64))
+    import SSCZLibtvOSSim
+    #else
+    import SSCZLibtvOS
+#endif
+#endif
 
 class Decompressor {
     private var strm = z_stream()
