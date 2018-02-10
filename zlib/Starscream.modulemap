@@ -1,0 +1,15 @@
+module SSCZLib [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/zlib.h"
+    link "z"
+    export *
+}
+module SSCommonCrypto [system] {
+    header "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/CommonCrypto/CommonCrypto.h"
+    export *
+}
+framework module Starscream {
+    umbrella header "Starscream.h"
+    
+    export *
+    module * { export * }
+}
