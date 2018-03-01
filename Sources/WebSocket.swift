@@ -139,6 +139,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     private var outputStream: OutputStream?
     public weak var delegate: WSStreamDelegate?
     let BUFFER_MAX = 4096
+    
+    private let cleanupMutex = NSLock()
 	
 	public var enableSOCKSProxy = false
     
@@ -248,6 +250,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     }
     
     public func cleanup() {
+        cleanupMutex.lock()
+        
         if let stream = inputStream {
             stream.delegate = nil
             CFReadStreamSetDispatchQueue(stream, nil)
@@ -260,6 +264,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
         }
         outputStream = nil
         inputStream = nil
+        
+        cleanupMutex.unlock()
     }
     
     #if os(Linux) || os(watchOS)
