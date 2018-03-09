@@ -64,6 +64,8 @@ public protocol WebSocketClient: class {
     var disableSSLCertValidation: Bool { get set }
     var overrideTrustHostname: Bool { get set }
     var desiredTrustHostname: String? { get set }
+    var useSSLClientAuthentication: Bool { get set }
+    var sslClientCertificate: SSLClientCertificate? { get set }
     #if os(Linux)
     #else
     var security: SSLTrustValidator? { get set }
@@ -109,6 +111,8 @@ public struct SSLSettings {
     let disableCertValidation: Bool
     var overrideTrustHostname: Bool
     var desiredTrustHostname: String?
+    let useSSLClientAuthentication: Bool
+    let sslClientCertificate: SSLClientCertificate?
     #if os(Linux)
     #else
     let cipherSuites: [SSLCipherSuite]?
@@ -179,6 +183,14 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
                     } else {
                         settings[kCFStreamSSLPeerName] = kCFNull
                     }
+                }
+                if ssl.useSSLClientAuthentication {
+                    if let sslClientCertificate = ssl.sslClientCertificate {
+                        settings[kCFStreamSSLCertificates] = sslClientCertificate.streamSSLCertificates
+                    } else {
+                        print("Warning - useSSLClientAuthentication set to true, but sslClientCertificate is nil")
+                    }
+                    
                 }
                 inStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
                 outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
@@ -401,6 +413,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     public var disableSSLCertValidation = false
     public var overrideTrustHostname = false
     public var desiredTrustHostname: String? = nil
+    public var useSSLClientAuthentication = false
+    public var sslClientCertificate: SSLClientCertificate? = nil
 
     public var enableCompression = true
     #if os(Linux)
@@ -649,12 +663,16 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             let settings = SSLSettings(useSSL: useSSL,
                                        disableCertValidation: disableSSLCertValidation,
                                        overrideTrustHostname: overrideTrustHostname,
-                                       desiredTrustHostname: desiredTrustHostname)
+                                       desiredTrustHostname: desiredTrustHostname),
+                                       useSSLClientAuthentication: useSSLClientAuthentication,
+                                       sslClientCertificate: sslClientCertificate
         #else
             let settings = SSLSettings(useSSL: useSSL,
                                        disableCertValidation: disableSSLCertValidation,
                                        overrideTrustHostname: overrideTrustHostname,
                                        desiredTrustHostname: desiredTrustHostname,
+                                       useSSLClientAuthentication: useSSLClientAuthentication,
+                                       sslClientCertificate: sslClientCertificate,
                                        cipherSuites: self.enabledSSLCipherSuites)
         #endif
         certValidated = !useSSL

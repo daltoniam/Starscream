@@ -19,6 +19,7 @@
 		33CCF08A1F5DDC030099B092 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		33CCF08D1F5DDC030099B092 /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; };
+		EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,7 @@
 		D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompressionTests.swift; sourceTree = "<group>"; };
 		D88EAF8D1ED4E92E004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		D88EAF901ED4E949004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS10.2.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
+		EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLClientCertificate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 				5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */,
 				5C1360011C473BEF00AA3A01 /* WebSocket.swift */,
 				D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */,
+				EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */,
 				6B3E79E919D48B7F006071F7 /* Supporting Files */,
 			);
 			path = Sources;
@@ -249,6 +252,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				33CCF0861F5DDC030099B092 /* Compression.swift in Sources */,
+				EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */,
 				33CCF0871F5DDC030099B092 /* WebSocket.swift in Sources */,
 				33CCF0881F5DDC030099B092 /* SSLSecurity.swift in Sources */,
 			);
