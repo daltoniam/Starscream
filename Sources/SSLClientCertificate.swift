@@ -1,5 +1,5 @@
 //
-//  ClientCertificate.swift
+//  SSLClientCertificate.swift
 //  Starscream
 //
 //  Created by Tomasz Trela on 08/03/2018.
@@ -22,7 +22,7 @@ public class SSLClientCertificate {
     }
     
     /**
-     Convenience init. For more information, see SSLSetCertificate() in Security/SecureTransport.h.
+     Designated init. For more information, see SSLSetCertificate() in Security/SecureTransport.h.
      - parameter identity: SecIdentityRef, see **kCFStreamSSLCertificates**
      - parameter identityCertificate: CFArray of SecCertificateRefs, see **kCFStreamSSLCertificates**
      */
