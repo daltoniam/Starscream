@@ -18,7 +18,6 @@
 		33CCF0881F5DDC030099B092 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */; };
 		33CCF08A1F5DDC030099B092 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		33CCF08D1F5DDC030099B092 /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,8 +30,6 @@
 		5CAAB5D01F7987D800F3C556 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS4.0.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		6B3E7A0019D48C2F006071F7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StarscreamTests.swift; path = StarscreamTests/StarscreamTests.swift; sourceTree = "<group>"; };
-		D85927D61ED761A0003460CB /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		D85927D71ED76F25003460CB /* include.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = include.h; sourceTree = "<group>"; };
 		D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Sources/Compression.swift; sourceTree = SOURCE_ROOT; };
 		D88EAF811ED4DFD3004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompressionTests.swift; sourceTree = "<group>"; };
@@ -63,7 +60,6 @@
 		6B3E79DC19D48B7F006071F7 = {
 			isa = PBXGroup;
 			children = (
-				D85927D51ED761A0003460CB /* zlib */,
 				6B3E79E819D48B7F006071F7 /* Sources */,
 				6B3E79FF19D48C2F006071F7 /* Tests */,
 				6B3E79E719D48B7F006071F7 /* Products */,
@@ -110,15 +106,6 @@
 			path = Tests;
 			sourceTree = "<group>";
 		};
-		D85927D51ED761A0003460CB /* zlib */ = {
-			isa = PBXGroup;
-			children = (
-				D85927D61ED761A0003460CB /* module.modulemap */,
-				D85927D71ED76F25003460CB /* include.h */,
-			);
-			path = zlib;
-			sourceTree = "<group>";
-		};
 		D88EAF801ED4DFD3004FE2C3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -138,7 +125,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */,
-				33CCF08D1F5DDC030099B092 /* include.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,6 +152,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 33CCF08F1F5DDC030099B092 /* Build configuration list for PBXNativeTarget "Starscream" */;
 			buildPhases = (
+				F2C2C9482054A09800B2CAA6 /* ShellScript */,
 				33CCF0851F5DDC030099B092 /* Sources */,
 				33CCF0891F5DDC030099B092 /* Frameworks */,
 				33CCF08B1F5DDC030099B092 /* Headers */,
@@ -230,6 +217,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F2C2C9482054A09800B2CAA6 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -d \"${BUILT_PRODUCTS_DIR}/StarscreamModuleMap\" ]; then\necho \"${BUILT_PRODUCTS_DIR}/StarscreamModuleMap directory already exists, so skipping the rest of the script.\"\nexit 0\nfi\n\nmkdir -p \"${BUILT_PRODUCTS_DIR}/StarscreamModuleMap\"\ncat <<EOF > \"${BUILT_PRODUCTS_DIR}/StarscreamModuleMap/module.modulemap\"\nmodule SSCZLib [system] {\n    header \"${SDK_DIR}/usr/include/zlib.h\"\n    link \"z\"\n    export *\n}\nmodule SSCommonCrypto [system] {\n    header \"${SDK_DIR}/usr/include/CommonCrypto/CommonCrypto.h\"\n    export *\n}\nEOF";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		335FA1F51F5DF71D00F6D2EC /* Sources */ = {
@@ -331,6 +334,7 @@
 				SDKROOT = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvsimulator appletvos watchos watchsimulator";
+				SWIFT_INCLUDE_PATHS = "${BUILT_PRODUCTS_DIR}/StarscreamModuleMap";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
@@ -364,6 +368,7 @@
 				SDKROOT = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvsimulator appletvos watchos watchsimulator";
+				SWIFT_INCLUDE_PATHS = "${BUILT_PRODUCTS_DIR}/StarscreamModuleMap";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
