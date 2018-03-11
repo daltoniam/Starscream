@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   }
   s.script_phase = {
   :name => 'Generate Module Map',
-  :script => '${SRCROOT}/Scripts/generate_modulemap.sh',
+  :script => '${PODS_ROOT}/${POD_NAME}/Scripts/generate_modulemap.sh',
   :execution_position => :before_compile
   }
   s.preserve_paths = 'Scripts/*'
