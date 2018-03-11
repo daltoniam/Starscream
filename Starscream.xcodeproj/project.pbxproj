@@ -230,7 +230,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -d \"${BUILT_PRODUCTS_DIR}/StarscreamModuleMap\" ]; then\necho \"${BUILT_PRODUCTS_DIR}/StarscreamModuleMap directory already exists, so skipping the rest of the script.\"\nexit 0\nfi\n\nmkdir -p \"${BUILT_PRODUCTS_DIR}/StarscreamModuleMap\"\ncat <<EOF > \"${BUILT_PRODUCTS_DIR}/StarscreamModuleMap/module.modulemap\"\nmodule SSCZLib [system] {\n    header \"${SDK_DIR}/usr/include/zlib.h\"\n    link \"z\"\n    export *\n}\nmodule SSCommonCrypto [system] {\n    header \"${SDK_DIR}/usr/include/CommonCrypto/CommonCrypto.h\"\n    export *\n}\nEOF";
+			shellScript = "${SRCROOT}/Scripts/generate_modulemap.sh";
 		};
 /* End PBXShellScriptBuildPhase section */
 
