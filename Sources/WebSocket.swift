@@ -122,7 +122,7 @@ public protocol WSStreamDelegate: class {
 
 //This protocol is to allow custom implemention of the underlining stream. This way custom socket libraries (e.g. linux) can be used
 public protocol WSStream {
-    weak var delegate: WSStreamDelegate? {get set}
+    var delegate: WSStreamDelegate? {get set}
     func connect(url: URL, port: Int, timeout: TimeInterval, ssl: SSLSettings, completion: @escaping ((Error?) -> Void))
     func write(data: Data) -> Int
     func read() -> Data?
