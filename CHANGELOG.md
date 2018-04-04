@@ -2,6 +2,25 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [3.0.5](https://github.com/daltoniam/Starscream/tree/3.0.5)
+
+Swift 4.1 support and bug fixes.
+
+Pull Requests:
+[#492](https://github.com/daltoniam/Starscream/pull/492)
+[#461](https://github.com/daltoniam/Starscream/pull/461)
+[#476](https://github.com/daltoniam/Starscream/pull/476)
+
+Issues:
+[#494](https://github.com/daltoniam/Starscream/issues/494)
+[#491](https://github.com/daltoniam/Starscream/issues/491)
+[#474](https://github.com/daltoniam/Starscream/issues/474)
+[#471](https://github.com/daltoniam/Starscream/issues/471)
+[#437](https://github.com/daltoniam/Starscream/issues/437)
+[#445](https://github.com/daltoniam/Starscream/issues/445)
+[#466](https://github.com/daltoniam/Starscream/issues/466)
+
+
 #### [3.0.4](https://github.com/daltoniam/Starscream/tree/3.0.4)
 
 Improved error handling. Timeout fix. Small assorted fixes.
