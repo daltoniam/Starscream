@@ -133,7 +133,7 @@ open class SSLSecurity : SSLTrustValidator {
     
     - returns: if the key was successfully validated
     */
-    public func isValid(_ trust: SecTrust, domain: String?) -> Bool {
+    open func isValid(_ trust: SecTrust, domain: String?) -> Bool {
         
         var tries = 0
         while !self.isReady {
