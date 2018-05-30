@@ -334,7 +334,7 @@
 				SDKROOT = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvsimulator appletvos watchos watchsimulator";
-				SWIFT_INCLUDE_PATHS = "${BUILT_PRODUCTS_DIR}/StarscreamModuleMap";
+				SWIFT_INCLUDE_PATHS = "${MODULE_CACHE_DIR}/StarscreamModuleMap";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
@@ -368,7 +368,7 @@
 				SDKROOT = "";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvsimulator appletvos watchos watchsimulator";
-				SWIFT_INCLUDE_PATHS = "${BUILT_PRODUCTS_DIR}/StarscreamModuleMap";
+				SWIFT_INCLUDE_PATHS = "${MODULE_CACHE_DIR}/StarscreamModuleMap";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
