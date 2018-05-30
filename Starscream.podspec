@@ -15,7 +15,12 @@ Pod::Spec.new do |s|
   s.libraries    = 'z'
   s.pod_target_xcconfig = {
   'SWIFT_VERSION' => '4.1',
-  'SWIFT_INCLUDE_PATHS' => '$(PODS_ROOT)/Starscream/zlib'
+  'SWIFT_INCLUDE_PATHS' => '${MODULE_CACHE_DIR}/StarscreamModuleMap'
   }
-  s.preserve_paths = 'zlib/*'
+  s.script_phase = {
+  :name => 'Generate Module Map',
+  :script => '${PODS_ROOT}/${TARGET_NAME}/Scripts/generate_modulemap.sh',
+  :execution_position => :before_compile
+  }
+  s.preserve_paths = 'Scripts/*'
 end
