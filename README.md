@@ -144,7 +144,7 @@ socket.write(pong: Data()) //example on how to write a pong control frame over t
 
 Starscream will automatically respond to incoming `ping` control frames so you do not need to manually send `pong`s.
 
-However if for some reason you need to control this prosses you can turn off the automatic `ping` response by disabling `respondToPingWithPong`.
+However if for some reason you need to control this processes you can turn off the automatic `ping` response by disabling `respondToPingWithPong`.
 
 ```swift
 socket.respondToPingWithPong = false //Do not automaticaly respond to incoming pings with pongs.
