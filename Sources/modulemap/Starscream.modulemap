@@ -1,0 +1,16 @@
+framework module Starscream {
+    umbrella header "Starscream.h"
+
+    export *
+
+    explicit module SSCZLib [system] {
+        header "include.h"
+        link "z"
+        export *
+    }
+    explicit module SSCommonCrypto [system] {
+        private header "NSString+SHA1.h"
+        link "CommonCrypto"
+        export *
+    }
+}

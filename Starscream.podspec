@@ -11,11 +11,10 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
-  s.source_files = 'Sources/*.swift'
-  s.libraries    = 'z'
+  s.source_files = 'Sources/**/*.{h,m,swift}'
+  s.module_map = 'Sources/modulemap/Starscream.modulemap'
+  s.private_header_files = 'Sources/modulemap/**/*.h'
   s.pod_target_xcconfig = {
-  'SWIFT_VERSION' => '4.1',
-  'SWIFT_INCLUDE_PATHS' => '$(PODS_ROOT)/Starscream/zlib'
+  'SWIFT_VERSION' => '4.1'
   }
-  s.preserve_paths = 'zlib/*'
 end
