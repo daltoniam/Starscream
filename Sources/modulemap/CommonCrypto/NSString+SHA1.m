@@ -28,8 +28,8 @@
 - (NSString *)ss_SHA1Base64Digest {
     NSData *stringData = [self dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableData *digest = [NSMutableData dataWithLength:CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1(stringData.bytes, stringData.length, digest.mutableBytes);
-    return [digest base64EncodedDataWithOptions:0];
+    CC_SHA1(stringData.bytes, (CC_LONG)stringData.length, digest.mutableBytes);
+    return [[NSString alloc] initWithData:[digest base64EncodedDataWithOptions:0] encoding:NSUTF8StringEncoding];
 }
 
 @end
