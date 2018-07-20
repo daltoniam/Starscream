@@ -263,8 +263,10 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     #if os(Linux) || os(watchOS)
     #else
     public func sslTrust() -> (trust: SecTrust?, domain: String?) {
-        let trust = outputStream!.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust?
-        var domain = outputStream!.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as? String
+        guard let outputStream = outputStream else { return (nil, nil) }
+
+        let trust = outputStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust?
+        var domain = outputStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as! String?
         if domain == nil,
             let sslContextOut = CFWriteStreamCopyProperty(outputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext? {
             var peerNameLen: Int = 0
