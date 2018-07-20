@@ -160,6 +160,12 @@ The disconnect method does what you would expect and closes the socket.
 socket.disconnect()
 ```
 
+The socket can be forcefully closed, by specifying a timeout (in milliseconds). A timeout of zero will also close the socket immediately without waiting on the server.
+
+```swift
+socket.disconnect(forceTimeout: 10, closeCode: CloseCode.normal.rawValue)
+```
+
 ### isConnected
 
 Returns if the socket is connected or not.
