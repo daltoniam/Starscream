@@ -19,6 +19,9 @@
 		33CCF08A1F5DDC030099B092 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		33CCF08D1F5DDC030099B092 /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; };
+		7A07147B2107C04F00EFB2FF /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
+		7A07147D2107C0A500EFB2FF /* WSStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A07147C2107C0A500EFB2FF /* WSStream.swift */; };
+		7A07147E2107C0A500EFB2FF /* WSStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A07147C2107C0A500EFB2FF /* WSStream.swift */; };
 		EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
 /* End PBXBuildFile section */
 
@@ -32,6 +35,7 @@
 		5CAAB5D01F7987D800F3C556 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS4.0.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		6B3E7A0019D48C2F006071F7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StarscreamTests.swift; path = StarscreamTests/StarscreamTests.swift; sourceTree = "<group>"; };
+		7A07147C2107C0A500EFB2FF /* WSStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WSStream.swift; sourceTree = "<group>"; };
 		D85927D61ED761A0003460CB /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		D85927D71ED76F25003460CB /* include.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = include.h; sourceTree = "<group>"; };
 		D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Sources/Compression.swift; sourceTree = SOURCE_ROOT; };
@@ -88,6 +92,7 @@
 				5C1360001C473BEF00AA3A01 /* Starscream.h */,
 				5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */,
 				5C1360011C473BEF00AA3A01 /* WebSocket.swift */,
+				7A07147C2107C0A500EFB2FF /* WSStream.swift */,
 				D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */,
 				EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */,
 				6B3E79E919D48B7F006071F7 /* Supporting Files */,
@@ -241,9 +246,11 @@
 			files = (
 				335FA1F61F5DF71D00F6D2EC /* Compression.swift in Sources */,
 				335FA1F71F5DF71D00F6D2EC /* SSLSecurity.swift in Sources */,
+				7A07147E2107C0A500EFB2FF /* WSStream.swift in Sources */,
 				335FA1F81F5DF71D00F6D2EC /* WebSocket.swift in Sources */,
 				335FA1F91F5DF71D00F6D2EC /* CompressionTests.swift in Sources */,
 				335FA1FA1F5DF71D00F6D2EC /* StarscreamTests.swift in Sources */,
+				7A07147B2107C04F00EFB2FF /* SSLClientCertificate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +259,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				33CCF0861F5DDC030099B092 /* Compression.swift in Sources */,
+				7A07147D2107C0A500EFB2FF /* WSStream.swift in Sources */,
 				EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */,
 				33CCF0871F5DDC030099B092 /* WebSocket.swift in Sources */,
 				33CCF0881F5DDC030099B092 /* SSLSecurity.swift in Sources */,
