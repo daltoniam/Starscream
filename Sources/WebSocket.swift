@@ -63,6 +63,7 @@ public protocol WebSocketClient: class {
     var disableSSLCertValidation: Bool {get set}
     var overrideTrustHostname: Bool {get set}
     var desiredTrustHostname: String? {get set}
+    var sslClientCertificate: SSLClientCertificate? {get set}
     #if os(Linux)
     #else
     var security: SSLTrustValidator? {get set}
@@ -107,6 +108,7 @@ public struct SSLSettings {
     public let disableCertValidation: Bool
     public var overrideTrustHostname: Bool
     public var desiredTrustHostname: String?
+    public let sslClientCertificate: SSLClientCertificate?
     #if os(Linux)
     #else
     public let cipherSuites: [SSLCipherSuite]?
@@ -178,6 +180,10 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
                         settings[kCFStreamSSLPeerName] = kCFNull
                     }
                 }
+                if let sslClientCertificate = ssl.sslClientCertificate {
+                    settings[kCFStreamSSLCertificates] = sslClientCertificate.streamSSLCertificates
+                }
+                
                 inStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
                 outStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
             #endif
@@ -263,8 +269,10 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     #if os(Linux) || os(watchOS)
     #else
     public func sslTrust() -> (trust: SecTrust?, domain: String?) {
-        let trust = outputStream!.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust?
-        var domain = outputStream!.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as? String
+        guard let outputStream = outputStream else { return (nil, nil) }
+
+        let trust = outputStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust?
+        var domain = outputStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as! String?
         if domain == nil,
             let sslContextOut = CFWriteStreamCopyProperty(outputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext? {
             var peerNameLen: Int = 0
@@ -399,6 +407,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     public var disableSSLCertValidation = false
     public var overrideTrustHostname = false
     public var desiredTrustHostname: String? = nil
+    public var sslClientCertificate: SSLClientCertificate? = nil
 
     public var enableCompression = true
     #if os(Linux)
@@ -646,12 +655,14 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             let settings = SSLSettings(useSSL: useSSL,
                                        disableCertValidation: disableSSLCertValidation,
                                        overrideTrustHostname: overrideTrustHostname,
-                                       desiredTrustHostname: desiredTrustHostname)
+                                       desiredTrustHostname: desiredTrustHostname),
+                                       sslClientCertificate: sslClientCertificate
         #else
             let settings = SSLSettings(useSSL: useSSL,
                                        disableCertValidation: disableSSLCertValidation,
                                        overrideTrustHostname: overrideTrustHostname,
                                        desiredTrustHostname: desiredTrustHostname,
+                                       sslClientCertificate: sslClientCertificate,
                                        cipherSuites: self.enabledSSLCipherSuites)
         #endif
         certValidated = !useSSL

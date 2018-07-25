@@ -144,7 +144,7 @@ socket.write(pong: Data()) //example on how to write a pong control frame over t
 
 Starscream will automatically respond to incoming `ping` control frames so you do not need to manually send `pong`s.
 
-However if for some reason you need to control this prosses you can turn off the automatic `ping` response by disabling `respondToPingWithPong`.
+However if for some reason you need to control this process you can turn off the automatic `ping` response by disabling `respondToPingWithPong`.
 
 ```swift
 socket.respondToPingWithPong = false //Do not automaticaly respond to incoming pings with pongs.
@@ -158,6 +158,12 @@ The disconnect method does what you would expect and closes the socket.
 
 ```swift
 socket.disconnect()
+```
+
+The socket can be forcefully closed, by specifying a timeout (in milliseconds). A timeout of zero will also close the socket immediately without waiting on the server.
+
+```swift
+socket.disconnect(forceTimeout: 10, closeCode: CloseCode.normal.rawValue)
 ```
 
 ### isConnected
