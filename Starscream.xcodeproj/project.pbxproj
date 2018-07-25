@@ -19,9 +19,8 @@
 		33CCF08A1F5DDC030099B092 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		33CCF08D1F5DDC030099B092 /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		BB1018E421087DEF00BA9E60 /* NSString+SHA1.h in Headers */ = {isa = PBXBuildFile; fileRef = BB8A647E20E1105C00527BA5 /* NSString+SHA1.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		BB1018E521087DF300BA9E60 /* NSString+SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A647F20E1105C00527BA5 /* NSString+SHA1.m */; };
-		BB1018E621087E7E00BA9E60 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
+		BB1018E721087F1300BA9E60 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
+		BB1018E821087F1900BA9E60 /* NSString+SHA1.h in Headers */ = {isa = PBXBuildFile; fileRef = BB8A647E20E1105C00527BA5 /* NSString+SHA1.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
 /* End PBXBuildFile section */
 
@@ -158,7 +157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */,
-				BB1018E421087DEF00BA9E60 /* NSString+SHA1.h in Headers */,
+				BB1018E821087F1900BA9E60 /* NSString+SHA1.h in Headers */,
 				33CCF08D1F5DDC030099B092 /* include.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -265,7 +264,7 @@
 				335FA1F81F5DF71D00F6D2EC /* WebSocket.swift in Sources */,
 				335FA1F91F5DF71D00F6D2EC /* CompressionTests.swift in Sources */,
 				335FA1FA1F5DF71D00F6D2EC /* StarscreamTests.swift in Sources */,
-				BB1018E621087E7E00BA9E60 /* SSLClientCertificate.swift in Sources */,
+				BB1018E721087F1300BA9E60 /* SSLClientCertificate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,7 +273,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				33CCF0861F5DDC030099B092 /* Compression.swift in Sources */,
-				BB1018E521087DF300BA9E60 /* NSString+SHA1.m in Sources */,
 				EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */,
 				33CCF0871F5DDC030099B092 /* WebSocket.swift in Sources */,
 				33CCF0881F5DDC030099B092 /* SSLSecurity.swift in Sources */,
