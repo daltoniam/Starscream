@@ -4,7 +4,7 @@
 //  Starscream
 //
 //  Created by Dalton Cherry on 5/16/15.
-//  Copyright (c) 2014-2016 Dalton Cherry.
+//  Copyright (c) 2014-2018 Dalton Cherry.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -24,10 +24,115 @@
 import Foundation
 import Security
 
-public protocol SSLTrustValidator {
+public protocol FoundationSSLValidator {
+    func checkTrust(outputStream: OutputStream) -> Bool
+    func configure(inputStream: InputStream, outputStream: OutputStream) -> WSError?
+}
+
+open class FoundationSecurity: FoundationSSLValidator {
+    public var pinner: SSLPinnerTrustValidator?
+    public var desiredTrustHostname: String?
+    public var disableCertValidation: Bool
+    public var disableSSL = false
+    public var overrideTrustHostname = false
+    public var cipherSuites: [SSLCipherSuite]?
+    public var clientCertificate: SSLClientCertificate?
+    
+    /**
+     Designated init for FoundationSecurity
+     
+     - parameter sslPinner: is SSL pinning class you want to use
+     - parameter desiredTrustHostname: is SSL hostname you want to validate
+     - parameter disableCertValidation: is to disable the SSL certificate chain validation
+     - parameter clientCertificate: is to configure client side authentication
+     
+     - returns: a security object that is used with the FoundationStream
+     */
+    public init(pinner: SSLPinnerTrustValidator? = nil, desiredTrustHostname: String? = nil, disableCertValidation: Bool = false, clientCertificate: SSLClientCertificate? = nil) {
+        self.pinner = pinner
+        self.desiredTrustHostname = desiredTrustHostname
+        self.disableCertValidation = disableCertValidation
+        self.self.clientCertificate = clientCertificate
+        if desiredTrustHostname != nil {
+            self.overrideTrustHostname = true
+        }
+    }
+    
+    public func configure(inputStream: InputStream, outputStream: OutputStream) -> WSError? {
+        if disableSSL {
+            return nil
+        }
+        inputStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
+        outputStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
+        #if os(watchOS) //watchOS is unfortunately missing the kCFStream properties to make this work
+        #else
+        var settings = [NSObject: NSObject]()
+        if disableCertValidation {
+            settings[kCFStreamSSLValidatesCertificateChain] = NSNumber(value: false)
+        }
+        if let hostname = desiredTrustHostname {
+            settings[kCFStreamSSLPeerName] = hostname as NSString
+        } else if overrideTrustHostname {
+            settings[kCFStreamSSLPeerName] = kCFNull
+        }
+        if let clientCertificate = clientCertificate {
+            settings[kCFStreamSSLCertificates] = clientCertificate.streamSSLCertificates
+        }
+        
+        inputStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
+        outputStream.setProperty(settings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
+        #endif
+        
+        if let cipherSuites = cipherSuites {
+            #if os(watchOS) //watchOS is unfortunately missing the kCFStream properties to make this work
+            #else
+            if let sslContextIn = CFReadStreamCopyProperty(inputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext?,
+                let sslContextOut = CFWriteStreamCopyProperty(outputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext? {
+                let resIn = SSLSetEnabledCiphers(sslContextIn, cipherSuites, cipherSuites.count)
+                let resOut = SSLSetEnabledCiphers(sslContextOut, cipherSuites, cipherSuites.count)
+                if resIn != errSecSuccess {
+                    return WSError(type: .invalidSSLError, message: "Error setting incoming cypher suites", code: UInt16(resIn))
+                } else if resOut != errSecSuccess {
+                    return WSError(type: .invalidSSLError, message: "Error setting outgoing cypher suites", code: UInt16(resOut))
+                }
+            }
+            #endif
+        }
+        return nil
+    }
+
+    public func checkTrust(outputStream: OutputStream) -> Bool {
+        #if os(watchOS) //watchOS is unfortunately missing the kCFStream properties to make this work
+        return true
+        #else
+        guard let pinner = pinner else {return true} //true because we don't validated.
+        
+        let trust = outputStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust?
+        var domain = outputStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as! String?
+        if domain == nil, let sslContextOut = CFWriteStreamCopyProperty(outputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext? {
+            var peerNameLen: Int = 0
+            SSLGetPeerDomainNameLength(sslContextOut, &peerNameLen)
+            var peerName = Data(count: peerNameLen)
+            let _ = peerName.withUnsafeMutableBytes { (peerNamePtr: UnsafeMutablePointer<Int8>) in
+                SSLGetPeerDomainName(sslContextOut, peerNamePtr, &peerNameLen)
+            }
+            if let peerDomain = String(bytes: peerName, encoding: .utf8), peerDomain.count > 0 {
+                domain = peerDomain
+            }
+        }
+        guard let t = trust else {return true} //true because this probably isn't and SSL stream without a trust.
+        return pinner.isValid(t, domain: domain)
+        #endif
+    }
+}
+
+/// SSLPinnerTrustValidator is the base protocol needed to do SSL pinning on the FoundationStream.
+public protocol SSLPinnerTrustValidator {
     func isValid(_ trust: SecTrust, domain: String?) -> Bool
 }
 
+
+/// SSLCert the object to hold and use an SSL key or certificate.
 open class SSLCert {
     var certData: Data?
     var key: SecKey?
@@ -55,7 +160,9 @@ open class SSLCert {
     }
 }
 
-open class SSLSecurity : SSLTrustValidator {
+/// FoundationPinner is a very simple SSL pinning implementation.
+/// Also See TrustKit...more words.
+open class FoundationPinner : SSLPinnerTrustValidator {
     public var validatedDN = true //should the domain name be validated?
     public var validateEntireChain = true //should the entire cert chain be validated
 

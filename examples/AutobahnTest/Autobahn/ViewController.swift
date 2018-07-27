@@ -13,11 +13,12 @@ class ViewController: UIViewController {
     
     let host = "localhost:9001"
     var socketArray = [WebSocket]()
-    var caseCount = 300 //starting cases
+    var caseCount = 320 //starting cases
     override func viewDidLoad() {
         super.viewDidLoad()
         getCaseCount()
         //getTestInfo(1)
+        //runTest(1)
     }
     
     func removeSocket(_ s: WebSocket?) {
@@ -26,7 +27,7 @@ class ViewController: UIViewController {
     
     func getCaseCount() {
         
-        let s = WebSocket(url: URL(string: "ws://\(host)/getCaseCount")!, protocols: [])
+        let s = WebSocket(url: URL(string: "ws://\(host)/getCaseCount")!, protocols: [], stream: FoundationStream()) //NetworkStream
         socketArray.append(s)
         s.onText = { [weak self]  (text: String) in
             if let c = Int(text) {
@@ -98,6 +99,12 @@ class ViewController: UIViewController {
             }
         }
         s.connect()
+        //timeout
+        DispatchQueue.main.asyncAfter(deadline: .now() + 480, execute: {
+            if !once {
+                s.disconnect(forceTimeout: 0, closeCode: CloseCode.normal.rawValue)
+            }
+        })
     }
     
     func verifyTest(_ caseNum: Int) {
@@ -149,7 +156,7 @@ class ViewController: UIViewController {
     }
     
     func createSocket(_ cmd: String, _ caseNum: Int) -> WebSocket {
-        return WebSocket(url: URL(string: "ws://\(host)\(buildPath(cmd,caseNum))")!, protocols: [])
+        return WebSocket(url: URL(string: "ws://\(host)\(buildPath(cmd,caseNum))")!, protocols: [], stream: FoundationStream()) //NetworkStream
     }
     
     func buildPath(_ cmd: String, _ caseNum: Int) -> String {
