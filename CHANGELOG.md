@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### Pending
+support http proxy
+
 #### [3.0.5](https://github.com/daltoniam/Starscream/tree/3.0.5)
 
 Swift 4.1 support and bug fixes.
