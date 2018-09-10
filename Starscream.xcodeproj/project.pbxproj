@@ -21,6 +21,7 @@
 		33CCF08D1F5DDC030099B092 /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		BB1018E721087F1300BA9E60 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
 		BB1018E821087F1900BA9E60 /* NSString+SHA1.h in Headers */ = {isa = PBXBuildFile; fileRef = BB8A647E20E1105C00527BA5 /* NSString+SHA1.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		BB93FF0021466450005BCEF7 /* NSString+SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A647F20E1105C00527BA5 /* NSString+SHA1.m */; };
 		EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
 /* End PBXBuildFile section */
 
@@ -273,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				33CCF0861F5DDC030099B092 /* Compression.swift in Sources */,
+				BB93FF0021466450005BCEF7 /* NSString+SHA1.m in Sources */,
 				EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */,
 				33CCF0871F5DDC030099B092 /* WebSocket.swift in Sources */,
 				33CCF0881F5DDC030099B092 /* SSLSecurity.swift in Sources */,
@@ -350,7 +352,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MODULEMAP_FILE = $SRCROOT/Sources/modulemap/Starscream.modulemap;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.vluxe.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -384,7 +386,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MODULEMAP_FILE = $SRCROOT/Sources/modulemap/Starscream.modulemap;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.vluxe.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
