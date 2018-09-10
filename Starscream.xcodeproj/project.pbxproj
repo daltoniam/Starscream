@@ -22,6 +22,7 @@
 		BB1018E721087F1300BA9E60 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
 		BB1018E821087F1900BA9E60 /* NSString+SHA1.h in Headers */ = {isa = PBXBuildFile; fileRef = BB8A647E20E1105C00527BA5 /* NSString+SHA1.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		BB93FF0021466450005BCEF7 /* NSString+SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A647F20E1105C00527BA5 /* NSString+SHA1.m */; };
+		BB93FF012146664D005BCEF7 /* NSString+SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A647F20E1105C00527BA5 /* NSString+SHA1.m */; };
 		EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
 /* End PBXBuildFile section */
 
@@ -264,6 +265,7 @@
 				335FA1F71F5DF71D00F6D2EC /* SSLSecurity.swift in Sources */,
 				335FA1F81F5DF71D00F6D2EC /* WebSocket.swift in Sources */,
 				335FA1F91F5DF71D00F6D2EC /* CompressionTests.swift in Sources */,
+				BB93FF012146664D005BCEF7 /* NSString+SHA1.m in Sources */,
 				335FA1FA1F5DF71D00F6D2EC /* StarscreamTests.swift in Sources */,
 				BB1018E721087F1300BA9E60 /* SSLClientCertificate.swift in Sources */,
 			);
