@@ -135,14 +135,20 @@ public protocol WSStream {
 }
 
 open class FoundationStream : NSObject, WSStream, StreamDelegate  {
-    private let workQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
+    private static let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
+    private let workQueue: DispatchQueue
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
     public weak var delegate: WSStreamDelegate?
     let BUFFER_MAX = 4096
 	
 	public var enableSOCKSProxy = false
-    
+   
+    public init(queue: DispatchQueue? = nil) {
+        workQueue = queue ?? FoundationStream.sharedWorkQueue
+        super.init()
+    }
+
     public func connect(url: URL, port: Int, timeout: TimeInterval, ssl: SSLSettings, completion: @escaping ((Error?) -> Void)) {
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
