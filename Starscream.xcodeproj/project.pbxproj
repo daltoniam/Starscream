@@ -155,7 +155,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */,
-				BB1018E421087DEF00BA9E60 /* NSString+SHA1.h in Headers */,
+				BB1018E821087F1900BA9E60 /* NSString+SHA1.h in Headers */,
 				33CCF08D1F5DDC030099B092 /* include.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -260,7 +260,7 @@
 				335FA1F91F5DF71D00F6D2EC /* CompressionTests.swift in Sources */,
 				BB93FF012146664D005BCEF7 /* NSString+SHA1.m in Sources */,
 				335FA1FA1F5DF71D00F6D2EC /* StarscreamTests.swift in Sources */,
-				BB1018E621087E7E00BA9E60 /* SSLClientCertificate.swift in Sources */,
+				BB1018E721087F1300BA9E60 /* SSLClientCertificate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
