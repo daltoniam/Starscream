@@ -13,11 +13,17 @@
 		33CCF08A1F5DDC030099B092 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		33CCF08D1F5DDC030099B092 /* include.h in Headers */ = {isa = PBXBuildFile; fileRef = D85927D71ED76F25003460CB /* include.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		BB1018E721087F1300BA9E60 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
 		BB1018E821087F1900BA9E60 /* NSString+SHA1.h in Headers */ = {isa = PBXBuildFile; fileRef = BB8A647E20E1105C00527BA5 /* NSString+SHA1.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		BB93FF0021466450005BCEF7 /* NSString+SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A647F20E1105C00527BA5 /* NSString+SHA1.m */; };
 		BB93FF012146664D005BCEF7 /* NSString+SHA1.m in Sources */ = {isa = PBXBuildFile; fileRef = BB8A647F20E1105C00527BA5 /* NSString+SHA1.m */; };
-		EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */; };
+		BBB5ABE5215E2217005B48B6 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE1215E2217005B48B6 /* Compression.swift */; };
+		BBB5ABE6215E2217005B48B6 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */; };
+		BBB5ABE7215E2217005B48B6 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */; };
+		BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
+		BBB5ABE9215E221D005B48B6 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE1215E2217005B48B6 /* Compression.swift */; };
+		BBB5ABEA215E221D005B48B6 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */; };
+		BBB5ABEB215E221D005B48B6 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */; };
+		BBB5ABEC215E221D005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,11 +35,14 @@
 		742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StarscreamTests.swift; path = StarscreamTests/StarscreamTests.swift; sourceTree = "<group>"; };
 		BB8A647E20E1105C00527BA5 /* NSString+SHA1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+SHA1.h"; sourceTree = "<group>"; };
 		BB8A647F20E1105C00527BA5 /* NSString+SHA1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+SHA1.m"; sourceTree = "<group>"; };
+		BBB5ABE1215E2217005B48B6 /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Starscream/Compression.swift; sourceTree = "<group>"; };
+		BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SSLClientCertificate.swift; path = Starscream/SSLClientCertificate.swift; sourceTree = "<group>"; };
+		BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SSLSecurity.swift; path = Starscream/SSLSecurity.swift; sourceTree = "<group>"; };
+		BBB5ABE4215E2217005B48B6 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WebSocket.swift; path = Starscream/WebSocket.swift; sourceTree = "<group>"; };
 		BBC59F4D20D2D71500713D9C /* Starscream.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = Starscream.modulemap; sourceTree = "<group>"; };
 		D85927D71ED76F25003460CB /* include.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = include.h; sourceTree = "<group>"; };
 		D88EAF811ED4DFD3004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompressionTests.swift; sourceTree = "<group>"; };
-		EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLClientCertificate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,7 +50,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				742D12982157CF56006026D7 /* Starscream.framework in Frameworks */,
 				335FA1FC1F5DF71D00F6D2EC /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -79,17 +87,13 @@
 		6B3E79E819D48B7F006071F7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				BBB5ABE1215E2217005B48B6 /* Compression.swift */,
+				BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */,
+				BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */,
+				BBB5ABE4215E2217005B48B6 /* WebSocket.swift */,
 				BB8A648320E1123400527BA5 /* modulemap */,
 				5C1360001C473BEF00AA3A01 /* Starscream.h */,
-				5C135FFF1C473BEF00AA3A01 /* SSLSecurity.swift */,
-				5C1360011C473BEF00AA3A01 /* WebSocket.swift */,
-				D88EAF7E1ED4DFB5004FE2C3 /* Compression.swift */,
-				EACFF1BE2052FE8F00B95FFF /* SSLClientCertificate.swift */,
 				6B3E79E919D48B7F006071F7 /* Supporting Files */,
-				DD52B820CB852287AC065D9C /* WebSocket.swift */,
-				DD52B329FF434097A6C8F66E /* SSLClientCertificate.swift */,
-				DD52B3F585852EF29B21F0DB /* SSLSecurity.swift */,
-				DD52B83305DE12CC7F8887D6 /* Compression.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -257,10 +261,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBB5ABEB215E221D005B48B6 /* SSLSecurity.swift in Sources */,
+				BBB5ABEC215E221D005B48B6 /* WebSocket.swift in Sources */,
+				BBB5ABE9215E221D005B48B6 /* Compression.swift in Sources */,
 				335FA1F91F5DF71D00F6D2EC /* CompressionTests.swift in Sources */,
 				BB93FF012146664D005BCEF7 /* NSString+SHA1.m in Sources */,
 				335FA1FA1F5DF71D00F6D2EC /* StarscreamTests.swift in Sources */,
-				BB1018E721087F1300BA9E60 /* SSLClientCertificate.swift in Sources */,
+				BBB5ABEA215E221D005B48B6 /* SSLClientCertificate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,11 +275,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				33CCF0861F5DDC030099B092 /* Compression.swift in Sources */,
+				BBB5ABE5215E2217005B48B6 /* Compression.swift in Sources */,
+				BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */,
+				BBB5ABE7215E2217005B48B6 /* SSLSecurity.swift in Sources */,
+				BBB5ABE6215E2217005B48B6 /* SSLClientCertificate.swift in Sources */,
 				BB93FF0021466450005BCEF7 /* NSString+SHA1.m in Sources */,
-				EACFF1BF2052FE8F00B95FFF /* SSLClientCertificate.swift in Sources */,
-				33CCF0871F5DDC030099B092 /* WebSocket.swift in Sources */,
-				33CCF0881F5DDC030099B092 /* SSLSecurity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,6 +307,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvos appletvsimulator macosx";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
@@ -323,6 +331,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvos appletvsimulator macosx";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
