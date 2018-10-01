@@ -21,7 +21,7 @@
 
 import Foundation
 import CoreFoundation
-import Starscream.SSCommonCrypto
+import CommonCrypto
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
@@ -1318,7 +1318,12 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
 
 private extension String {
     func sha1Base64() -> String {
-        return (self as NSString).ss_SHA1Base64Digest()
+        guard let data = self.data(using: .utf8) else { return "" }
+        var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
+        _ = data.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) in
+            CC_SHA1(ptr, CC_LONG(data.count), &digest)
+        }
+        return digest.reduce("", { $0 + String(format: "%02x", $1) })
     }
 }
 
