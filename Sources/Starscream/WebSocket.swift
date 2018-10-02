@@ -1318,12 +1318,10 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
 
 private extension String {
     func sha1Base64() -> String {
-        guard let data = self.data(using: .utf8) else { return "" }
-        var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
-        _ = data.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) in
-            CC_SHA1(ptr, CC_LONG(data.count), &digest)
-        }
-        return digest.reduce("", { $0 + String(format: "%02x", $1) })
+        let data = self.data(using: String.Encoding.utf8)!
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
+        data.withUnsafeBytes { _ = CC_SHA1($0, CC_LONG(data.count), &digest) }
+        return Data(bytes: digest).base64EncodedString()
     }
 }
 
