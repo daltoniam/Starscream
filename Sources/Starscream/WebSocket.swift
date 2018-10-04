@@ -60,6 +60,7 @@ public struct WSError: Error {
 //WebSocketClient is setup to be dependency injection for testing
 public protocol WebSocketClient: class {
     var delegate: WebSocketDelegate? {get set}
+    var pongDelegate: WebSocketPongDelegate? {get set}
     var disableSSLCertValidation: Bool {get set}
     var overrideTrustHostname: Bool {get set}
     var desiredTrustHostname: String? {get set}
