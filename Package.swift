@@ -1,4 +1,4 @@
-// swift-tools-version:4.0
+// swift-tools-version:4.2
 
 //
 //  Package.Swift
@@ -25,10 +25,10 @@ import PackageDescription
 let package = Package(
         name: "Starscream",
         products: [
-                .library(name: "Starscream", targets: ["Starscream"])
+            .library(name: "Starscream", targets: ["Starscream"])
         ],
         dependencies: [],
         targets: [
-                .target(name: "Starscream")
+            .target(name: "Starscream")
         ]
 )
