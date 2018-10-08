@@ -40,4 +40,3 @@ class ViewController: UIViewController, WebSocketDelegate {
         socket.connect()
     }
 }
-
