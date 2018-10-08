@@ -404,6 +404,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
     public var onPong: ((Data?) -> Void)?
+    public var onHttpResponseHeaders: (([String: String]) -> Void)?
 
     public var disableSSLCertValidation = false
     public var overrideTrustHostname = false
@@ -876,6 +877,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             i += 1
         }
         advancedDelegate?.websocketHttpUpgrade(socket: self, response: str)
+        onHttpResponseHeaders?(headers)
         if code != httpSwitchProtocolCode {
             return code
         }
