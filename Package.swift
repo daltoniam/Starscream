@@ -27,10 +27,7 @@ let package = Package(
         products: [
                 .library(name: "Starscream", targets: ["Starscream"])
         ],
-        dependencies: [
-                .package(url: "https://github.com/daltoniam/zlib-spm.git", from: "1.1.0"),
-                .package(url: "https://github.com/daltoniam/common-crypto-spm", from: "1.1.0")
-        ],
+        dependencies: [],
         targets: [
                 .target(name: "Starscream")
         ]
