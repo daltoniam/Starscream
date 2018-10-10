@@ -58,15 +58,26 @@ open class NetworkStream: WSStream {
             switch newState {
             case .ready:
                 doConnect(nil)
+            case .waiting:
+                self?.delegate?.streamIsWaitingForConnectivity()
             case .cancelled:
                 doConnect(nil)
             case .failed(let error):
                 doConnect(error)
                 self?.delegate?.streamDidError(error: error)
-            default:
+            case .setup, .preparing:
                 break
             }
         }
+
+        conn.viabilityUpdateHandler = { [weak self] (isViable) in
+            self?.delegate?.streamPathViabilityUpdate(isViable: isViable)
+        }
+
+        conn.betterPathUpdateHandler = { [weak self] (isBetter) in
+            self?.delegate?.streamBetterPathUpdate(isBetter: false)
+        }
+
         conn.start(queue: NetworkStream.sharedWorkQueue)
         stream = conn
         running = true
