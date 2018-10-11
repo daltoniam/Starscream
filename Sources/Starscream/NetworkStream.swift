@@ -28,7 +28,7 @@ import Network
 /// it will continue to be provided for backwards compatibility reasons.
 @available(iOSApplicationExtension 12.0, tvOSApplicationExtension 12.0, OSXApplicationExtension 10.14, *)
 open class NetworkStream: WSStream {
-    public var delegate: WSStreamDelegate?
+    public weak var delegate: WSStreamDelegate?
     private var stream: NWConnection?
     private static let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.networkstream", attributes: [])
     private var readQueue = [Data]()
