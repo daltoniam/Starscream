@@ -75,7 +75,7 @@ open class NetworkStream: WSStream {
         }
 
         conn.betterPathUpdateHandler = { [weak self] (isBetter) in
-            self?.delegate?.streamBetterPathUpdate(isBetter: false)
+            self?.delegate?.streamBetterPathUpdate(isBetter: isBetter)
         }
 
         conn.start(queue: NetworkStream.sharedWorkQueue)
