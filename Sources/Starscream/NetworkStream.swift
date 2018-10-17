@@ -21,7 +21,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Foundation
+#if canImport(Network)
 import Network
+#endif
 
 /// Implementation of the Network framework that was introduced in iOS 12/MacOS 10.14.
 /// This class will probably replace the Foundation one in the future, but because Foundation is battle-tested
