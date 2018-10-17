@@ -140,8 +140,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     private var outputStream: OutputStream?
     public weak var delegate: WSStreamDelegate?
     let BUFFER_MAX = 4096
-	
-	public var enableSOCKSProxy = false
+
+    public var enableSOCKSProxy = false
     
     public func connect(url: URL, port: Int, timeout: TimeInterval, ssl: SSLSettings, completion: @escaping ((Error?) -> Void)) {
         var readStream: Unmanaged<CFReadStream>?
@@ -424,6 +424,14 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         mutex.unlock()
         return isConnected
     }
+
+    public var isConnecting: Bool {
+        mutex.lock()
+        let isConnecting = connecting
+        mutex.unlock()
+        return isConnecting
+    }
+
     public var request: URLRequest //this is only public to allow headers, timeout, etc to be modified on reconnect
     public var currentURL: URL { return request.url! }
 
@@ -444,7 +452,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     
     private var stream: WSStream
     private var connected = false
-    private var isConnecting = false
+    private var connecting = false
     private let mutex = NSLock()
     private var compressionState = CompressionState()
     private var writeQueue = OperationQueue()
@@ -497,9 +505,14 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      Connect to the WebSocket server on a background thread.
      */
     open func connect() {
-        guard !isConnecting else { return }
+        mutex.lock()
+        let wasConnecting = connecting
+        connecting = true
+        mutex.unlock()
+
+        guard !wasConnecting else { return }
+
         didDisconnect = false
-        isConnecting = true
         createHTTPRequest()
     }
 
@@ -827,8 +840,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             if code != 0 {
                 return code
             }
-            isConnecting = false
             mutex.lock()
+            connecting = false
             connected = true
             mutex.unlock()
             didDisconnect = false
@@ -1292,8 +1305,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     private func doDisconnect(_ error: Error?) {
         guard !didDisconnect else { return }
         didDisconnect = true
-        isConnecting = false
         mutex.lock()
+        connecting = false
         connected = false
         mutex.unlock()
         guard canDispatch else {return}
