@@ -57,6 +57,12 @@ public struct WSError: Error {
     public let code: Int
 }
 
+public enum WebSocketStatus {
+    case disconnected
+    case connecting
+    case connected
+}
+
 //WebSocketClient is setup to be dependency injection for testing
 public protocol WebSocketClient: class {
     var delegate: WebSocketDelegate? {get set}
@@ -70,8 +76,8 @@ public protocol WebSocketClient: class {
     var security: SSLTrustValidator? {get set}
     var enabledSSLCipherSuites: [SSLCipherSuite]? {get set}
     #endif
-    var isConnected: Bool {get}
-    
+    var status: WebSocketStatus {get}
+
     func connect()
     func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
     func write(string: String, completion: (() -> ())?)
@@ -82,6 +88,10 @@ public protocol WebSocketClient: class {
 
 //implements some of the base behaviors
 extension WebSocketClient {
+    public var isConnected: Bool {
+        return status == .connected
+    }
+
     public func write(string: String) {
         write(string: string, completion: nil)
     }
@@ -417,19 +427,23 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     public var security: SSLTrustValidator?
     public var enabledSSLCipherSuites: [SSLCipherSuite]?
     #endif
-    
-    public var isConnected: Bool {
-        mutex.lock()
-        let isConnected = connected
-        mutex.unlock()
-        return isConnected
-    }
 
-    public var isConnecting: Bool {
-        mutex.lock()
-        let isConnecting = connecting
-        mutex.unlock()
-        return isConnecting
+    private var rawStatus: WebSocketStatus = .disconnected
+    public private(set) var status: WebSocketStatus {
+        get {
+            mutex.lock()
+            defer {
+                mutex.unlock()
+            }
+            return rawStatus
+        }
+        set {
+            mutex.lock()
+            defer {
+                mutex.unlock()
+            }
+            rawStatus = newValue
+        }
     }
 
     public var request: URLRequest //this is only public to allow headers, timeout, etc to be modified on reconnect
@@ -451,8 +465,6 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     }
     
     private var stream: WSStream
-    private var connected = false
-    private var connecting = false
     private let mutex = NSLock()
     private var compressionState = CompressionState()
     private var writeQueue = OperationQueue()
@@ -460,7 +472,6 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     private var inputQueue = [Data]()
     private var fragBuffer: Data?
     private var certValidated = false
-    private var didDisconnect = false
     private var readyToWrite = false
     private var headerSecKey = ""
     private var canDispatch: Bool {
@@ -506,13 +517,12 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      */
     open func connect() {
         mutex.lock()
-        let wasConnecting = connecting
-        connecting = true
+        let wasConnecting = rawStatus == .connecting
+        rawStatus = .connecting
         mutex.unlock()
 
         guard !wasConnecting else { return }
 
-        didDisconnect = false
         createHTTPRequest()
     }
 
@@ -660,7 +670,6 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         guard let url = request.url else {
             disconnectStream(nil, runDelegate: true)
             return
-            
         }
         // Disconnect and clean up any existing streams before setting up a new pair
         disconnectStream(nil, runDelegate: false)
@@ -741,13 +750,18 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         } else {
             writeQueue.cancelAllOperations()
         }
-        
+
+        let forceDelegate: Bool
+
         mutex.lock()
+        forceDelegate = status != .disconnected
+
         cleanupStream()
-        connected = false
+        rawStatus = .disconnected
         mutex.unlock()
+
         if runDelegate {
-            doDisconnect(error)
+            doDisconnect(error, force: forceDelegate)
         }
     }
 
@@ -791,7 +805,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 }
                 let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
                 let length = work.count
-                if !connected {
+                if !isConnected {
                     processTCPHandshake(buffer, bufferLen: length)
                 } else {
                     processRawMessagesInBuffer(buffer, bufferLen: length)
@@ -840,11 +854,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             if code != 0 {
                 return code
             }
-            mutex.lock()
-            connecting = false
-            connected = true
-            mutex.unlock()
-            didDisconnect = false
+            status = .connected
             if canDispatch {
                 callbackQueue.async { [weak self] in
                     guard let self = self else { return }
@@ -1302,14 +1312,13 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     /**
      Used to preform the disconnect delegate
      */
-    private func doDisconnect(_ error: Error?) {
-        guard !didDisconnect else { return }
-        didDisconnect = true
+    private func doDisconnect(_ error: Error?, force: Bool = false) {
         mutex.lock()
-        connecting = false
-        connected = false
+        let callDisconnect = force || rawStatus != .disconnected
+        rawStatus = .disconnected
         mutex.unlock()
-        guard canDispatch else {return}
+
+        guard callDisconnect, canDispatch else { return }
         callbackQueue.async { [weak self] in
             guard let self = self else { return }
             self.onDisconnect?(error)
