@@ -751,17 +751,12 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             writeQueue.cancelAllOperations()
         }
 
-        let forceDelegate: Bool
-
         mutex.lock()
-        forceDelegate = rawStatus != .disconnected
-
         cleanupStream()
-        rawStatus = .disconnected
         mutex.unlock()
 
         if runDelegate {
-            doDisconnect(error, force: forceDelegate)
+            doDisconnect(error)
         }
     }
 
@@ -1312,9 +1307,9 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     /**
      Used to preform the disconnect delegate
      */
-    private func doDisconnect(_ error: Error?, force: Bool = false) {
+    private func doDisconnect(_ error: Error?) {
         mutex.lock()
-        let callDisconnect = force || rawStatus != .disconnected
+        let callDisconnect = rawStatus != .disconnected
         rawStatus = .disconnected
         mutex.unlock()
 
