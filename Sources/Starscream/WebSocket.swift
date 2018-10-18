@@ -754,7 +754,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         let forceDelegate: Bool
 
         mutex.lock()
-        forceDelegate = status != .disconnected
+        forceDelegate = rawStatus != .disconnected
 
         cleanupStream()
         rawStatus = .disconnected
