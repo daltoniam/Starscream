@@ -475,7 +475,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             }
             self.request.setValue(origin, forHTTPHeaderField: headerOriginName)
         }
-        if let protocols = protocols {
+        if let protocols = protocols, !protocols.isEmpty {
             self.request.setValue(protocols.joined(separator: ","), forHTTPHeaderField: headerWSProtocolName)
         }
         writeQueue.maxConcurrentOperationCount = 1
