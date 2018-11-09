@@ -55,6 +55,16 @@ public struct WSError: Error {
     public let type: ErrorType
     public let message: String
     public let code: Int
+    
+    public init(type: ErrorType, message: String, code: Int) {
+    	self.type = type
+    	self.message = message
+    	self.code = code
+    	
+    	#if DEBUG
+    		debugPrint("\(type) - \(code): \(message)")
+    	#endif
+    }
 }
 
 //WebSocketClient is setup to be dependency injection for testing
