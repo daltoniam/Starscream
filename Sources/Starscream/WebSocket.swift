@@ -93,6 +93,9 @@ extension WebSocketClient {
 }
 
 public protocol WSStreamDelegate: class {
+    func streamIsWaitingForConnectivity()
+    func streamBetterPathUpdate(isBetter: Bool)
+    func streamPathViabilityUpdate(isViable: Bool)
     func newBytesInStream()
     func streamDidError(error: Error?)
 }
@@ -113,6 +116,53 @@ public protocol WSStream {
 //standard delegate you should use
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocketClient)
+
+    /// Websocket is waiting for connectivity. Socket may connect in the future.
+    /// Available only with NetworkStream.
+    ///
+    /// - Parameter socket: Socket
+    func websocketIsWaitingForConnectivity(socket: WebSocketClient)
+
+    /// Informs the delegate about the viability of current socket path. The
+    /// path becomes invalid when you lose connectivity, but may come back up
+    /// again later.
+    ///
+    /// - Parameters:
+    ///   - socket: Socket
+    ///   - isPathViable: Viability of the current path
+    func websocket(_ socket: WebSocketClient, isPathViable: Bool)
+
+    /// Called when network changes and there might be a better path available.
+    /// For example, when you are using cellular data and walk into a building you
+    /// get a Wifi connection. This is when you should attempt to migrate to
+    /// new connection by opening up a new socket. Close the old socket only when
+    /// you got the new socket up. This method may be called again during the
+    /// the time you are making the new connection and the better path is no longer
+    /// available. You can then stop migrating and continue using the old socket.
+    ///
+    /// Use in combination with connection viability
+    /// ```
+    /// // Handle connection viability
+    /// socket.onPathViableUpdate  = { (isViable) in
+    ///     if (!isViable) {
+    ///         // Handle connection temporarily losing connectivity
+    ///     } else {
+    ///         // Handle connection return to connectivity
+    ///     }
+    /// }
+    /// // Handle better paths
+    /// socket.onBetterPathUpdate = { (betterPathAvailable) in
+    ///     if (betterPathAvailable) {
+    ///         // Start a new connection if migration is possible
+    ///     } else {
+    ///         // Stop any attempts to migrate
+    ///     }
+    /// }
+    /// ```
+    /// - Parameters:
+    ///   - socket: Socket
+    ///   - isBetterPathAvailable: Availability of a better path
+    func websocket(_ socket: WebSocketClient, isBetterPathAvailable: Bool)
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?)
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String)
     func websocketDidReceiveData(socket: WebSocketClient, data: Data)
@@ -178,6 +228,9 @@ open class WebSocket: NSObject, StreamDelegate, WebSocketClient, WSStreamDelegat
     
     public var onConnect: (() -> Void)?
     public var onDisconnect: ((Error?) -> Void)?
+    public var onWaitingForConnectivity: (() -> Void)?
+    public var onBetterPathUpdate: ((Bool) -> Void)?
+    public var onPathViableUpdate: ((Bool) -> Void)?
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
     public var onPong: ((Data?) -> Void)?
@@ -425,7 +478,31 @@ open class WebSocket: NSObject, StreamDelegate, WebSocketClient, WSStreamDelegat
     }
 
     /// MARK: - WSStreamDelegate
-    
+
+    public func streamIsWaitingForConnectivity() {
+        callbackQueue.async { [weak self] in
+            guard let s = self else { return }
+            s.onWaitingForConnectivity?()
+            s.delegate?.websocketIsWaitingForConnectivity(socket: s)
+        }
+    }
+
+    public func streamBetterPathUpdate(isBetter: Bool) {
+        callbackQueue.async { [weak self] in
+            guard let s = self else { return }
+            s.onBetterPathUpdate?(isBetter)
+            s.delegate?.websocket(s, isBetterPathAvailable: isBetter)
+        }
+    }
+
+    public func streamPathViabilityUpdate(isViable: Bool) {
+        callbackQueue.async { [weak self] in
+            guard let s = self else { return }
+            s.onPathViableUpdate?(isViable)
+            s.delegate?.websocket(s, isPathViable: isViable)
+        }
+    }
+
     public func newBytesInStream() {
         guard let data = stream.read() else { return }
         parser.append(data: data)

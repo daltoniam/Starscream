@@ -30,7 +30,7 @@ import Network
 /// it will continue to be provided for backwards compatibility reasons.
 @available(iOSApplicationExtension 12.0, tvOSApplicationExtension 12.0, OSXApplicationExtension 10.14, *)
 open class NetworkStream: WSStream {
-    public var delegate: WSStreamDelegate?
+    public weak var delegate: WSStreamDelegate?
     private var stream: NWConnection?
     private static let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.networkstream", attributes: [])
     private var readQueue = [Data]()
@@ -60,15 +60,26 @@ open class NetworkStream: WSStream {
             switch newState {
             case .ready:
                 doConnect(nil)
+            case .waiting:
+                self?.delegate?.streamIsWaitingForConnectivity()
             case .cancelled:
                 doConnect(nil)
             case .failed(let error):
                 doConnect(error)
                 self?.delegate?.streamDidError(error: error)
-            default:
+            case .setup, .preparing:
                 break
             }
         }
+
+        conn.viabilityUpdateHandler = { [weak self] (isViable) in
+            self?.delegate?.streamPathViabilityUpdate(isViable: isViable)
+        }
+
+        conn.betterPathUpdateHandler = { [weak self] (isBetter) in
+            self?.delegate?.streamBetterPathUpdate(isBetter: isBetter)
+        }
+
         conn.start(queue: NetworkStream.sharedWorkQueue)
         stream = conn
         running = true
