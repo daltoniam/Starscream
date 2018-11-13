@@ -1,0 +1,16 @@
+PODS:
+  - Starscream (3.0.6)
+
+DEPENDENCIES:
+  - Starscream (from `../../`)
+
+EXTERNAL SOURCES:
+  Starscream:
+    :path: "../../"
+
+SPEC CHECKSUMS:
+  Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
+
+PODFILE CHECKSUM: 96d91933fe13671aaa81af8a8675ff7698068845
+
+COCOAPODS: 1.6.0.beta.2

@@ -28,6 +28,7 @@ import Network
 /// Implementation of the Network framework that was introduced in iOS 12/MacOS 10.14.
 /// This class will probably replace the Foundation one in the future, but because Foundation is battle-tested
 /// it will continue to be provided for backwards compatibility reasons.
+@available(iOS 12.0, *)
 @available(iOSApplicationExtension 12.0, tvOSApplicationExtension 12.0, OSXApplicationExtension 10.14, *)
 open class NetworkStream: WSStream {
     public weak var delegate: WSStreamDelegate?

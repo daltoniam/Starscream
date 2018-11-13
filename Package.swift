@@ -1,4 +1,4 @@
-// swift-tools-version:4.0
+// swift-tools-version:4.2
 
 //
 //  Package.Swift
@@ -25,13 +25,10 @@ import PackageDescription
 let package = Package(
         name: "Starscream",
         products: [
-                .library(name: "Starscream", targets: ["Starscream"])
+            .library(name: "Starscream", targets: ["Starscream"])
         ],
-        dependencies: [
-                .package(url: "https://github.com/daltoniam/zlib-spm.git", from: "1.1.0"),
-                .package(url: "https://github.com/daltoniam/common-crypto-spm", from: "1.1.0")
-        ],
+        dependencies: [],
         targets: [
-                .target(name: "Starscream")
+            .target(name: "Starscream")
         ]
 )

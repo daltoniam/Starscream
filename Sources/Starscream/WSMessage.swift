@@ -27,7 +27,7 @@
 //  The messages
 
 import Foundation
-import SSCommonCrypto
+import CommonCrypto
 
 struct WSMessage {
     let code: WebSocket.OpCode

@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+#### [3.0.6](https://github.com/daltoniam/Starscream/tree/3.0.6)
+
+* Swift 4.2 and Xcode 10 support
+* added pongDelegate
+* moved CommonCrypto and zlib dependencies
+* HTTP proxy support
+
 #### [3.0.5](https://github.com/daltoniam/Starscream/tree/3.0.5)
 
 Swift 4.1 support and bug fixes.

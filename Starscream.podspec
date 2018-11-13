@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Starscream"
-  s.version      = "3.0.5"
+  s.version      = "3.0.6"
   s.summary      = "A conforming WebSocket RFC 6455 client library in Swift."
   s.homepage     = "https://github.com/daltoniam/Starscream"
   s.license      = 'Apache License, Version 2.0'
@@ -11,11 +11,6 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
-  s.source_files = 'Sources/*.swift'
-  s.libraries    = 'z'
-  s.pod_target_xcconfig = {
-  'SWIFT_VERSION' => '4.1',
-  'SWIFT_INCLUDE_PATHS' => '$(PODS_ROOT)/Starscream/zlib'
-  }
-  s.preserve_paths = 'zlib/*'
+  s.source_files = 'Sources/**/*.swift'
+  s.swift_version = '4.2'
 end

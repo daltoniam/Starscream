@@ -20,6 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Foundation
+import CoreFoundation
+import CommonCrypto
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
@@ -59,6 +61,7 @@ public struct WSError: Error {
 //WebSocketClient is setup to be dependency injection for testing
 public protocol WebSocketClient: class {
     var delegate: WebSocketDelegate? {get set}
+    var pongDelegate: WebSocketPongDelegate? {get set}
     var isConnected: Bool {get}
     
     func connect()
@@ -234,6 +237,7 @@ open class WebSocket: NSObject, StreamDelegate, WebSocketClient, WSStreamDelegat
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
     public var onPong: ((Data?) -> Void)?
+    public var onHttpResponseHeaders: (([String: String]) -> Void)?
     
     public var isConnected: Bool {
         mutex.lock()
@@ -284,7 +288,7 @@ open class WebSocket: NSObject, StreamDelegate, WebSocketClient, WSStreamDelegat
             }
             self.request.setValue(origin, forHTTPHeaderField: WebSocket.headerOriginName)
         }
-        if let protocols = protocols {
+        if let protocols = protocols, !protocols.isEmpty {
             self.request.setValue(protocols.joined(separator: ","), forHTTPHeaderField: WebSocket.headerWSProtocolName)
         }
         super.init()
@@ -450,23 +454,23 @@ open class WebSocket: NSObject, StreamDelegate, WebSocketClient, WSStreamDelegat
         let timeout = request.timeoutInterval * 1_000_000
         stream.delegate = self
         stream.connect(url: url, port: port, timeout: timeout, useSSL: useSSL, completion: { [weak self] (error) in
-            guard let s = self else { return }
+            guard let self = self else {return}
             if error != nil {
-                s.disconnectStream(error)
+                self.disconnectStream(error)
                 return
             }
-            s.writeQueue.async {
+            self.writeQueue.async {
                 // Do SSL pinning
-                if !s.certValidated {
-                    s.certValidated = s.stream.isValidSSLCertificate()
-                    if !s.certValidated {
-                        s.disconnectStream(WSError(type: .invalidSSLError, message: "Invalid SSL certificate", code: 0))
+                if !self.certValidated {
+                    self.certValidated = self.stream.isValidSSLCertificate()
+                    if !self.certValidated {
+                        self.disconnectStream(WSError(type: .invalidSSLError, message: "Invalid SSL certificate", code: 0))
                         return
                     }
                 }
-                s.stream.write(data: data, completion: { (error) in
+                self.stream.write(data: data, completion: { (error) in
                     if let error = error {
-                        s.disconnectStream(error)
+                        self.disconnectStream(error)
                     }
                 })
             }
@@ -613,9 +617,9 @@ open class WebSocket: NSObject, StreamDelegate, WebSocketClient, WSStreamDelegat
         isConnecting = false
         guard canDispatch else { return }
         callbackQueue.async { [weak self] in
-            guard let s = self else { return }
-            s.onDisconnect?(error)
-            s.delegate?.websocketDidDisconnect(socket: s, error: error)
+            guard let self = self else { return }
+            self.onDisconnect?(error)
+            self.delegate?.websocketDidDisconnect(socket: self, error: error)
             let userInfo = error.map{ [WebsocketDisconnectionErrorKeyName: $0] }
             NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidDisconnectNotification), object: self, userInfo: userInfo)
         }
