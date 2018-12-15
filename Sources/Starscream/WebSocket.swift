@@ -135,7 +135,7 @@ public protocol WSStream {
 }
 
 open class FoundationStream : NSObject, WSStream, StreamDelegate  {
-    private static let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
+    private let sharedWorkQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
     public weak var delegate: WSStreamDelegate?
