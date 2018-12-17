@@ -760,9 +760,13 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                                 if let proxyType = settings[(kCFProxyTypeKey as NSString)] as? NSString {
                                     stream.setupSocksProxy(proxyType, settings: settings)
                                     self.httpProxyHost = settings[(kCFProxyHostNameKey as NSString)] as? String
-                                    self.httpProxyPort = settings[(kCFProxyPortNumberKey as NSString)] as! NSInteger
-                                    if let proxyHost = httpProxyHost {
-                                        startProxyConnection(proxyHost, httpProxyPort)
+                                    if let proxyPortNumber = settings[(kCFProxyPortNumberKey as NSString)] {
+                                        if let portNum = proxyPortNumber as? NSInteger {
+                                            self.httpProxyPort = portNum;
+                                            if let proxyHost = self.httpProxyHost {
+                                                self.startProxyConnection(proxyHost, portNum)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -779,9 +783,13 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                                         if let proxyType = settings[(kCFProxyTypeKey as NSString)] as? NSString {
                                             self?.stream.setupSocksProxy(proxyType, settings: settings)
                                             self?.httpProxyHost = settings[(kCFProxyHostNameKey as NSString)] as? String
-                                            self?.httpProxyPort = settings[(kCFProxyPortNumberKey as NSString)] as! NSInteger
-                                            if let proxyHost = self?.httpProxyHost, let proxyPort = self?.httpProxyPort {
-                                                self?.startProxyConnection(proxyHost, proxyPort)
+                                            if let proxyPortNumber = settings[(kCFProxyPortNumberKey as NSString)] {
+                                                if let portNum = proxyPortNumber as? NSInteger {
+                                                    self?.httpProxyPort = portNum;
+                                                    if let proxyHost = self?.httpProxyHost, let proxyPort = self?.httpProxyPort {
+                                                        self?.startProxyConnection(proxyHost, proxyPort)
+                                                    }
+                                                }
                                             }
                                         }
                                     }
