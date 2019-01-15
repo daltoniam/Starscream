@@ -49,6 +49,7 @@ public enum ErrorType: Error {
     case protocolError //There was an error parsing the WebSocket frames
     case upgradeError //There was an error during the HTTP upgrade
     case closeError //There was an error during the close (socket probably has been dereferenced)
+    case osError // There was an error with the underlying OS
 }
 
 public struct WSError: Error {
@@ -1250,7 +1251,10 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             }
             buffer[1] |= self.MaskMask
             let maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
-            _ = SecRandomCopyBytes(kSecRandomDefault, Int(MemoryLayout<UInt32>.size), maskKey)
+            guard SecRandomCopyBytes(kSecRandomDefault, Int(MemoryLayout<UInt32>.size), maskKey) == errSecSuccess else {
+                self.doDisconnect(WSError(type: .osError, message: "unable to generate random bytes", code: 0))
+                return
+            }
             offset += MemoryLayout<UInt32>.size
 
             for i in 0..<dataLength {
