@@ -69,6 +69,7 @@ public protocol WebSocketClient: class {
     #else
     var security: SSLTrustValidator? {get set}
     var enabledSSLCipherSuites: [SSLCipherSuite]? {get set}
+    var socketSecurityLevel: StreamSocketSecurityLevel { get set }
     #endif
     var isConnected: Bool {get}
     
@@ -113,6 +114,7 @@ public struct SSLSettings {
     #if os(Linux)
     #else
     public let cipherSuites: [SSLCipherSuite]?
+    public var socketSecurityLevel: StreamSocketSecurityLevel
     #endif
 }
 
@@ -166,8 +168,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
         inStream.delegate = self
         outStream.delegate = self
         if ssl.useSSL {
-            inStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
-            outStream.setProperty(StreamSocketSecurityLevel.negotiatedSSL as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
+            inStream.setProperty(ssl.socketSecurityLevel as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
+            outStream.setProperty(ssl.socketSecurityLevel as AnyObject, forKey: Stream.PropertyKey.socketSecurityLevelKey)
             #if os(watchOS) //watchOS us unfortunately is missing the kCFStream properties to make this work
             #else
                 var settings = [NSObject: NSObject]()
@@ -416,6 +418,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     #else
     public var security: SSLTrustValidator?
     public var enabledSSLCipherSuites: [SSLCipherSuite]?
+    public var socketSecurityLevel: StreamSocketSecurityLevel = .negotiatedSSL
     #endif
     
     public var isConnected: Bool {
@@ -665,7 +668,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                                        overrideTrustHostname: overrideTrustHostname,
                                        desiredTrustHostname: desiredTrustHostname,
                                        sslClientCertificate: sslClientCertificate,
-                                       cipherSuites: self.enabledSSLCipherSuites)
+                                       cipherSuites: enabledSSLCipherSuites,
+                                       socketSecurityLevel: socketSecurityLevel)
         #endif
         certValidated = !useSSL
         let timeout = request.timeoutInterval * 1_000_000
