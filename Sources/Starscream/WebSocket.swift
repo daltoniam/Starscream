@@ -20,6 +20,181 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Foundation
+
+public protocol WebSocketClient: class {
+    func connect()
+    func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
+    func write(string: String, completion: (() -> ())?)
+    func write(data: Data, completion: (() -> ())?)
+    func write(ping: Data, completion: (() -> ())?)
+    func write(pong: Data, completion: (() -> ())?)
+}
+
+//implements some of the base behaviors
+extension WebSocketClient {
+    public func write(string: String) {
+        write(string: string, completion: nil)
+    }
+    
+    public func write(data: Data) {
+        write(data: data, completion: nil)
+    }
+    
+    public func write(ping: Data) {
+        write(ping: ping, completion: nil)
+    }
+    
+    public func write(pong: Data) {
+        write(pong: pong, completion: nil)
+    }
+    
+    public func disconnect() {
+        disconnect(forceTimeout: nil, closeCode: CloseCode.normal.rawValue)
+    }
+}
+
+open class WebSocketNew: WebSocketClient, TransportEventClient, FramerEventClient,
+FrameCollectorDelegate, HTTPHandlerDelegate {
+    private let transport: Transport
+    private let framer: Framer
+    private let httpHandler: HTTPHandler
+    private let frameHandler = FrameCollector()
+    private var didUpgrade = false
+    
+    public var request: URLRequest
+    // Where the callback is executed. It defaults to the main UI thread queue.
+    public var callbackQueue = DispatchQueue.main
+    
+    init(request: URLRequest, transport: Transport,
+         framer: Framer = WSFramer(), httpHandler: HTTPHandler = FoundationHTTPHandler()) {
+        self.request = request
+        self.transport = transport
+        self.framer = framer
+        self.httpHandler = httpHandler
+        frameHandler.delegate = self
+    }
+    
+    public func connect() {
+        transport.register(delegate: self)
+        framer.register(delegate: self)
+        httpHandler.register(delegate: self)
+        guard let url = request.url else {
+            return
+        }
+        transport.connect(url: url, timeout: request.timeoutInterval, isTLS: true)
+    }
+    
+    public func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16) {
+        //TODO: implement me!
+        transport.disconnect()
+    }
+    
+    public func write(data: Data, completion: (() -> ())?) {
+        //TODO: implement me!
+        //These need to be queued so they go serially in order
+        //TODO: add to write queue
+    }
+    
+    public func write(string: String, completion: (() -> ())?) {
+        //TODO: implement me!
+        //TODO: add to write queue
+    }
+    
+    public func write(ping: Data, completion: (() -> ())?) {
+        //TODO: implement me!
+        //TODO: add to write queue
+    }
+    
+    public func write(pong: Data, completion: (() -> ())?) {
+        //TODO: implement me!
+        //TODO: add to write queue
+    }
+    
+    // MARK: - TransportEventClient
+    
+    public func connectionChanged(state: ConnectionState) {
+        switch state {
+        case .connected:
+            let data = httpHandler.createUpgrade(request: request)
+            transport.write(data: data, completion: {_ in })
+        case .waiting:
+            break //TODO: nothing ATM
+        case .failed(let error):
+            handleError(error)
+        case .viability(let isViable):
+            break //TODO: not sure yet. Have to test what it does, but rather handy
+        case .shouldReconnect(let status):
+            break // TODO: notify the delegate of the status (on another queue)
+        case .receive(let data):
+            if didUpgrade {
+                framer.add(data: data)
+            } else {
+                //TODO: handle HTTP upgrade response
+            }
+        case .cancelled:
+            break // TODO: notify the delegate of the disconnect (on another queue)
+        }
+        //TODO: handle all the events!
+        // Everything coming into this method will be on the transport queue.
+        // remember to be "thread safe" by not modifying anything until it is on a work queue (if needed)
+    }
+    
+    // MARK: - HTTPHandlerDelegate
+    
+    public func didReceiveHTTP(event: HTTPEvent) {
+        switch event {
+        case .success(let headers):
+            didUpgrade = true
+            //TODO: notify delegate of successful connection
+        case .failure(let error):
+            handleError(error)
+        }
+    }
+    
+    // MARK: - FramerEventClient
+    
+    public func frameProcessed(event: FrameEvent) {
+        switch event {
+        case .frame(let frame):
+            frameHandler.add(frame: frame)
+        case .error(let error):
+            handleError(error)
+        }
+        
+    }
+    
+    // MARK: - FrameCollectorDelegate
+    
+    public func didForm(event: FrameCollector.Event) {
+        //TODO: notify delegate of the event
+        switch event {
+        case .text(let string):
+            break
+        case .binary(let data):
+            break
+        case .pong(let data):
+            break
+        case .ping(let data):
+            break
+        case .error(let error):
+            break
+        }
+    }
+    
+    //This call can be coming from a lot of different queues/threads.
+    //be aware of that when modifying shared variables
+    private func handleError(_ error: Error?) {
+        //TODO: update variable on send queue to stop all events (mutex locked bool, probably)
+        didUpgrade = false
+        callbackQueue.async {
+            //notify delegate here...
+        }
+    }
+}
+
+
+
+
 import CoreFoundation
 import CommonCrypto
 
@@ -58,7 +233,7 @@ public struct WSError: Error {
 }
 
 //WebSocketClient is setup to be dependency injection for testing
-public protocol WebSocketClient: class {
+public protocol WebSocketClientA: class {
     var delegate: WebSocketDelegate? {get set}
     var pongDelegate: WebSocketPongDelegate? {get set}
     var disableSSLCertValidation: Bool {get set}
@@ -81,7 +256,7 @@ public protocol WebSocketClient: class {
 }
 
 //implements some of the base behaviors
-extension WebSocketClient {
+extension WebSocketClientA {
     public func write(string: String) {
         write(string: string, completion: nil)
     }
@@ -311,15 +486,15 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
 
 //standard delegate you should use
 public protocol WebSocketDelegate: class {
-    func websocketDidConnect(socket: WebSocketClient)
-    func websocketDidDisconnect(socket: WebSocketClient, error: Error?)
-    func websocketDidReceiveMessage(socket: WebSocketClient, text: String)
-    func websocketDidReceiveData(socket: WebSocketClient, data: Data)
+    func websocketDidConnect(socket: WebSocketClientA)
+    func websocketDidDisconnect(socket: WebSocketClientA, error: Error?)
+    func websocketDidReceiveMessage(socket: WebSocketClientA, text: String)
+    func websocketDidReceiveData(socket: WebSocketClientA, data: Data)
 }
 
 //got pongs
 public protocol WebSocketPongDelegate: class {
-    func websocketDidReceivePong(socket: WebSocketClient, data: Data?)
+    func websocketDidReceivePong(socket: WebSocketClientA, data: Data?)
 }
 
 // A Delegate with more advanced info on messages and connection etc.
@@ -333,7 +508,7 @@ public protocol WebSocketAdvancedDelegate: class {
 }
 
 
-open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelegate {
+open class WebSocket : NSObject, StreamDelegate, WebSocketClientA, WSStreamDelegate {
 
     public enum OpCode : UInt8 {
         case continueFrame = 0x0
