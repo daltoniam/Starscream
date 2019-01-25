@@ -129,7 +129,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             if didUpgrade {
                 framer.add(data: data)
             } else {
-                //TODO: handle HTTP upgrade response
+                httpHandler.parse(data: data)
             }
         case .cancelled:
             break // TODO: notify the delegate of the disconnect (on another queue)
@@ -177,7 +177,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         case .ping(let data):
             break
         case .error(let error):
-            break
+            handleError(error)
         }
     }
     

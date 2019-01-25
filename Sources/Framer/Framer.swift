@@ -69,7 +69,7 @@ public class WSFramer: Framer {
                let event = self?.process() ?? .needsMoreData
                 switch event {
                 case .needsMoreData:
-                    return //needs more data before a frame can be created
+                    return
                 case .processedFrame(let frame, let split):
                     guard let s = self else { return }
                     s.buffer = s.buffer.advanced(by: split)
@@ -89,7 +89,6 @@ public class WSFramer: Framer {
     
     private func process() -> ProcessEvent {
         if buffer.count < 2 {
-            //need more data before a frame can be processed
             return .needsMoreData
         }
         let pointer = buffer.withUnsafeBytes {
@@ -156,9 +155,8 @@ public class WSFramer: Framer {
         let payload = Data(bytes: pointer[offset...readDataLength])
         offset += readDataLength
 
-        let remainder = pointer.count - offset
         let frame = Frame(isFin: isFin > 0, RSV1: RSV1 > 0, isMasked: isMasked > 0, opcode: opcode, payloadLength: dataLength, payload: payload)
-        return .processedFrame(frame, remainder)
+        return .processedFrame(frame, offset)
     }
     
     private func readUint16(_ buffer: [UInt8], offset: Int) -> UInt16 {
