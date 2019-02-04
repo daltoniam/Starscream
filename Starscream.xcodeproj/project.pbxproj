@@ -18,11 +18,14 @@
 		8A7A718F21F924D40061166D /* Framer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A718E21F924D40061166D /* Framer.swift */; };
 		8A7A719121FA3DCD0061166D /* FrameCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A719021FA3DCD0061166D /* FrameCollector.swift */; };
 		8A7A719321FA42BA0061166D /* HTTPHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A719221FA42BA0061166D /* HTTPHandler.swift */; };
-		BBB5ABE5215E2217005B48B6 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE1215E2217005B48B6 /* Compression.swift */; };
+		8A7A719621FFB3190061166D /* FuzzingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A719421FFB2E30061166D /* FuzzingTests.swift */; };
+		8A7A719921FFB4650061166D /* MockTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A719721FFB4280061166D /* MockTransport.swift */; };
+		8A7A719C220248330061166D /* MockServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A719A2200C6DE0061166D /* MockServer.swift */; };
+		8A906E3D2208BD9B0015057D /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A906E3C2208BD9B0015057D /* Compression.swift */; };
+		8A906E3F2208C7E80015057D /* WSCompression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A906E3E2208C7E80015057D /* WSCompression.swift */; };
 		BBB5ABE6215E2217005B48B6 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */; };
 		BBB5ABE7215E2217005B48B6 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */; };
 		BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
-		BBB5ABE9215E221D005B48B6 /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE1215E2217005B48B6 /* Compression.swift */; };
 		BBB5ABEA215E221D005B48B6 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */; };
 		BBB5ABEB215E221D005B48B6 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */; };
 		BBB5ABEC215E221D005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
@@ -41,7 +44,11 @@
 		8A7A718E21F924D40061166D /* Framer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Framer.swift; sourceTree = "<group>"; };
 		8A7A719021FA3DCD0061166D /* FrameCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameCollector.swift; sourceTree = "<group>"; };
 		8A7A719221FA42BA0061166D /* HTTPHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPHandler.swift; sourceTree = "<group>"; };
-		BBB5ABE1215E2217005B48B6 /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Starscream/Compression.swift; sourceTree = "<group>"; };
+		8A7A719421FFB2E30061166D /* FuzzingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuzzingTests.swift; sourceTree = "<group>"; };
+		8A7A719721FFB4280061166D /* MockTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTransport.swift; sourceTree = "<group>"; };
+		8A7A719A2200C6DE0061166D /* MockServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockServer.swift; sourceTree = "<group>"; };
+		8A906E3C2208BD9B0015057D /* Compression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Compression/Compression.swift; sourceTree = "<group>"; };
+		8A906E3E2208C7E80015057D /* WSCompression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WSCompression.swift; path = Compression/WSCompression.swift; sourceTree = "<group>"; };
 		BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SSLClientCertificate.swift; path = Starscream/SSLClientCertificate.swift; sourceTree = "<group>"; };
 		BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SSLSecurity.swift; path = Starscream/SSLSecurity.swift; sourceTree = "<group>"; };
 		BBB5ABE4215E2217005B48B6 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.swift; name = WebSocket.swift; path = Starscream/WebSocket.swift; sourceTree = "<group>"; tabWidth = 4; };
@@ -95,7 +102,6 @@
 				8A7A718621F8DB930061166D /* Transport */,
 				8A7A718521F8DB810061166D /* Compression */,
 				8A7A718421F8DB660061166D /* Security */,
-				BBB5ABE1215E2217005B48B6 /* Compression.swift */,
 				BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */,
 				BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */,
 				BBB5ABE4215E2217005B48B6 /* WebSocket.swift */,
@@ -119,6 +125,9 @@
 				6B3E7A0019D48C2F006071F7 /* Info.plist */,
 				742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */,
 				D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */,
+				8A7A719421FFB2E30061166D /* FuzzingTests.swift */,
+				8A7A719721FFB4280061166D /* MockTransport.swift */,
+				8A7A719A2200C6DE0061166D /* MockServer.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -133,6 +142,8 @@
 		8A7A718521F8DB810061166D /* Compression */ = {
 			isa = PBXGroup;
 			children = (
+				8A906E3C2208BD9B0015057D /* Compression.swift */,
+				8A906E3E2208C7E80015057D /* WSCompression.swift */,
 			);
 			name = Compression;
 			sourceTree = "<group>";
@@ -273,9 +284,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A7A719C220248330061166D /* MockServer.swift in Sources */,
+				8A7A719921FFB4650061166D /* MockTransport.swift in Sources */,
+				8A7A719621FFB3190061166D /* FuzzingTests.swift in Sources */,
 				BBB5ABEB215E221D005B48B6 /* SSLSecurity.swift in Sources */,
 				BBB5ABEC215E221D005B48B6 /* WebSocket.swift in Sources */,
-				BBB5ABE9215E221D005B48B6 /* Compression.swift in Sources */,
 				335FA1F91F5DF71D00F6D2EC /* CompressionTests.swift in Sources */,
 				335FA1FA1F5DF71D00F6D2EC /* StarscreamTests.swift in Sources */,
 				BBB5ABEA215E221D005B48B6 /* SSLClientCertificate.swift in Sources */,
@@ -288,7 +301,6 @@
 			files = (
 				8A7A719321FA42BA0061166D /* HTTPHandler.swift in Sources */,
 				8A7A719121FA3DCD0061166D /* FrameCollector.swift in Sources */,
-				BBB5ABE5215E2217005B48B6 /* Compression.swift in Sources */,
 				8A7A718A21F8E23C0061166D /* TCPTransport.swift in Sources */,
 				8A7A718C21F8F9790061166D /* FoundationTransport.swift in Sources */,
 				BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */,
@@ -296,6 +308,8 @@
 				8A7A718821F8E1490061166D /* Transport.swift in Sources */,
 				BBB5ABE7215E2217005B48B6 /* SSLSecurity.swift in Sources */,
 				BBB5ABE6215E2217005B48B6 /* SSLClientCertificate.swift in Sources */,
+				8A906E3D2208BD9B0015057D /* Compression.swift in Sources */,
+				8A906E3F2208C7E80015057D /* WSCompression.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

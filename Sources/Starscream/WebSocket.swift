@@ -23,8 +23,9 @@ import Foundation
 
 public protocol WebSocketClient: class {
     func connect()
-    func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
+    func disconnect(closeCode: UInt16)
     func write(string: String, completion: (() -> ())?)
+    func write(stringData: Data, completion: (() -> ())?)
     func write(data: Data, completion: (() -> ())?)
     func write(ping: Data, completion: (() -> ())?)
     func write(pong: Data, completion: (() -> ())?)
@@ -49,8 +50,22 @@ extension WebSocketClient {
     }
     
     public func disconnect() {
-        disconnect(forceTimeout: nil, closeCode: CloseCode.normal.rawValue)
+        disconnect(closeCode: CloseCode.normal.rawValue)
     }
+}
+
+public enum WebSocketEvent {
+    case connected([String: String])
+    case disconnected(String, UInt16)
+    case text(String)
+    case binary(Data)
+    case pong(Data?)
+    case ping(Data?)
+    case error(Error?)
+}
+
+public protocol WebSocketNewDelegate: class {
+    func didReceive(event: WebSocketEvent, client: WebSocketNew)
 }
 
 open class WebSocketNew: WebSocketClient, TransportEventClient, FramerEventClient,
@@ -58,23 +73,45 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private let transport: Transport
     private let framer: Framer
     private let httpHandler: HTTPHandler
+    private let compressionHandler: CompressionHandler?
     private let frameHandler = FrameCollector()
     private var didUpgrade = false
+    
+    public weak var delegate: WebSocketNewDelegate?
+    public var onEvent: ((WebSocketEvent) -> Void)?
     
     public var request: URLRequest
     // Where the callback is executed. It defaults to the main UI thread queue.
     public var callbackQueue = DispatchQueue.main
     
-    init(request: URLRequest, transport: Transport,
-         framer: Framer = WSFramer(), httpHandler: HTTPHandler = FoundationHTTPHandler()) {
+    // serial write queue to ensure writes happen in order
+    private let writeQueue = DispatchQueue(label: "com.vluxe.starscream.writequeue")
+    private var canSend = false
+    private let mutex = DispatchSemaphore(value: 1)
+    // TODO: security class to do all the security things
+    
+    public init(request: URLRequest, transport: Transport,
+                httpHandler: HTTPHandler = FoundationHTTPHandler(),
+                framer: Framer = WSFramer(),
+                compressionHandler: CompressionHandler? = nil) {
         self.request = request
         self.transport = transport
         self.framer = framer
         self.httpHandler = httpHandler
+        self.compressionHandler = compressionHandler
+
+        framer.updateCompression(supports: compressionHandler != nil)
         frameHandler.delegate = self
     }
     
     public func connect() {
+        mutex.wait()
+        let isConnected = canSend
+        mutex.signal()
+        if isConnected {
+            return
+        }
+        
         transport.register(delegate: self)
         framer.register(delegate: self)
         httpHandler.register(delegate: self)
@@ -84,30 +121,58 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         transport.connect(url: url, timeout: request.timeoutInterval, isTLS: true)
     }
     
-    public func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16) {
-        //TODO: implement me!
+    //TODO: default parameter = CloseCode.normal.rawValue
+    public func disconnect(closeCode: UInt16) {
+        let buffer = Data(capacity: MemoryLayout<UInt16>.size)
+        var pointer = buffer.withUnsafeBytes {
+            [UInt8](UnsafeBufferPointer(start: $0, count: buffer.count))
+        }
+        writeUint16(&pointer, offset: 0, value: closeCode)
+        let payload = Data(bytes: pointer, count: MemoryLayout<UInt16>.size)
+        write(data: payload, opcode: .connectionClose, completion: nil)
+    }
+    
+    
+    public func forceDisconnect() {
         transport.disconnect()
     }
     
     public func write(data: Data, completion: (() -> ())?) {
-        //TODO: implement me!
-        //These need to be queued so they go serially in order
-        //TODO: add to write queue
+         write(data: data, opcode: .binaryFrame, completion: completion)
     }
     
     public func write(string: String, completion: (() -> ())?) {
-        //TODO: implement me!
-        //TODO: add to write queue
+        let data = string.data(using: .utf8)!
+        write(data: data, opcode: .textFrame, completion: completion)
+    }
+    
+    public func write(stringData: Data, completion: (() -> ())?) {
+        write(data: stringData, opcode: .textFrame, completion: completion)
     }
     
     public func write(ping: Data, completion: (() -> ())?) {
-        //TODO: implement me!
-        //TODO: add to write queue
+        write(data: ping, opcode: .ping, completion: completion)
     }
     
     public func write(pong: Data, completion: (() -> ())?) {
-        //TODO: implement me!
-        //TODO: add to write queue
+        write(data: pong, opcode: .pong, completion: completion)
+    }
+    
+    private func write(data: Data, opcode: FrameOpCode, completion: (() -> ())?) {
+        writeQueue.async { [weak self] in
+            guard let s = self else { return }
+            s.mutex.wait()
+            let canWrite = s.canSend
+            s.mutex.signal()
+            if !canWrite {
+                return
+            }
+            let data = s.compressionHandler?.compress(data: data) ?? data
+            let frameData = s.framer.createWriteFrame(opcode: opcode, payload: data, isCompressed: false)
+            s.transport.write(data: frameData, completion: {_ in
+                completion?()
+            })
+        }
     }
     
     // MARK: - TransportEventClient
@@ -132,11 +197,13 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
                 httpHandler.parse(data: data)
             }
         case .cancelled:
-            break // TODO: notify the delegate of the disconnect (on another queue)
+            break //TODO: figure out if a clean disconnect or not
+//            callbackQueue.async { [weak self] in
+//                guard let s = self else { return }
+//                s.delegate?.didReceive(event: .disconnected(nil), client: s)
+//                s.onEvent?(.disconnected(nil))
+//            }
         }
-        //TODO: handle all the events!
-        // Everything coming into this method will be on the transport queue.
-        // remember to be "thread safe" by not modifying anything until it is on a work queue (if needed)
     }
     
     // MARK: - HTTPHandlerDelegate
@@ -144,8 +211,17 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func didReceiveHTTP(event: HTTPEvent) {
         switch event {
         case .success(let headers):
+            mutex.wait()
             didUpgrade = true
-            //TODO: notify delegate of successful connection
+            canSend = true
+            mutex.signal()
+            compressionHandler?.load(headers: headers)
+            
+            callbackQueue.async { [weak self] in
+                guard let s = self else { return }
+                s.delegate?.didReceive(event: .connected(headers), client: s)
+                s.onEvent?(.connected(headers))
+            }
         case .failure(let error):
             handleError(error)
         }
@@ -160,22 +236,46 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         case .error(let error):
             handleError(error)
         }
-        
     }
     
     // MARK: - FrameCollectorDelegate
     
+    public func decompress(data: Data) -> Data? {
+        return compressionHandler?.decompress(data: data)
+    }
+    
     public func didForm(event: FrameCollector.Event) {
-        //TODO: notify delegate of the event
         switch event {
         case .text(let string):
-            break
+            callbackQueue.async { [weak self] in
+                guard let s = self else { return }
+                s.delegate?.didReceive(event: .text(string), client: s)
+                s.onEvent?(.text(string))
+            }
         case .binary(let data):
-            break
+            callbackQueue.async { [weak self] in
+                guard let s = self else { return }
+                s.delegate?.didReceive(event: .binary(data), client: s)
+                s.onEvent?(.binary(data))
+            }
         case .pong(let data):
-            break
+            callbackQueue.async { [weak self] in
+                guard let s = self else { return }
+                s.delegate?.didReceive(event: .pong(data), client: s)
+                s.onEvent?(.pong(data))
+            }
         case .ping(let data):
-            break
+            callbackQueue.async { [weak self] in
+                guard let s = self else { return }
+                s.delegate?.didReceive(event: .ping(data), client: s)
+                s.onEvent?(.ping(data))
+            }
+        case .closed(let reason, let code):
+            callbackQueue.async { [weak self] in
+                guard let s = self else { return }
+                s.delegate?.didReceive(event: .disconnected(reason, code), client: s)
+                s.onEvent?(.disconnected(reason, code))
+            }
         case .error(let error):
             handleError(error)
         }
@@ -184,10 +284,14 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     //This call can be coming from a lot of different queues/threads.
     //be aware of that when modifying shared variables
     private func handleError(_ error: Error?) {
-        //TODO: update variable on send queue to stop all events (mutex locked bool, probably)
+        mutex.wait()
+        canSend = false
         didUpgrade = false
-        callbackQueue.async {
-            //notify delegate here...
+        mutex.signal()
+        callbackQueue.async { [weak self] in
+            guard let s = self else { return }
+            s.delegate?.didReceive(event: .error(error), client: s)
+            s.onEvent?(.error(error))
         }
     }
 }
@@ -224,6 +328,7 @@ public enum ErrorType: Error {
     case protocolError //There was an error parsing the WebSocket frames
     case upgradeError //There was an error during the HTTP upgrade
     case closeError //There was an error during the close (socket probably has been dereferenced)
+    case cleanClose //The error was closed properly
 }
 
 public struct WSError: Error {

@@ -26,6 +26,9 @@ public protocol HTTPHandler {
 public class FoundationHTTPHandler: HTTPHandler {
     weak var delegate: HTTPHandlerDelegate?
     
+    public init() {
+    }
+    
     public func createUpgrade(request: URLRequest) -> Data {
         return Data()
     }
