@@ -71,13 +71,13 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         self.transport = transport
         self.framer = framer
         self.httpHandler = httpHandler
-        frameHandler.delegate = self
     }
     
     public func connect() {
         transport.register(delegate: self)
         framer.register(delegate: self)
         httpHandler.register(delegate: self)
+        frameHandler.delegate = self
         guard let url = request.url else {
             return
         }
@@ -115,7 +115,9 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func connectionChanged(state: ConnectionState) {
         switch state {
         case .connected:
-            let data = httpHandler.createUpgrade(request: request)
+            //TODO: get the compression from the compression engine and secKeyName from the security object
+            let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: true, secKeyName: "")
+            let data = httpHandler.convert(request: wsReq)
             transport.write(data: data, completion: {_ in })
         case .waiting:
             break //TODO: nothing ATM
@@ -144,6 +146,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func didReceiveHTTP(event: HTTPEvent) {
         switch event {
         case .success(let headers):
+            //TODO: validate secKey header response and compression engine info
             didUpgrade = true
             //TODO: notify delegate of successful connection
         case .failure(let error):
