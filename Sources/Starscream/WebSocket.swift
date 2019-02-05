@@ -433,7 +433,6 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
 
     private struct CompressionState {
         var supportsCompression = false
-        var messageNeedsDecompression = false
         var serverMaxWindowBits = 15
         var clientMaxWindowBits = 15
         var clientNoContextTakeover = false
@@ -447,6 +446,10 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     private var isConnecting = false
     private let mutex = NSLock()
     private var compressionState = CompressionState()
+    // `currentMessageNeedsDecompression` is not part of the `compressionState` struct
+    // because currentMessageNeedsDecompression can be mutated in the read queue concurrently
+    // with other `compressionState` fields being accesseed on the write queue.
+    private var currentMessageNeedsDecompression = false
     private var writeQueue = OperationQueue()
     private var readStack = [WSResponse]()
     private var inputQueue = [Data]()
@@ -996,9 +999,9 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             let payloadLen = (PayloadLenMask & baseAddress[1])
             var offset = 2
             if compressionState.supportsCompression && receivedOpcode != .continueFrame {
-                compressionState.messageNeedsDecompression = (RSV1Mask & baseAddress[0]) > 0
+                currentMessageNeedsDecompression = (RSV1Mask & baseAddress[0]) > 0
             }
-            if (isMasked > 0 || (RSVMask & baseAddress[0]) > 0) && receivedOpcode != .pong && !compressionState.messageNeedsDecompression {
+            if (isMasked > 0 || (RSVMask & baseAddress[0]) > 0) && receivedOpcode != .pong && !currentMessageNeedsDecompression {
                 let errCode = CloseCode.protocolError.rawValue
                 doDisconnect(WSError(type: .protocolError, message: "masked and rsv data is not currently supported", code: Int(errCode)))
                 writeError(errCode)
@@ -1059,7 +1062,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 len -= UInt64(size)
             }
             let data: Data
-            if compressionState.messageNeedsDecompression, let decompressor = compressionState.decompressor {
+            if currentMessageNeedsDecompression, let decompressor = compressionState.decompressor {
                 do {
                     data = try decompressor.decompress(bytes: baseAddress+offset, count: Int(len), finish: isFin > 0)
                     if isFin > 0 && compressionState.serverNoContextTakeover {
