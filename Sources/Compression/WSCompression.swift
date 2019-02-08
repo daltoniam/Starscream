@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Compression.swift
+//  WSCompression.swift
 //
 //  Created by Joseph Ross on 7/16/14.
 //  Copyright © 2017 Joseph Ross.
@@ -29,13 +29,30 @@
 import Foundation
 import zlib
 
+public class WSCompression: CompressionHandler {
+    
+    public func load(headers: [String: String]) {
+        
+    }
+    
+    public func decompress(data: Data) -> Data {
+        return Data()
+    }
+    
+    public func compress(data: Data) -> Data {
+        return Data()
+    }
+    
+
+}
+
 class Decompressor {
     private var strm = z_stream()
     private var buffer = [UInt8](repeating: 0, count: 0x2000)
     private var inflateInitialized = false
-    private let windowBits:Int
+    private let windowBits: Int
 
-    init?(windowBits:Int) {
+    init?(windowBits: Int) {
         self.windowBits = windowBits
         guard initInflate() else { return nil }
     }
@@ -56,7 +73,7 @@ class Decompressor {
     }
 
     func decompress(_ data: Data, finish: Bool) throws -> Data {
-        return try data.withUnsafeBytes { (bytes:UnsafePointer<UInt8>) -> Data in
+        return try data.withUnsafeBytes { (bytes: UnsafePointer<UInt8>) -> Data in
             return try decompress(bytes: bytes, count: data.count, finish: finish)
         }
     }
@@ -71,11 +88,10 @@ class Decompressor {
         }
 
         return decompressed
-
     }
 
-    private func decompress(bytes: UnsafePointer<UInt8>, count: Int, out:inout Data) throws {
-        var res:CInt = 0
+    private func decompress(bytes: UnsafePointer<UInt8>, count: Int, out: inout Data) throws {
+        var res: CInt = 0
         strm.next_in = UnsafeMutablePointer<UInt8>(mutating: bytes)
         strm.avail_in = CUnsignedInt(count)
 
@@ -111,7 +127,7 @@ class Compressor {
     private var strm = z_stream()
     private var buffer = [UInt8](repeating: 0, count: 0x2000)
     private var deflateInitialized = false
-    private let windowBits:Int
+    private let windowBits: Int
 
     init?(windowBits: Int) {
         self.windowBits = windowBits
@@ -136,7 +152,7 @@ class Compressor {
 
     func compress(_ data: Data) throws -> Data {
         var compressed = Data()
-        var res:CInt = 0
+        var res: CInt = 0
         data.withUnsafeBytes { (ptr:UnsafePointer<UInt8>) -> Void in
             strm.next_in = UnsafeMutablePointer<UInt8>(mutating: ptr)
             strm.avail_in = CUnsignedInt(data.count)

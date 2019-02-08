@@ -1,3 +1,4 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  Framer.swift
 //  Starscream
@@ -5,6 +6,19 @@
 //  Created by Dalton Cherry on 1/23/19.
 //  Copyright © 2019 Vluxe. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Foundation
 
@@ -14,6 +28,7 @@ let RSVMask: UInt8          = 0x70
 let RSV1Mask: UInt8         = 0x40
 let MaskMask: UInt8         = 0x80
 let PayloadLenMask: UInt8   = 0x7F
+let MaxFrameSize: Int       = 32
 
 public enum FrameOpCode: UInt8 {
     case continueFrame = 0x0
@@ -29,11 +44,12 @@ public enum FrameOpCode: UInt8 {
 
 public struct Frame {
     let isFin: Bool
-    let RSV1: Bool
+    let needsDecompression: Bool
     let isMasked: Bool
     let opcode: FrameOpCode
     let payloadLength: UInt64
     let payload: Data
+    let closeCode: UInt16 //only used by connectionClose opcode
 }
 
 public enum FrameEvent {
@@ -48,13 +64,27 @@ public protocol FramerEventClient: class {
 public protocol Framer {
     func add(data: Data)
     func register(delegate: FramerEventClient)
+    func createWriteFrame(opcode: FrameOpCode, payload: Data, isCompressed: Bool) -> Data
+    func updateCompression(supports: Bool)
+    func supportsCompression() -> Bool
 }
 
 public class WSFramer: Framer {
     private let queue = DispatchQueue(label: "com.vluxe.starscream.wsframer", attributes: [])
     private weak var delegate: FramerEventClient?
     private var buffer = Data()
-    private let supportsCompression = false //TODO: setup in init
+    public var compressionEnabled = false
+    
+    public init() {
+    }
+    
+    public func updateCompression(supports: Bool) {
+        compressionEnabled = supports
+    }
+    
+    public func supportsCompression() -> Bool {
+        return compressionEnabled
+    }
     
     enum ProcessEvent {
         case needsMoreData
@@ -102,7 +132,7 @@ public class WSFramer: Framer {
         let RSV1 = (RSVMask & pointer[0])
         var needsDecompression = false
         
-        if supportsCompression && opcode != .continueFrame {
+        if compressionEnabled && opcode != .continueFrame {
            needsDecompression = (RSV1Mask & pointer[0]) > 0
         }
         if (isMasked > 0 || RSV1 > 0) && opcode != .pong && !needsDecompression {
@@ -126,7 +156,7 @@ public class WSFramer: Framer {
             if payloadLen == 1 {
                 closeCode = CloseCode.protocolError.rawValue
             } else if payloadLen > 1 {
-                closeCode = readUint16(pointer, offset: offset)
+                closeCode = pointer.readUint16(offset: offset)
                 if closeCode < 1000 || (closeCode > 1003 && closeCode < 1007) || (closeCode > 1013 && closeCode < 3000) {
                     closeCode = CloseCode.protocolError.rawValue
                 }
@@ -138,10 +168,10 @@ public class WSFramer: Framer {
         
         var dataLength = UInt64(payloadLen)
         if payloadLen == 127 {
-            dataLength = readUint64(pointer, offset: offset)
+            dataLength = pointer.readUint64(offset: offset)
             offset += MemoryLayout<UInt64>.size
         } else if payloadLen == 126 {
-            dataLength = UInt64(readUint16(pointer, offset: offset))
+            dataLength = UInt64(pointer.readUint16(offset: offset))
             offset += MemoryLayout<UInt16>.size
         }
         
@@ -155,20 +185,112 @@ public class WSFramer: Framer {
         let payload = Data(bytes: pointer[offset...readDataLength])
         offset += readDataLength
 
-        let frame = Frame(isFin: isFin > 0, RSV1: RSV1 > 0, isMasked: isMasked > 0, opcode: opcode, payloadLength: dataLength, payload: payload)
+        let frame = Frame(isFin: isFin > 0, needsDecompression: needsDecompression, isMasked: isMasked > 0, opcode: opcode, payloadLength: dataLength, payload: payload, closeCode: closeCode)
         return .processedFrame(frame, offset)
     }
     
-    private func readUint16(_ buffer: [UInt8], offset: Int) -> UInt16 {
-        return (UInt16(buffer[offset + 0]) << 8) | UInt16(buffer[offset + 1])
+    public func createWriteFrame(opcode: FrameOpCode, payload: Data, isCompressed: Bool) -> Data {
+        let payloadLength = payload.count
+        
+        let frameBuffer = Data(capacity: payloadLength + MaxFrameSize)
+        var pointer = frameBuffer.withUnsafeBytes {
+            [UInt8](UnsafeBufferPointer(start: $0, count: frameBuffer.count))
+        }
+        
+        //set the framing info
+        pointer[0] = FinMask | opcode.rawValue
+        if isCompressed {
+             pointer[0] |= RSV1Mask
+        }
+        
+        var offset = 2 //skip pass the framing info
+        if payloadLength < 126 {
+            pointer[1] = CUnsignedChar(payloadLength)
+        } else if payloadLength <= Int(UInt16.max) {
+            pointer[1] = 126
+            writeUint16(&pointer, offset: offset, value: UInt16(payloadLength))
+            offset += MemoryLayout<UInt16>.size
+        } else {
+            pointer[1] = 127
+            writeUint64(&pointer, offset: offset, value: UInt64(payloadLength))
+            offset += MemoryLayout<UInt64>.size
+        }
+        pointer[1] |= MaskMask
+        
+        //write the random mask key in
+        let maskKey: UInt32 = UInt32.random(in: 0...UInt32.max)
+        writeUint32(&pointer, offset: offset, value: maskKey)
+        let maskStart = offset
+        offset += MemoryLayout<UInt32>.size
+        
+        //now write the payload data in
+        for i in 0..<payloadLength {
+            pointer[offset] = payload[i] ^ pointer[maskStart + (i % MemoryLayout<UInt32>.size)]
+            offset += 1
+        }
+        
+        return frameBuffer
+    }
+}
+
+/// MARK: - functions for simpler functino
+
+public protocol MyWSArrayType {}
+extension UInt8: MyWSArrayType {}
+
+public extension Array where Element: MyWSArrayType & UnsignedInteger {
+    
+    /**
+     Read a UInt16 from a buffer.
+     - parameter offset: is the offset index to start the read from (e.g. buffer[0], buffer[1], etc).
+     - returns: a UInt16 of the value from the buffer
+     */
+    public func readUint16(offset: Int) -> UInt16 {
+        return (UInt16(self[offset + 0]) << 8) | UInt16(self[offset + 1])
     }
     
-    private func readUint64(_ buffer: [UInt8], offset: Int) -> UInt64 {
+    /**
+     Read a UInt64 from a buffer.
+     - parameter offset: is the offset index to start the read from (e.g. buffer[0], buffer[1], etc).
+     - returns: a UInt64 of the value from the buffer
+     */
+    public func readUint64(offset: Int) -> UInt64 {
         var value = UInt64(0)
         for i in 0...7 {
-            value = (value << 8) | UInt64(buffer[offset + i])
+            value = (value << 8) | UInt64(self[offset + i])
         }
         return value
     }
+}
 
+/**
+ Write a UInt16 to the buffer. It fills the 2 array "slots" of the UInt8 array.
+ - parameter buffer: is the UInt8 array (pointer) to write the value too.
+ - parameter offset: is the offset index to start the write from (e.g. buffer[0], buffer[1], etc).
+ */
+public func writeUint16( _ buffer: inout [UInt8], offset: Int, value: UInt16) {
+    buffer[offset + 0] = UInt8(value >> 8)
+    buffer[offset + 1] = UInt8(value & 0xff)
+}
+
+/**
+ Write a UInt32 to the buffer. It fills the 4 array "slots" of the UInt8 array.
+ - parameter buffer: is the UInt8 array (pointer) to write the value too.
+ - parameter offset: is the offset index to start the write from (e.g. buffer[0], buffer[1], etc).
+ */
+public func writeUint32( _ buffer: inout [UInt8], offset: Int, value: UInt32) {
+    for i in 0...3 {
+        buffer[offset + i] = UInt8((value >> (8*UInt32(3 - i))) & 0xff)
+    }
+}
+
+/**
+ Write a UInt64 to the buffer. It fills the 8 array "slots" of the UInt8 array.
+ - parameter buffer: is the UInt8 array (pointer) to write the value too.
+ - parameter offset: is the offset index to start the write from (e.g. buffer[0], buffer[1], etc).
+ */
+public func writeUint64( _ buffer: inout [UInt8], offset: Int, value: UInt64) {
+    for i in 0...7 {
+        buffer[offset + i] = UInt8((value >> (8*UInt64(7 - i))) & 0xff)
+    }
 }

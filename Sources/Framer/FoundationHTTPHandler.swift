@@ -13,6 +13,10 @@ public class FoundationHTTPHandler: HTTPHandler {
     var buffer = Data()
     weak var delegate: HTTPHandlerDelegate?
     
+    public init() {
+        
+    }
+    
     public func convert(request: URLRequest) -> Data {
         let msg = CFHTTPMessageCreateRequest(kCFAllocatorDefault, request.httpMethod! as CFString,
                                              request.url! as CFURL, kCFHTTPVersion1_1).takeRetainedValue()
