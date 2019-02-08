@@ -99,7 +99,6 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         self.framer = framer
         self.httpHandler = httpHandler
         self.compressionHandler = compressionHandler
-
         framer.updateCompression(supports: compressionHandler != nil)
         frameHandler.delegate = self
     }
@@ -115,6 +114,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         transport.register(delegate: self)
         framer.register(delegate: self)
         httpHandler.register(delegate: self)
+        frameHandler.delegate = self
         guard let url = request.url else {
             return
         }
@@ -181,11 +181,13 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         switch state {
         case .connected:
             //TODO: compression header here...
-//            if enableCompression {
-//                let val = "permessage-deflate; client_max_window_bits; server_max_window_bits=15"
-//                request.setValue(val, forHTTPHeaderField: headerWSExtensionName)
-//            }
-            let data = httpHandler.createUpgrade(request: request)
+            //            if enableCompression {
+            //                let val = "permessage-deflate; client_max_window_bits; server_max_window_bits=15"
+            //                request.setValue(val, forHTTPHeaderField: headerWSExtensionName)
+            //            }
+            //TODO: secKeyName from the security object
+            let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: framer.supportsCompression(), secKeyName: "")
+            let data = httpHandler.convert(request: wsReq)
             transport.write(data: data, completion: {_ in })
         case .waiting:
             break //TODO: nothing ATM
@@ -221,6 +223,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             canSend = true
             mutex.signal()
             compressionHandler?.load(headers: headers)
+            //TODO: validate secKey header response
             
             callbackQueue.async { [weak self] in
                 guard let s = self else { return }

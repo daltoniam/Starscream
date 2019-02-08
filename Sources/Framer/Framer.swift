@@ -66,19 +66,24 @@ public protocol Framer {
     func register(delegate: FramerEventClient)
     func createWriteFrame(opcode: FrameOpCode, payload: Data, isCompressed: Bool) -> Data
     func updateCompression(supports: Bool)
+    func supportsCompression() -> Bool
 }
 
 public class WSFramer: Framer {
     private let queue = DispatchQueue(label: "com.vluxe.starscream.wsframer", attributes: [])
     private weak var delegate: FramerEventClient?
     private var buffer = Data()
-    public var supportsCompression = false
+    public var compressionEnabled = false
     
     public init() {
     }
     
     public func updateCompression(supports: Bool) {
-        supportsCompression = supports
+        compressionEnabled = supports
+    }
+    
+    public func supportsCompression() -> Bool {
+        return compressionEnabled
     }
     
     enum ProcessEvent {
@@ -127,7 +132,7 @@ public class WSFramer: Framer {
         let RSV1 = (RSVMask & pointer[0])
         var needsDecompression = false
         
-        if supportsCompression && opcode != .continueFrame {
+        if compressionEnabled && opcode != .continueFrame {
            needsDecompression = (RSV1Mask & pointer[0]) > 0
         }
         if (isMasked > 0 || RSV1 > 0) && opcode != .pong && !needsDecompression {
