@@ -20,7 +20,7 @@ class FuzzingTests: XCTestCase {
         let request = URLRequest(url: url)
         let s = MockServer()
         let transport = MockTransport(server: s)
-        websocket = WebSocketNew(URLRequest: request, transport: transport)
+        websocket = WebSocketNew(request: request, transport: transport)
         server = s
     }
     
@@ -42,6 +42,8 @@ class FuzzingTests: XCTestCase {
             case .connected(let headers):
                 serverAction()
             case .disconnected(_):
+                break
+            case .error(_):
                 break
             }
         }

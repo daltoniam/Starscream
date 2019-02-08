@@ -180,6 +180,11 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func connectionChanged(state: ConnectionState) {
         switch state {
         case .connected:
+            //TODO: compression header here...
+//            if enableCompression {
+//                let val = "permessage-deflate; client_max_window_bits; server_max_window_bits=15"
+//                request.setValue(val, forHTTPHeaderField: headerWSExtensionName)
+//            }
             let data = httpHandler.createUpgrade(request: request)
             transport.write(data: data, completion: {_ in })
         case .waiting:
@@ -240,8 +245,8 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     
     // MARK: - FrameCollectorDelegate
     
-    public func decompress(data: Data) -> Data? {
-        return compressionHandler?.decompress(data: data)
+    public func decompress(data: Data, isFinal: Bool) -> Data? {
+        return compressionHandler?.decompress(data: data, isFinal: isFinal)
     }
     
     public func didForm(event: FrameCollector.Event) {

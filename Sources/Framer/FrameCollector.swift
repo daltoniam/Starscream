@@ -24,7 +24,7 @@ import Foundation
 
 public protocol FrameCollectorDelegate: class {
     func didForm(event: FrameCollector.Event)
-    func decompress(data: Data) -> Data?
+    func decompress(data: Data, isFinal: Bool) -> Data?
 }
 
 public class FrameCollector {
@@ -75,7 +75,7 @@ public class FrameCollector {
         
         let payload: Data
         if needsDecompression {
-            payload = delegate?.decompress(data: frame.payload) ?? frame.payload
+            payload = delegate?.decompress(data: frame.payload, isFinal: frame.isFin) ?? frame.payload
         } else {
             payload = frame.payload
         }
