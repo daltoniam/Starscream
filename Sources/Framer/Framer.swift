@@ -248,7 +248,7 @@ public class WSFramer: Framer {
             offset += 1
         }
         
-        return Data(bytes: pointer[0...offset])
+        return Data(bytes: pointer[0..<offset])
     }
 }
 
