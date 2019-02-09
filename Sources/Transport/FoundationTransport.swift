@@ -25,6 +25,7 @@ import Foundation
 public enum FoundationTransportError: Error {
     case invalidRequest
     case invalidOutputStream
+    case timeout
 }
 
 public class FoundationTransport: NSObject, Transport, StreamDelegate {
@@ -32,6 +33,14 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     private let workQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
+    private var isOpen = false
+    private var onConnect: ((InputStream, OutputStream) -> Void)?
+    
+    public init(streamConfiguration: ((InputStream, OutputStream) -> Void)? = nil) {
+        super.init()
+        onConnect = streamConfiguration
+        
+    }
     
      public func connect(url: URL, timeout: Double = 10, isTLS: Bool = true) {
         guard let host = url.host, let port = url.port else {
@@ -50,19 +59,38 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         }
         inStream.delegate = self
         outStream.delegate = self
+    
+        onConnect?(inStream, outStream)
         
-        //TODO: all the stream configuration that can happen here...
-        
+        isOpen = false
         CFReadStreamSetDispatchQueue(inStream, workQueue)
         CFWriteStreamSetDispatchQueue(outStream, workQueue)
         inStream.open()
         outStream.open()
         
-        //TODO: timeout support
+        
+        workQueue.asyncAfter(deadline: .now() + timeout, execute: { [weak self] in
+            guard let s = self else { return }
+            if !s.isOpen {
+                s.delegate?.connectionChanged(state: .failed(FoundationTransportError.timeout))
+            }
+        })
     }
     
     public func disconnect() {
-
+        if let stream = inputStream {
+            stream.delegate = nil
+            CFReadStreamSetDispatchQueue(stream, nil)
+            stream.close()
+        }
+        if let stream = outputStream {
+            stream.delegate = nil
+            CFWriteStreamSetDispatchQueue(stream, nil)
+            stream.close()
+        }
+        isOpen = false
+        outputStream = nil
+        inputStream = nil
     }
     
     public func register(delegate: TransportEventClient) {
@@ -114,11 +142,18 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         case .errorOccurred:
             delegate?.connectionChanged(state: .failed(aStream.streamError))
         case .endEncountered:
-            delegate?.connectionChanged(state: .cancelled)
+            if aStream == inputStream {
+                delegate?.connectionChanged(state: .cancelled)
+            }
         case .openCompleted:
-            delegate?.connectionChanged(state: .connected)
+            if aStream == inputStream {
+                isOpen = true
+                delegate?.connectionChanged(state: .connected)
+            }
         case .endEncountered:
-            delegate?.connectionChanged(state: .cancelled)
+            if aStream == inputStream {
+                delegate?.connectionChanged(state: .cancelled)
+            }
         default:
             break
         }

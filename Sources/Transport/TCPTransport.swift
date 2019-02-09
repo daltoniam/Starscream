@@ -40,8 +40,11 @@ public class TCPTransport: Transport {
             delegate?.connectionChanged(state: .failed(TCPTransportError.invalidRequest))
             return
         }
-        //TODO: timeout?
-        let parameters: NWParameters = isTLS ? .tls : .tcp
+        let options = NWProtocolTCP.Options()
+        options.connectionTimeout = Int(timeout.rounded(.up))
+
+        let tlsOptions = isTLS ? NWProtocolTLS.Options() : nil
+        let parameters = NWParameters(tls: tlsOptions, tcp:NWProtocolTCP.Options())
         let conn = NWConnection(host: NWEndpoint.Host.name(host, nil), port: NWEndpoint.Port(rawValue: UInt16(port))!, using: parameters)
 
         conn.stateUpdateHandler = { [weak self] (newState) in

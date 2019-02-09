@@ -11,6 +11,7 @@ import Starscream
 
 class ViewController: UIViewController, WebSocketDelegate {
     var socket: WebSocket!
+    var isConnected = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,8 +26,10 @@ class ViewController: UIViewController, WebSocketDelegate {
     func didReceive(event: WebSocketEvent, client: WebSocket) {
         switch event {
         case .connected(let headers):
-            print("websocket is connected")
+            isConnected = true
+            print("websocket is connected: \(headers)")
         case .disconnected(let reason, let code):
+            isConnected = false
             print("websocket is disconnected: \(reason) with code: \(code)")
         case .text(let string):
             print("Received text: \(string)")
@@ -36,7 +39,14 @@ class ViewController: UIViewController, WebSocketDelegate {
             break
         case .pong(_):
             break
+        case .viablityChanged(_):
+            break
+        case .reconnectSuggested(_):
+            break
+        case .cancelled:
+            isConnected = false
         case .error(let error):
+            isConnected = false
             handleError(error)
         }
     }
@@ -60,13 +70,13 @@ class ViewController: UIViewController, WebSocketDelegate {
     // MARK: Disconnect Action
     
     @IBAction func disconnect(_ sender: UIBarButtonItem) {
-//        if socket.isConnected {
-//            sender.title = "Connect"
-//            socket.disconnect()
-//        } else {
-//            sender.title = "Disconnect"
-//            socket.connect()
-//        }
+        if isConnected {
+            sender.title = "Connect"
+            socket.disconnect()
+        } else {
+            sender.title = "Disconnect"
+            socket.connect()
+        }
     }
     
 }

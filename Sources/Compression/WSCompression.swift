@@ -44,9 +44,7 @@ public class WSCompression: CompressionHandler {
         let parts = extensionHeader.components(separatedBy: ";")
         for p in parts {
             let part = p.trimmingCharacters(in: .whitespaces)
-            if part == "permessage-deflate" {
-                //TODO: keep this or remove? compressionState.supportsCompression = true
-            } else if part.hasPrefix("server_max_window_bits=") {
+            if part.hasPrefix("server_max_window_bits=") {
                 let valString = part.components(separatedBy: "=")[1]
                 if let val = Int(valString.trimmingCharacters(in: .whitespaces)) {
                     decompressor = Decompressor(windowBits: val)
