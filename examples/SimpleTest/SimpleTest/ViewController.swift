@@ -21,28 +21,34 @@ class ViewController: UIViewController, WebSocketDelegate {
         socket.connect()
     }
     
-    // MARK: Websocket Delegate Methods.
-    
-    func websocketDidConnect(socket: WebSocketClient) {
-        print("websocket is connected")
-    }
-    
-    func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
-        if let e = error as? WSError {
-            print("websocket is disconnected: \(e.message)")
-        } else if let e = error {
-            print("websocket is disconnected: \(e.localizedDescription)")
-        } else {
-             print("websocket disconnected")
+    // MARK: - WebSocketDelegate
+    func didReceive(event: WebSocketEvent, client: WebSocket) {
+        switch event {
+        case .connected(let headers):
+            print("websocket is connected")
+        case .disconnected(let reason, let code):
+            print("websocket is disconnected: \(reason) with code: \(code)")
+        case .text(let string):
+            print("Received text: \(string)")
+        case .binary(let data):
+            print("Received data: \(data.count)")
+        case .ping(_):
+            break
+        case .pong(_):
+            break
+        case .error(let error):
+            handleError(error)
         }
     }
     
-    func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        print("Received text: \(text)")
-    }
-    
-    func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
-        print("Received data: \(data.count)")
+    func handleError(_ error: Error?) {
+        if let e = error as? WSError {
+            print("websocket encountered an error: \(e.message)")
+        } else if let e = error {
+            print("websocket encountered an error: \(e.localizedDescription)")
+        } else {
+            print("websocket encountered an error")
+        }
     }
     
     // MARK: Write Text Action
@@ -54,13 +60,13 @@ class ViewController: UIViewController, WebSocketDelegate {
     // MARK: Disconnect Action
     
     @IBAction func disconnect(_ sender: UIBarButtonItem) {
-        if socket.isConnected {
-            sender.title = "Connect"
-            socket.disconnect()
-        } else {
-            sender.title = "Disconnect"
-            socket.connect()
-        }
+//        if socket.isConnected {
+//            sender.title = "Connect"
+//            socket.disconnect()
+//        } else {
+//            sender.title = "Disconnect"
+//            socket.connect()
+//        }
     }
     
 }

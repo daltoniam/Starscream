@@ -50,7 +50,7 @@ public class FoundationHTTPHandler: HTTPHandler {
         if !CFHTTPMessageAppendBytes(response, pointer, data.count) {
             return false //not enough data, wait for more
         }
-        if CFHTTPMessageIsHeaderComplete(response) {
+        if !CFHTTPMessageIsHeaderComplete(response) {
             return false //not enough data, wait for more
         }
         

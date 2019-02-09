@@ -66,6 +66,7 @@ public class FrameCollector {
         } else if !buffer.isEmpty && frame.opcode != .continueFrame {
             let errCode = CloseCode.protocolError.rawValue
             delegate?.didForm(event: .error(WSError(type: .protocolError, message: "second and beyond of fragment message must be a continue frame", code: Int(errCode))))
+            buffer = Data()
             return
         }
         if buffer.isEmpty {

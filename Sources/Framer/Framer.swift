@@ -30,6 +30,20 @@ let MaskMask: UInt8         = 0x80
 let PayloadLenMask: UInt8   = 0x7F
 let MaxFrameSize: Int       = 32
 
+// Standard WebSocket close codes
+public enum CloseCode: UInt16 {
+    case normal                 = 1000
+    case goingAway              = 1001
+    case protocolError          = 1002
+    case protocolUnhandledType  = 1003
+    // 1004 reserved.
+    case noStatusReceived       = 1005
+    //1006 reserved.
+    case encoding               = 1007
+    case policyViolated         = 1008
+    case messageTooBig          = 1009
+}
+
 public enum FrameOpCode: UInt8 {
     case continueFrame = 0x0
     case textFrame = 0x1
@@ -102,8 +116,12 @@ public class WSFramer: Framer {
                     return
                 case .processedFrame(let frame, let split):
                     guard let s = self else { return }
-                    s.buffer = s.buffer.advanced(by: split)
                     s.delegate?.frameProcessed(event: .frame(frame))
+                    if split >= s.buffer.count {
+                        s.buffer = Data()
+                        return
+                    }
+                    s.buffer = s.buffer.advanced(by: split)
                 case .failed(let error):
                     self?.delegate?.frameProcessed(event: .error(error))
                     self?.buffer = Data()
@@ -192,9 +210,9 @@ public class WSFramer: Framer {
     public func createWriteFrame(opcode: FrameOpCode, payload: Data, isCompressed: Bool) -> Data {
         let payloadLength = payload.count
         
-        let frameBuffer = Data(capacity: payloadLength + MaxFrameSize)
-        var pointer = frameBuffer.withUnsafeBytes {
-            [UInt8](UnsafeBufferPointer(start: $0, count: frameBuffer.count))
+        let capacity = payloadLength + MaxFrameSize
+        var pointer = Data(capacity: capacity).withUnsafeBytes {
+            [UInt8](UnsafeBufferPointer(start: $0, count: capacity))
         }
         
         //set the framing info
@@ -205,7 +223,7 @@ public class WSFramer: Framer {
         
         var offset = 2 //skip pass the framing info
         if payloadLength < 126 {
-            pointer[1] = CUnsignedChar(payloadLength)
+            pointer[1] = UInt8(payloadLength)
         } else if payloadLength <= Int(UInt16.max) {
             pointer[1] = 126
             writeUint16(&pointer, offset: offset, value: UInt16(payloadLength))
@@ -219,6 +237,7 @@ public class WSFramer: Framer {
         
         //write the random mask key in
         let maskKey: UInt32 = UInt32.random(in: 0...UInt32.max)
+        
         writeUint32(&pointer, offset: offset, value: maskKey)
         let maskStart = offset
         offset += MemoryLayout<UInt32>.size
@@ -229,11 +248,11 @@ public class WSFramer: Framer {
             offset += 1
         }
         
-        return frameBuffer
+        return Data(bytes: pointer[0...offset])
     }
 }
 
-/// MARK: - functions for simpler functino
+/// MARK: - functions for simpler array buffer reading and writing
 
 public protocol MyWSArrayType {}
 extension UInt8: MyWSArrayType {}

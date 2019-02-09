@@ -71,6 +71,11 @@ public struct HTTPWSHeader {
         req.setValue(hostValue, forHTTPHeaderField: HTTPWSHeader.hostName)
         return req
     }
+    
+    // generateWebSocketKey 16 random characters between a-z and return them as a base64 string
+    public static func generateWebSocketKey() -> String {
+        return Data(bytes: (0..<16).map{ _ in UInt8.random(in: 97...122) }).base64EncodedString()
+    }
 }
 
 public enum HTTPEvent {

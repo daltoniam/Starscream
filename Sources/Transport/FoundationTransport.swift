@@ -106,14 +106,21 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     // MARK: - StreamDelegate
     
     open func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        if eventCode == .hasBytesAvailable {
+        switch eventCode {
+        case .hasBytesAvailable:
             if aStream == inputStream {
                 read()
             }
-        } else if eventCode == .errorOccurred {
+        case .errorOccurred:
             delegate?.connectionChanged(state: .failed(aStream.streamError))
-        } else if eventCode == .endEncountered {
+        case .endEncountered:
             delegate?.connectionChanged(state: .cancelled)
+        case .openCompleted:
+            delegate?.connectionChanged(state: .connected)
+        case .endEncountered:
+            delegate?.connectionChanged(state: .cancelled)
+        default:
+            break
         }
     }
 }
