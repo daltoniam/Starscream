@@ -1265,6 +1265,9 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 }
                 let stream = self.stream
                 let writeBuffer = UnsafeRawPointer(frame!.bytes+total).assumingMemoryBound(to: UInt8.self)
+                // Since we are inside of a executionBlock, the connection state might have changed, so we always want to make sure that
+                // we are still connected and therefore the tcp-filedescriptor is still valid, to prevent crashes.
+                guard self.isConnected else { return }
                 let len = stream.write(data: Data(bytes: writeBuffer, count: offset-total))
                 if len <= 0 {
                     self.doDisconnect(WSError(type: .outputStreamWriteError, message: "output stream had an error during write", code: 0))
