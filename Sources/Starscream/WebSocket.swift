@@ -28,7 +28,7 @@ public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotificat
 public let WebsocketDisconnectionErrorKeyName = "WebsocketDisconnectionErrorKeyName"
 
 //Standard WebSocket close codes
-public enum CloseCode : UInt16 {
+@objc public enum CloseCode : UInt16 {
     case normal                 = 1000
     case goingAway              = 1001
     case protocolError          = 1002
@@ -58,6 +58,7 @@ public struct WSError: Error {
 }
 
 //WebSocketClient is setup to be dependency injection for testing
+@objc(WebSocketClient)
 public protocol WebSocketClient: class {
     var delegate: WebSocketDelegate? {get set}
     var pongDelegate: WebSocketPongDelegate? {get set}
@@ -73,7 +74,7 @@ public protocol WebSocketClient: class {
     var isConnected: Bool {get}
     
     func connect()
-    func disconnect(forceTimeout: TimeInterval?, closeCode: UInt16)
+    func disconnect(forceTimeout: TimeInterval, closeCode: UInt16)
     func write(string: String, completion: (() -> ())?)
     func write(data: Data, completion: (() -> ())?)
     func write(ping: Data, completion: (() -> ())?)
@@ -99,12 +100,25 @@ extension WebSocketClient {
     }
     
     public func disconnect() {
-        disconnect(forceTimeout: nil, closeCode: CloseCode.normal.rawValue)
+        disconnect(forceTimeout: 0, closeCode: CloseCode.normal.rawValue)
     }
 }
 
 //SSL settings for the stream
-public struct SSLSettings {
+@objc(SSLSettings)
+public class SSLSettings : NSObject {
+    public  init(useSSL:Bool, disableCertValidation: Bool,
+                         overrideTrustHostname: Bool,
+                         desiredTrustHostname: String,
+                         sslClientCertificate: SSLClientCertificate,
+                         cipherSuites: [SSLCipherSuite]) {
+        self.useSSL = useSSL;
+        self.disableCertValidation = disableCertValidation;
+        self.overrideTrustHostname = overrideTrustHostname;
+        self.sslClientCertificate = sslClientCertificate;
+        self.cipherSuites = cipherSuites;
+        
+    }
     public let useSSL: Bool
     public let disableCertValidation: Bool
     public var overrideTrustHostname: Bool
@@ -116,12 +130,14 @@ public struct SSLSettings {
     #endif
 }
 
+@objc(WSStreamDelegate)
 public protocol WSStreamDelegate: class {
     func newBytesInStream()
     func streamDidError(error: Error?)
 }
 
 //This protocol is to allow custom implemention of the underlining stream. This way custom socket libraries (e.g. linux) can be used
+@objc(WSStream)
 public protocol WSStream {
     var delegate: WSStreamDelegate? {get set}
     func connect(url: URL, port: Int, timeout: TimeInterval, ssl: SSLSettings, completion: @escaping ((Error?) -> Void))
@@ -130,11 +146,14 @@ public protocol WSStream {
     func cleanup()
     #if os(Linux) || os(watchOS)
     #else
-    func sslTrust() -> (trust: SecTrust?, domain: String?)
+    func sslTrust() -> (Dictionary<String,Any>)
     #endif
 }
 
+@objc(FoundationStream)
 open class FoundationStream : NSObject, WSStream, StreamDelegate  {
+    
+    
     private let workQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
@@ -269,8 +288,8 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     
     #if os(Linux) || os(watchOS)
     #else
-    public func sslTrust() -> (trust: SecTrust?, domain: String?) {
-        guard let outputStream = outputStream else { return (nil, nil) }
+    public func sslTrust() -> (Dictionary<String,Any>) {
+        guard let outputStream = outputStream else { return Dictionary<String,Any>() }
 
         let trust = outputStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust?
         var domain = outputStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as! String?
@@ -287,7 +306,11 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
             }
         }
         
-        return (trust, domain)
+        var result = Dictionary<String,Any>()
+        result["trust"] = trust
+        result["domain"] = domain
+        
+        return result
     }
     #endif
     
@@ -310,6 +333,7 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
 //WebSocket implementation
 
 //standard delegate you should use
+@objc(WebSocketDelegate)
 public protocol WebSocketDelegate: class {
     func websocketDidConnect(socket: WebSocketClient)
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?)
@@ -318,11 +342,13 @@ public protocol WebSocketDelegate: class {
 }
 
 //got pongs
+@objc(WebSocketPongDelegate)
 public protocol WebSocketPongDelegate: class {
     func websocketDidReceivePong(socket: WebSocketClient, data: Data?)
 }
 
 // A Delegate with more advanced info on messages and connection etc.
+@objc(WebSocketAdvancedDelegate)
 public protocol WebSocketAdvancedDelegate: class {
     func websocketDidConnect(socket: WebSocket)
     func websocketDidDisconnect(socket: WebSocket, error: Error?)
@@ -332,7 +358,7 @@ public protocol WebSocketAdvancedDelegate: class {
     func websocketHttpUpgrade(socket: WebSocket, response: String)
 }
 
-
+@objc(WebSocket)
 open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelegate {
 
     public enum OpCode : UInt8 {
@@ -376,7 +402,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     let httpSwitchProtocolCode  = 101
     let supportedSSLSchemes     = ["wss", "https"]
 
-    public class WSResponse {
+    @objc(WSResponse)
+    public class WSResponse : NSObject {
         var isFin = false
         public var code: OpCode = .continueFrame
         var bytesLeft = 0
@@ -463,7 +490,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     }
     
     /// Used for setting protocols.
-    public init(request: URLRequest, protocols: [String]? = nil, stream: WSStream = FoundationStream()) {
+    @objc public init(request: URLRequest, protocols: [String]? = nil, stream: WSStream = FoundationStream()) {
         self.request = request
         self.stream = stream
         if request.value(forHTTPHeaderField: headerOriginName) == nil {
@@ -513,20 +540,17 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      - Parameter forceTimeout: Maximum time to wait for the server to close the socket.
      - Parameter closeCode: The code to send on disconnect. The default is the normal close code for cleanly disconnecting a webSocket.
     */
-    open func disconnect(forceTimeout: TimeInterval? = nil, closeCode: UInt16 = CloseCode.normal.rawValue) {
+    open func disconnect(forceTimeout: TimeInterval, closeCode: UInt16 = CloseCode.normal.rawValue) {
         guard isConnected else { return }
-        switch forceTimeout {
-        case .some(let seconds) where seconds > 0:
+        
+        let seconds = forceTimeout;
+        if forceTimeout > 0 {
             let milliseconds = Int(seconds * 1_000)
             callbackQueue.asyncAfter(deadline: .now() + .milliseconds(milliseconds)) { [weak self] in
                 self?.disconnectStream(nil)
             }
-            fallthrough
-        case .none:
-            writeError(closeCode)
-        default:
+        } else {
             disconnectStream(nil)
-            break
         }
     }
 
@@ -663,9 +687,9 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             let settings = SSLSettings(useSSL: useSSL,
                                        disableCertValidation: disableSSLCertValidation,
                                        overrideTrustHostname: overrideTrustHostname,
-                                       desiredTrustHostname: desiredTrustHostname,
-                                       sslClientCertificate: sslClientCertificate,
-                                       cipherSuites: self.enabledSSLCipherSuites)
+                                       desiredTrustHostname: desiredTrustHostname!,
+                                       sslClientCertificate: sslClientCertificate!,
+                                       cipherSuites: self.enabledSSLCipherSuites!)
         #endif
         certValidated = !useSSL
         let timeout = request.timeoutInterval * 1_000_000
@@ -686,8 +710,8 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 #else
                     if let sec = self.security, !self.certValidated {
                         let trustObj = self.stream.sslTrust()
-                        if let possibleTrust = trustObj.trust {
-                            self.certValidated = sec.isValid(possibleTrust, domain: trustObj.domain)
+                        if let possibleTrust = trustObj["trust"] {
+                            self.certValidated = sec.isValid(possibleTrust as! SecTrust, domain: trustObj["domain"] as! String)
                         } else {
                             self.certValidated = false
                         }

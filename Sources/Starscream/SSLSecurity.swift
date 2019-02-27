@@ -24,6 +24,7 @@
 import Foundation
 import Security
 
+@objc(SSLTrustValidator)
 public protocol SSLTrustValidator {
     func isValid(_ trust: SecTrust, domain: String?) -> Bool
 }

@@ -16,7 +16,8 @@ public struct SSLClientCertificateError: LocalizedError {
     }
 }
 
-public class SSLClientCertificate {
+@objc(SSLClientCertificate)
+public class SSLClientCertificate : NSObject {
     internal let streamSSLCertificates: NSArray
 
     /**

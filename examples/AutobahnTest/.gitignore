@@ -25,3 +25,4 @@ DerivedData
 *.hmap
 *.xccheckout
 *.xcodeproj/*.xcworkspace
+examples/
