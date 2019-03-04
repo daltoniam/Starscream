@@ -339,6 +339,7 @@ public protocol WebSocketDelegate: class {
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?)
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String)
     func websocketDidReceiveData(socket: WebSocketClient, data: Data)
+    func websocketDidReceivePing(socket: WebSocketClient, data: Data)
 }
 
 //got pongs
@@ -1190,6 +1191,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     private func processResponse(_ response: WSResponse) -> Bool {
         if response.isFin && response.bytesLeft <= 0 {
             if response.code == .ping {
+                self.delegate?.websocketDidReceivePing(socket: self, data: response.buffer! as Data)
                 if respondToPingWithPong {
                     let data = response.buffer! // local copy so it is perverse for writing
                     dequeueWrite(data as Data, code: .pong)
