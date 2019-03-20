@@ -6,6 +6,20 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		BA16AD91224217350000821C /* Startscream_iOS_Universal */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = BA16AD94224217350000821C /* Build configuration list for PBXAggregateTarget "Startscream_iOS_Universal" */;
+			buildPhases = (
+				BA16AD95224217410000821C /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = Startscream_iOS_Universal;
+			productName = Startscream_iOS_Universal;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		335FA1F91F5DF71D00F6D2EC /* CompressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */; };
 		335FA1FA1F5DF71D00F6D2EC /* StarscreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */; };
@@ -195,6 +209,7 @@
 			targets = (
 				33CCF0841F5DDC030099B092 /* Starscream */,
 				335FA1F41F5DF71D00F6D2EC /* Starscream Tests */,
+				BA16AD91224217350000821C /* Startscream_iOS_Universal */,
 			);
 		};
 /* End PBXProject section */
@@ -215,6 +230,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		BA16AD95224217410000821C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\nUNIVERSAL_DIR=\"${BUILD_DIR}/${CONFIGURATION}-universal\"\n\n# Make sure the output directory exists\nmkdir -p \"${UNIVERSAL_DIR}\"\n\n# Next, work out if we're in SIM or DEVICE\nxcodebuild -target \"${PROJECT_NAME}\" -configuration ${CONFIGURATION} -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\nxcodebuild -target \"${PROJECT_NAME}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphoneos  BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\n# Copy the framework structure (from iphoneos build) to the universal folder\ncp -r \"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${PROJECT_NAME}.framework\" \"${UNIVERSAL_DIR}/\"\n\n# Copy Swift modules from iphonesimulator build (if it exists) to the copied framework directory\nSIMULATOR_SWIFT_MODULES_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${PROJECT_NAME}.framework/Modules/${PROJECT_NAME}.swiftmodule/.\"\nif [ -d \"${SIMULATOR_SWIFT_MODULES_DIR}\" ]; then\ncp -R \"${SIMULATOR_SWIFT_MODULES_DIR}\" \"${UNIVERSAL_DIR}/${PROJECT_NAME}.framework/Modules/${PROJECT_NAME}.swiftmodule\"\nfi\n\n# Create universal binary file using lipo and place the combined executable in the copied framework directory\nlipo -create -output \"${UNIVERSAL_DIR}/${PROJECT_NAME}.framework/${PROJECT_NAME}\" \"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${PROJECT_NAME}.framework/${PROJECT_NAME}\" \"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${PROJECT_NAME}.framework/${PROJECT_NAME}\"\n\necho \"You can find universal framework here ${UNIVERSAL_DIR}/${PROJECT_NAME}.framework\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		335FA1F51F5DF71D00F6D2EC /* Sources */ = {
@@ -464,6 +499,15 @@
 			buildConfigurations = (
 				6B3E79F719D48B7F006071F7 /* Debug */,
 				6B3E79F819D48B7F006071F7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BA16AD94224217350000821C /* Build configuration list for PBXAggregateTarget "Startscream_iOS_Universal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA16AD92224217350000821C /* Debug */,
+				BA16AD93224217350000821C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
