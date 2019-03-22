@@ -91,6 +91,10 @@ public class TCPTransport: Transport {
         })
     }
     
+    public func getSecurityData() -> SecurityData? {
+        return nil
+    }
+    
     //readLoop keeps reading from the connection to get the latest content
     private func readLoop() {
         if !isRunning {

@@ -49,4 +49,5 @@ public protocol Transport: class {
     func connect(url: URL, timeout: Double, isTLS: Bool)
     func disconnect()
     func write(data: Data, completion: @escaping ((Error?) -> ()))
+    func getSecurityData() -> SecurityData?
 }

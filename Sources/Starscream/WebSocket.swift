@@ -3,7 +3,7 @@
 //  Websocket.swift
 //
 //  Created by Dalton Cherry on 7/16/14.
-//  Copyright (c) 2014-2017 Dalton Cherry.
+//  Copyright (c) 2014-2019 Dalton Cherry.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import Foundation
 
 public enum ErrorType: Error {
     case compressionError
+    case securityError
     case protocolError //There was an error parsing the WebSocket frames
 }
 
@@ -88,9 +89,10 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private let framer: Framer
     private let httpHandler: HTTPHandler
     private let compressionHandler: CompressionHandler?
+    private let secHandler: Security
     private let frameHandler = FrameCollector()
     private var didUpgrade = false
-    private var secKeyName = ""
+    private var secKeyValue = ""
     
     public weak var delegate: WebSocketDelegate?
     public var onEvent: ((WebSocketEvent) -> Void)?
@@ -103,9 +105,8 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private let writeQueue = DispatchQueue(label: "com.vluxe.starscream.writequeue")
     private var canSend = false
     private let mutex = DispatchSemaphore(value: 1)
-    // TODO: security class to do all the security things
     
-    public init(request: URLRequest, transport: Transport,
+    public init(request: URLRequest, transport: Transport, security: Security,
                 httpHandler: HTTPHandler = FoundationHTTPHandler(),
                 framer: Framer = WSFramer(),
                 compressionHandler: CompressionHandler? = nil) {
@@ -113,6 +114,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         self.transport = transport
         self.framer = framer
         self.httpHandler = httpHandler
+        self.secHandler = security
         self.compressionHandler = compressionHandler
         framer.updateCompression(supports: compressionHandler != nil)
         frameHandler.delegate = self
@@ -120,9 +122,9 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     
     public convenience init(request: URLRequest) {
         if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
-            self.init(request: request, transport: TCPTransport())
+            self.init(request: request, transport: TCPTransport(), security: FoundationSecurity())
         } else {
-            self.init(request: request, transport: FoundationTransport())
+            self.init(request: request, transport: FoundationTransport(), security: FoundationSecurity())
         }
     }
     
@@ -213,8 +215,13 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func connectionChanged(state: ConnectionState) {
         switch state {
         case .connected:
-            secKeyName = HTTPWSHeader.generateWebSocketKey()
-            let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: framer.supportsCompression(), secKeyName: secKeyName)
+            if !secHandler.isValid(data: transport.getSecurityData()) {
+                let error = WSError(type: .securityError, message: "ssl pinning host doesn't match", code: SecurityErrorCode.pinningFailed.rawValue)
+                handleError(error)
+                return
+            }
+            secKeyValue = HTTPWSHeader.generateWebSocketKey()
+            let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: framer.supportsCompression(), secKeyValue: secKeyValue)
             let data = httpHandler.convert(request: wsReq)
             transport.write(data: data, completion: {_ in })
         case .waiting:
@@ -241,10 +248,9 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func didReceiveHTTP(event: HTTPEvent) {
         switch event {
         case .success(let headers):
-            if let acceptKey = headers[HTTPWSHeader.acceptName.lowercased()] {
-                //TODO: validate secKeyName header response with security class
-                //let sha = "\(secKeyName)258EAFA5-E914-47DA-95CA-C5AB0DC85B11".sha1Base64()
-                //if sha != acceptKey {fail...}
+            if let error = secHandler.validate(headers: headers, key: secKeyValue) {
+                handleError(error)
+                return
             }
             mutex.wait()
             didUpgrade = true

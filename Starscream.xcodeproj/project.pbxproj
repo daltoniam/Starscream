@@ -13,6 +13,8 @@
 		33CCF08A1F5DDC030099B092 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5C23C24521FBB0EE00D315F1 /* FoundationHTTPHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C23C24421FBB0EE00D315F1 /* FoundationHTTPHandler.swift */; };
+		8A1681A7223D8664000C08D8 /* Security.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1681A6223D8664000C08D8 /* Security.swift */; };
+		8A1681A9223D8707000C08D8 /* FoundationSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1681A8223D8707000C08D8 /* FoundationSecurity.swift */; };
 		8A7A718821F8E1490061166D /* Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A718721F8E1490061166D /* Transport.swift */; };
 		8A7A718A21F8E23C0061166D /* TCPTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A718921F8E23C0061166D /* TCPTransport.swift */; };
 		8A7A718C21F8F9790061166D /* FoundationTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A718B21F8F9790061166D /* FoundationTransport.swift */; };
@@ -40,6 +42,8 @@
 		5C23C24421FBB0EE00D315F1 /* FoundationHTTPHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationHTTPHandler.swift; sourceTree = "<group>"; };
 		6B3E7A0019D48C2F006071F7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StarscreamTests.swift; path = StarscreamTests/StarscreamTests.swift; sourceTree = "<group>"; };
+		8A1681A6223D8664000C08D8 /* Security.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security.swift; sourceTree = "<group>"; };
+		8A1681A8223D8707000C08D8 /* FoundationSecurity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationSecurity.swift; sourceTree = "<group>"; };
 		8A7A718721F8E1490061166D /* Transport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Transport.swift; path = Transport/Transport.swift; sourceTree = "<group>"; };
 		8A7A718921F8E23C0061166D /* TCPTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TCPTransport.swift; path = Transport/TCPTransport.swift; sourceTree = "<group>"; };
 		8A7A718B21F8F9790061166D /* FoundationTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FoundationTransport.swift; path = Transport/FoundationTransport.swift; sourceTree = "<group>"; };
@@ -103,7 +107,7 @@
 				8A7A718D21F924BF0061166D /* Framer */,
 				8A7A718621F8DB930061166D /* Transport */,
 				8A7A718521F8DB810061166D /* Compression */,
-				8A7A718421F8DB660061166D /* Security */,
+				8A1681A5223D8648000C08D8 /* Security */,
 				BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */,
 				BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */,
 				BBB5ABE4215E2217005B48B6 /* WebSocket.swift */,
@@ -134,11 +138,13 @@
 			path = Tests;
 			sourceTree = "<group>";
 		};
-		8A7A718421F8DB660061166D /* Security */ = {
+		8A1681A5223D8648000C08D8 /* Security */ = {
 			isa = PBXGroup;
 			children = (
+				8A1681A6223D8664000C08D8 /* Security.swift */,
+				8A1681A8223D8707000C08D8 /* FoundationSecurity.swift */,
 			);
-			name = Security;
+			path = Security;
 			sourceTree = "<group>";
 		};
 		8A7A718521F8DB810061166D /* Compression */ = {
@@ -304,7 +310,9 @@
 			files = (
 				8A7A719321FA42BA0061166D /* HTTPHandler.swift in Sources */,
 				8A7A719121FA3DCD0061166D /* FrameCollector.swift in Sources */,
+				8A1681A7223D8664000C08D8 /* Security.swift in Sources */,
 				8A7A718A21F8E23C0061166D /* TCPTransport.swift in Sources */,
+				8A1681A9223D8707000C08D8 /* FoundationSecurity.swift in Sources */,
 				8A7A718C21F8F9790061166D /* FoundationTransport.swift in Sources */,
 				BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */,
 				8A7A718F21F924D40061166D /* Framer.swift in Sources */,

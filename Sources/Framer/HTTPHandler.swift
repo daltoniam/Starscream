@@ -34,7 +34,7 @@ public struct HTTPWSHeader {
     /// - Parameter supportsCompression: set if the client support text compression.
     /// - Parameter secKeyName: the security key to use in the WebSocket request. https://tools.ietf.org/html/rfc6455#section-1.3
     /// - returns: A URLRequest request to be converted to data and sent to the server.
-    public static func createUpgrade(request: URLRequest, supportsCompression: Bool, secKeyName: String) -> URLRequest {
+    public static func createUpgrade(request: URLRequest, supportsCompression: Bool, secKeyValue: String) -> URLRequest {
         guard let url = request.url, let host = url.host, let scheme = url.scheme else {
             return request
         }
@@ -61,7 +61,7 @@ public struct HTTPWSHeader {
         req.setValue(HTTPWSHeader.upgradeValue, forHTTPHeaderField: HTTPWSHeader.upgradeName)
         req.setValue(HTTPWSHeader.connectionValue, forHTTPHeaderField: HTTPWSHeader.connectionName)
         req.setValue(HTTPWSHeader.versionValue, forHTTPHeaderField: HTTPWSHeader.versionName)
-        req.setValue(secKeyName, forHTTPHeaderField: HTTPWSHeader.keyName)
+        req.setValue(secKeyValue, forHTTPHeaderField: HTTPWSHeader.keyName)
         
         if supportsCompression {
             let val = "permessage-deflate; client_max_window_bits; server_max_window_bits=15"

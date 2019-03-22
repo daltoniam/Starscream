@@ -39,7 +39,6 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     public init(streamConfiguration: ((InputStream, OutputStream) -> Void)? = nil) {
         super.init()
         onConnect = streamConfiguration
-        
     }
     
      public func connect(url: URL, timeout: Double = 10, isTLS: Bool = true) {
@@ -114,6 +113,28 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
             total += written
         }
         completion(nil)
+    }
+    
+    public func getSecurityData() -> SecurityData? {
+        guard let outputStream = outputStream else {
+            return nil
+        }
+        let trust = outputStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust?
+        var domain = outputStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as! String?
+        
+        if domain == nil,
+            let sslContextOut = CFWriteStreamCopyProperty(outputStream, CFStreamPropertyKey(rawValue: kCFStreamPropertySSLContext)) as! SSLContext? {
+            var peerNameLen: Int = 0
+            SSLGetPeerDomainNameLength(sslContextOut, &peerNameLen)
+            var peerName = Data(count: peerNameLen)
+            let _ = peerName.withUnsafeMutableBytes { (peerNamePtr: UnsafeMutablePointer<Int8>) in
+                SSLGetPeerDomainName(sslContextOut, peerNamePtr, &peerNameLen)
+            }
+            if let peerDomain = String(bytes: peerName, encoding: .utf8), peerDomain.count > 0 {
+                domain = peerDomain
+            }
+        }
+        return FoundationSecurityData(trust: trust, domain: domain)
     }
     
     private func read() {
