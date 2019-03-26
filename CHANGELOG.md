@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+### [3.1.0](https://github.com/daltoniam/Starscream/tree/3.1.0)
+
+* Swift 5.0 and Xcode 10.2 support
+
 #### [3.0.6](https://github.com/daltoniam/Starscream/tree/3.0.6)
 
 * Swift 4.2 and Xcode 10 support
@@ -149,14 +153,14 @@ Warning fixes for Swift 3.1
 
 Fix for the Swift Package Manager.
 
-Fixed: 
+Fixed:
 [#277](https://github.com/daltoniam/Starscream/issues/277)
 
 #### [2.0.1](https://github.com/daltoniam/Starscream/tree/2.0.1)
 
 Bug fixes.
 
-Fixed: 
+Fixed:
 [#261](https://github.com/daltoniam/Starscream/issues/261)
 [#276](https://github.com/daltoniam/Starscream/issues/276)
 [#267](https://github.com/daltoniam/Starscream/issues/267)
@@ -167,7 +171,7 @@ Fixed:
 
 Added Swift 3 support.
 
-Fixed: 
+Fixed:
 [#229](https://github.com/daltoniam/Starscream/issues/229)
 [#232](https://github.com/daltoniam/Starscream/issues/232)
 
@@ -177,7 +181,7 @@ Swift 2.3 support.
 
 #### [1.1.3](https://github.com/daltoniam/Starscream/tree/1.1.3)
 
-Changed: 
+Changed:
 [#170](https://github.com/daltoniam/Starscream/issues/170)
 [#171](https://github.com/daltoniam/Starscream/issues/171)
 [#174](https://github.com/daltoniam/Starscream/issues/174)
@@ -186,14 +190,14 @@ Changed:
 
 #### [1.1.2](https://github.com/daltoniam/Starscream/tree/1.1.2)
 
-Fixed: 
+Fixed:
 [#158](https://github.com/daltoniam/Starscream/issues/158)
 [#161](https://github.com/daltoniam/Starscream/issues/161)
 [#164](https://github.com/daltoniam/Starscream/issues/164)
 
 #### [1.1.1](https://github.com/daltoniam/Starscream/tree/1.1.1)
 
-Fixed: 
+Fixed:
 [#157](https://github.com/daltoniam/Starscream/issues/157)
 
 #### [1.1.0](https://github.com/daltoniam/Starscream/tree/1.1.0)
@@ -201,7 +205,7 @@ Fixed:
 Changed:
 Moved over to Runloop/default GCD queues to shared queue.
 
-Fixed: 
+Fixed:
 [#153](https://github.com/daltoniam/Starscream/issues/153)
 [#151](https://github.com/daltoniam/Starscream/issues/151)
 [#150](https://github.com/daltoniam/Starscream/issues/150)
