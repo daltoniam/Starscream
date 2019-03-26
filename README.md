@@ -385,6 +385,10 @@ func  websocketHttpUpgrade(socket: WebSocketClient, response: CFHTTPMessage) {
 }
 ```
 
+## Swift versions
+
+* Swift 4.2 - 3.0.6
+
 ## KNOWN ISSUES
 - WatchOS does not have the the CFNetwork String constants to modify the stream's SSL behavior. It will be the default Foundation SSL behavior. This means watchOS CANNOT use `SSLCiphers`,  `disableSSLCertValidation`, or SSL pinning. All these values set on watchOS will do nothing. 
 - Linux does not have the security framework, so it CANNOT use SSL pinning or `SSLCiphers` either. 
