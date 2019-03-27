@@ -15,7 +15,7 @@ class ViewController: UIViewController, WebSocketDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        var request = URLRequest(url: URL(string: "wss://echo.websocket.org")!) //http://localhost:8080
+        var request = URLRequest(url: URL(string: "http://localhost:8080")!)
         request.timeoutInterval = 5
         socket = WebSocket(request: request)
         socket.delegate = self
