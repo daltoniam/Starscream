@@ -37,4 +37,8 @@ public class MockTransport: Transport {
     public func received(data: Data) {
         delegate?.connectionChanged(state: .receive(data))
     }
+    
+    public func getSecurityData() -> SecurityData? {
+        return nil
+    }
 }

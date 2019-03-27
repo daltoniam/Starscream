@@ -35,22 +35,27 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     private var outputStream: OutputStream?
     private var isOpen = false
     private var onConnect: ((InputStream, OutputStream) -> Void)?
+    private var isTLS = false
+    
+    public var usingTLS: Bool {
+        return self.isTLS
+    }
     
     public init(streamConfiguration: ((InputStream, OutputStream) -> Void)? = nil) {
         super.init()
         onConnect = streamConfiguration
     }
     
-     public func connect(url: URL, timeout: Double = 10, isTLS: Bool = true) {
-        guard let host = url.host, let port = url.port else {
+     public func connect(url: URL, timeout: Double = 10) {
+        guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(FoundationTransportError.invalidRequest))
             return
         }
-        
+        self.isTLS = parts.isTLS
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
-        let h = host as NSString
-        CFStreamCreatePairWithSocketToHost(nil, h, UInt32(port), &readStream, &writeStream)
+        let h = parts.host as NSString
+        CFStreamCreatePairWithSocketToHost(nil, h, UInt32(parts.port), &readStream, &writeStream)
         inputStream = readStream!.takeRetainedValue()
         outputStream = writeStream!.takeRetainedValue()
         guard let inStream = inputStream, let outStream = outputStream else {

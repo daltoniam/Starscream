@@ -34,18 +34,24 @@ public class TCPTransport: Transport {
     private let queue = DispatchQueue(label: "com.vluxe.starscream.networkstream", attributes: [])
     private weak var delegate: TransportEventClient?
     private var isRunning = false
+    private var isTLS = false
     
-    public func connect(url: URL, timeout: Double = 10, isTLS: Bool = true) {
-        guard let host = url.host, let port = url.port else {
+    public var usingTLS: Bool {
+        return self.isTLS
+    }
+    
+    public func connect(url: URL, timeout: Double = 10) {
+        guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(TCPTransportError.invalidRequest))
             return
         }
+        self.isTLS = parts.isTLS
         let options = NWProtocolTCP.Options()
         options.connectionTimeout = Int(timeout.rounded(.up))
 
         let tlsOptions = isTLS ? NWProtocolTLS.Options() : nil
         let parameters = NWParameters(tls: tlsOptions, tcp:NWProtocolTCP.Options())
-        let conn = NWConnection(host: NWEndpoint.Host.name(host, nil), port: NWEndpoint.Port(rawValue: UInt16(port))!, using: parameters)
+        let conn = NWConnection(host: NWEndpoint.Host.name(parts.host, nil), port: NWEndpoint.Port(rawValue: UInt16(parts.port))!, using: parameters)
 
         conn.stateUpdateHandler = { [weak self] (newState) in
             switch newState {
@@ -58,6 +64,8 @@ public class TCPTransport: Transport {
             case .failed(let error):
                 self?.delegate?.connectionChanged(state: .failed(error))
             case .setup, .preparing:
+                break
+            @unknown default:
                 break
             }
         }

@@ -26,6 +26,7 @@
 		8A7A719C220248330061166D /* MockServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A719A2200C6DE0061166D /* MockServer.swift */; };
 		8A906E3D2208BD9B0015057D /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A906E3C2208BD9B0015057D /* Compression.swift */; };
 		8A906E3F2208C7E80015057D /* WSCompression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A906E3E2208C7E80015057D /* WSCompression.swift */; };
+		8ABD4470224C036A00FB8370 /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ABD446F224C036A00FB8370 /* Data+Extensions.swift */; };
 		BBB5ABE6215E2217005B48B6 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */; };
 		BBB5ABE7215E2217005B48B6 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */; };
 		BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
@@ -55,6 +56,7 @@
 		8A7A719A2200C6DE0061166D /* MockServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockServer.swift; sourceTree = "<group>"; };
 		8A906E3C2208BD9B0015057D /* Compression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Compression/Compression.swift; sourceTree = "<group>"; };
 		8A906E3E2208C7E80015057D /* WSCompression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WSCompression.swift; path = Compression/WSCompression.swift; sourceTree = "<group>"; };
+		8ABD446F224C036A00FB8370 /* Data+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extensions.swift"; sourceTree = "<group>"; };
 		BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SSLClientCertificate.swift; path = Starscream/SSLClientCertificate.swift; sourceTree = "<group>"; };
 		BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SSLSecurity.swift; path = Starscream/SSLSecurity.swift; sourceTree = "<group>"; };
 		BBB5ABE4215E2217005B48B6 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.swift; name = WebSocket.swift; path = Starscream/WebSocket.swift; sourceTree = "<group>"; tabWidth = 4; };
@@ -104,6 +106,7 @@
 		6B3E79E819D48B7F006071F7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8ABD446E224C033600FB8370 /* DataBytes */,
 				8A7A718D21F924BF0061166D /* Framer */,
 				8A7A718621F8DB930061166D /* Transport */,
 				8A7A718521F8DB810061166D /* Compression */,
@@ -177,6 +180,14 @@
 			path = Framer;
 			sourceTree = "<group>";
 		};
+		8ABD446E224C033600FB8370 /* DataBytes */ = {
+			isa = PBXGroup;
+			children = (
+				8ABD446F224C036A00FB8370 /* Data+Extensions.swift */,
+			);
+			path = DataBytes;
+			sourceTree = "<group>";
+		};
 		D88EAF801ED4DFD3004FE2C3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -242,7 +253,7 @@
 			attributes = {
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = Vluxe;
 				TargetAttributes = {
 					335FA1F41F5DF71D00F6D2EC = {
@@ -255,7 +266,7 @@
 			};
 			buildConfigurationList = 6B3E79E019D48B7F006071F7 /* Build configuration list for PBXProject "Starscream" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -317,6 +328,7 @@
 				BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */,
 				8A7A718F21F924D40061166D /* Framer.swift in Sources */,
 				8A7A718821F8E1490061166D /* Transport.swift in Sources */,
+				8ABD4470224C036A00FB8370 /* Data+Extensions.swift in Sources */,
 				5C23C24521FBB0EE00D315F1 /* FoundationHTTPHandler.swift in Sources */,
 				BBB5ABE7215E2217005B48B6 /* SSLSecurity.swift in Sources */,
 				BBB5ABE6215E2217005B48B6 /* SSLClientCertificate.swift in Sources */,
@@ -352,7 +364,7 @@
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -376,7 +388,7 @@
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -385,7 +397,7 @@
 			buildSettings = {
 				BITCODE_GENERATION_MODE = marker;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
@@ -406,7 +418,7 @@
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvsimulator appletvos watchos watchsimulator";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VALID_ARCHS = "x86_64 i386 arm64 armv7s armv7 armv7k";
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
@@ -418,7 +430,7 @@
 			buildSettings = {
 				BITCODE_GENERATION_MODE = bitcode;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
@@ -439,7 +451,7 @@
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvsimulator appletvos watchos watchsimulator";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VALID_ARCHS = "x86_64 i386 arm64 armv7s armv7 armv7k";
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
@@ -459,12 +471,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -519,12 +533,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

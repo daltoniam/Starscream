@@ -43,9 +43,9 @@ public class FoundationHTTPHandler: HTTPHandler {
     
     //returns true when the buffer should be cleared
     func parseContent(data: Data) -> Bool {
-        let pointer = data.withUnsafeBytes {
-            [UInt8](UnsafeBufferPointer(start: $0, count: data.count))
-        }
+        var pointer = [UInt8]()
+        data.withUnsafeBytes { pointer.append(contentsOf: $0) }
+
         let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
         if !CFHTTPMessageAppendBytes(response, pointer, data.count) {
             return false //not enough data, wait for more

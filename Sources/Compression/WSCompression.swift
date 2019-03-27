@@ -241,3 +241,21 @@ class Compressor {
     }
 }
 
+//internal extension Data {
+//    struct UnsafeBytesError: Swift.Error {}
+//
+//    func withUnsafeBytes<ResultType, ContentType>(_ body: (UnsafePointer<ContentType>) throws -> ResultType) rethrows -> ResultType {
+//        #if swift(>=5.0)
+//        return try withUnsafeBytes { (innerBody: UnsafeRawBufferPointer) -> ResultType in
+//            if let baseAddress = innerBody.baseAddress, innerBody.count > 0 {
+//                let pointer = baseAddress.assumingMemoryBound(to: ContentType.self)
+//                return try body(pointer)
+//            } else {
+//                throw UnsafeBytesError()
+//            }
+//        }
+//        #else
+//        return try withUnsafeBytes(body)
+//        #endif
+//    }
+//}

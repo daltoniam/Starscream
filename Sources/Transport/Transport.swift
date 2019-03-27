@@ -46,8 +46,9 @@ public protocol TransportEventClient: class {
 
 public protocol Transport: class {
     func register(delegate: TransportEventClient)
-    func connect(url: URL, timeout: Double, isTLS: Bool)
+    func connect(url: URL, timeout: Double)
     func disconnect()
     func write(data: Data, completion: @escaping ((Error?) -> ()))
     func getSecurityData() -> SecurityData?
+    var usingTLS: Bool { get }
 }

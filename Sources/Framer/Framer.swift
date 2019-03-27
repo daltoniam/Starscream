@@ -139,9 +139,9 @@ public class WSFramer: Framer {
         if buffer.count < 2 {
             return .needsMoreData
         }
-        let pointer = buffer.withUnsafeBytes {
-            [UInt8](UnsafeBufferPointer(start: $0, count: buffer.count))
-        }
+        var pointer = [UInt8]()
+        buffer.withUnsafeBytes { pointer.append(contentsOf: $0) }
+
         let isFin = (FinMask & pointer[0])
         let opcodeRawValue = (OpCodeMask & pointer[0])
         let opcode = FrameOpCode(rawValue: opcodeRawValue) ?? .unknown
@@ -200,7 +200,7 @@ public class WSFramer: Framer {
         //Might be a problem with huge payloads. Need to revisit.
         let readDataLength = Int(dataLength)
         
-        let payload = Data(bytes: pointer[offset...readDataLength])
+        let payload = Data(pointer[offset...readDataLength])
         offset += readDataLength
 
         let frame = Frame(isFin: isFin > 0, needsDecompression: needsDecompression, isMasked: isMasked > 0, opcode: opcode, payloadLength: dataLength, payload: payload, closeCode: closeCode)
@@ -211,9 +211,7 @@ public class WSFramer: Framer {
         let payloadLength = payload.count
         
         let capacity = payloadLength + MaxFrameSize
-        var pointer = Data(capacity: capacity).withUnsafeBytes {
-            [UInt8](UnsafeBufferPointer(start: $0, count: capacity))
-        }
+        var pointer = [UInt8](repeating: 0, count: capacity)
         
         //set the framing info
         pointer[0] = FinMask | opcode.rawValue
@@ -248,7 +246,7 @@ public class WSFramer: Framer {
             offset += 1
         }
         
-        return Data(bytes: pointer[0..<offset])
+        return Data(pointer[0..<offset])
     }
 }
 
@@ -264,7 +262,7 @@ public extension Array where Element: MyWSArrayType & UnsignedInteger {
      - parameter offset: is the offset index to start the read from (e.g. buffer[0], buffer[1], etc).
      - returns: a UInt16 of the value from the buffer
      */
-    public func readUint16(offset: Int) -> UInt16 {
+    func readUint16(offset: Int) -> UInt16 {
         return (UInt16(self[offset + 0]) << 8) | UInt16(self[offset + 1])
     }
     
@@ -273,7 +271,7 @@ public extension Array where Element: MyWSArrayType & UnsignedInteger {
      - parameter offset: is the offset index to start the read from (e.g. buffer[0], buffer[1], etc).
      - returns: a UInt64 of the value from the buffer
      */
-    public func readUint64(offset: Int) -> UInt64 {
+    func readUint64(offset: Int) -> UInt64 {
         var value = UInt64(0)
         for i in 0...7 {
             value = (value << 8) | UInt64(self[offset + i])

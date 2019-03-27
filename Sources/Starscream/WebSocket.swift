@@ -143,18 +143,12 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         guard let url = request.url else {
             return
         }
-        var isTLS = false
-        if let scheme = url.scheme, HTTPWSHeader.defaultSSLSchemes.contains(scheme) {
-            isTLS = true
-        }
-        transport.connect(url: url, timeout: request.timeoutInterval, isTLS: isTLS)
+        transport.connect(url: url, timeout: request.timeoutInterval)
     }
     
     public func disconnect(closeCode: UInt16 = CloseCode.normal.rawValue) {
         let capacity = MemoryLayout<UInt16>.size
-        var pointer = Data(capacity: capacity).withUnsafeBytes {
-            [UInt8](UnsafeBufferPointer(start: $0, count: capacity))
-        }
+        var pointer = [UInt8](repeating: 0, count: capacity)
         writeUint16(&pointer, offset: 0, value: closeCode)
         let payload = Data(bytes: pointer, count: MemoryLayout<UInt16>.size)
         write(data: payload, opcode: .connectionClose, completion: nil)
@@ -215,11 +209,14 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func connectionChanged(state: ConnectionState) {
         switch state {
         case .connected:
-            if !secHandler.isValid(data: transport.getSecurityData()) {
-                let error = WSError(type: .securityError, message: "ssl pinning host doesn't match", code: SecurityErrorCode.pinningFailed.rawValue)
-                handleError(error)
-                return
+            if transport.usingTLS {
+                if !secHandler.isValid(data: transport.getSecurityData()) {
+                    let error = WSError(type: .securityError, message: "ssl pinning host doesn't match", code: SecurityErrorCode.pinningFailed.rawValue)
+                    handleError(error)
+                    return
+                }
             }
+
             secKeyValue = HTTPWSHeader.generateWebSocketKey()
             let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: framer.supportsCompression(), secKeyValue: secKeyValue)
             let data = httpHandler.convert(request: wsReq)

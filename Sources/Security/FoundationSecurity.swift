@@ -31,9 +31,13 @@ public struct FoundationSecurityData: SecurityData {
 public class FoundationSecurity: Security {
 
     //TODO: init method that loads SSL certifcates!
+    var certs = [Data]()
     
     // validates the stream is connected to the expected server using SSL pinning
     public func isValid(data: SecurityData?) -> Bool {
+        if certs.count == 0 {
+            return true //no certs to validated with, so allow pinning to go through
+        }
         guard let data = data else {
             return false //TODO: default is to pass or fail?
         }
@@ -59,9 +63,12 @@ public class FoundationSecurity: Security {
 
 private extension String {
     func sha1Base64() -> String {
-        let data = self.data(using: String.Encoding.utf8)!
-        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
-        data.withUnsafeBytes { _ = CC_SHA1($0, CC_LONG(data.count), &digest) }
-        return Data(bytes: digest).base64EncodedString()
+        let data = self.data(using: .utf8)!
+        let pointer = data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) -> [UInt8] in
+            var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
+            CC_SHA1(bytes.baseAddress, CC_LONG(data.count), &digest)
+            return digest
+        }
+        return Data(pointer).base64EncodedString()
     }
 }
