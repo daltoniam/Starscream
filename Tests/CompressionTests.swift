@@ -54,8 +54,8 @@ class CompressionTests: XCTestCase {
 //        var rawData = Data(repeating: 0, count: 0x80000000)
         var rawData = Data(repeating: 0, count: 0x80000)
         let rawDataLen = rawData.count
-        rawData.withUnsafeMutableBytes { (ptr: UnsafeMutablePointer<UInt8>) -> Void in
-            arc4random_buf(ptr, rawDataLen)
+        rawData.withUnsafeMutableBytes { (ptr:UnsafeMutableRawBufferPointer) -> Void in
+            arc4random_buf(ptr.bindMemory(to: UInt8.self).baseAddress, rawDataLen)
         }
         
         let compressed = try! compressor.compress(rawData)

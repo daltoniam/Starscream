@@ -279,8 +279,9 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
             var peerNameLen: Int = 0
             SSLGetPeerDomainNameLength(sslContextOut, &peerNameLen)
             var peerName = Data(count: peerNameLen)
-            let _ = peerName.withUnsafeMutableBytes { (peerNamePtr: UnsafeMutablePointer<Int8>) in
-                SSLGetPeerDomainName(sslContextOut, peerNamePtr, &peerNameLen)
+            let _ = peerName.withUnsafeMutableBytes { (peerNamePtr:UnsafeMutableRawBufferPointer) in
+                guard let baseAddress = peerNamePtr.bindMemory(to: Int8.self).baseAddress else { return }
+                SSLGetPeerDomainName(sslContextOut, baseAddress, &peerNameLen)
             }
             if let peerDomain = String(bytes: peerName, encoding: .utf8), peerDomain.count > 0 {
                 domain = peerDomain
@@ -1323,8 +1324,8 @@ private extension String {
     func sha1Base64() -> String {
         let data = self.data(using: String.Encoding.utf8)!
         var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
-        data.withUnsafeBytes { _ = CC_SHA1($0, CC_LONG(data.count), &digest) }
-        return Data(bytes: digest).base64EncodedString()
+        data.withUnsafeBytes { _ = CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest) }
+        return Data(digest).base64EncodedString()
     }
 }
 
