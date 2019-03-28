@@ -449,7 +449,6 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
     private var compressionState = CompressionState()
     private var writeQueue = OperationQueue()
     private var readStack = [WSResponse]()
-    private var inputQueue = [Data]()
     private var fragBuffer: Data?
     private var certValidated = false
     private var didDisconnect = false
@@ -750,40 +749,21 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      Handles the incoming bytes and sending them to the proper processing method.
      */
     private func processInputStream() {
-        let data = stream.read()
-        guard let d = data else { return }
-        var process = false
-        if inputQueue.count == 0 {
-            process = true
-        }
-        inputQueue.append(d)
-        if process {
-            dequeueInput()
-        }
-    }
-
-    /**
-     Dequeue the incoming input so it is processed in order.
-     */
-    private func dequeueInput() {
-        while !inputQueue.isEmpty {
-            autoreleasepool {
-                let data = inputQueue[0]
-                var work = data
-                if let buffer = fragBuffer {
-                    var combine = NSData(data: buffer) as Data
-                    combine.append(data)
-                    work = combine
-                    fragBuffer = nil
-                }
-                let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
-                let length = work.count
-                if !connected {
-                    processTCPHandshake(buffer, bufferLen: length)
-                } else {
-                    processRawMessagesInBuffer(buffer, bufferLen: length)
-                }
-                inputQueue = inputQueue.filter{ $0 != data }
+        guard let data = stream.read() else { return }
+        autoreleasepool {
+            var work = data
+            if let buffer = fragBuffer {
+                var combine = NSData(data: buffer) as Data
+                combine.append(data)
+                work = combine
+                fragBuffer = nil
+            }
+            let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
+            let length = work.count
+            if !connected {
+                processTCPHandshake(buffer, bufferLen: length)
+            } else {
+                processRawMessagesInBuffer(buffer, bufferLen: length)
             }
         }
     }
