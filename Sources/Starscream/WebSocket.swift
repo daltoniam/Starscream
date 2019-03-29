@@ -279,7 +279,7 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
             var peerNameLen: Int = 0
             SSLGetPeerDomainNameLength(sslContextOut, &peerNameLen)
             var peerName = Data(count: peerNameLen)
-            let _ = peerName.withUnsafeMutableBytes { (peerNamePtr:UnsafeMutableRawBufferPointer) in
+            let _ = peerName.withUnsafeMutableBytes { (peerNamePtr: UnsafeMutableRawBufferPointer) in
                 guard let baseAddress = peerNamePtr.bindMemory(to: Int8.self).baseAddress else { return }
                 SSLGetPeerDomainName(sslContextOut, baseAddress, &peerNameLen)
             }
