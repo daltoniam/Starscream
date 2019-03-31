@@ -13,6 +13,7 @@
 		33CCF08A1F5DDC030099B092 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5C23C24521FBB0EE00D315F1 /* FoundationHTTPHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C23C24421FBB0EE00D315F1 /* FoundationHTTPHandler.swift */; };
+		5CF1D064225055760081C8A8 /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ABD446F224C036A00FB8370 /* Data+Extensions.swift */; };
 		8A1681A7223D8664000C08D8 /* Security.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1681A6223D8664000C08D8 /* Security.swift */; };
 		8A1681A9223D8707000C08D8 /* FoundationSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1681A8223D8707000C08D8 /* FoundationSecurity.swift */; };
 		8A7A718821F8E1490061166D /* Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A718721F8E1490061166D /* Transport.swift */; };
@@ -31,8 +32,6 @@
 		BBB5ABE7215E2217005B48B6 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */; };
 		BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
 		BBB5ABEA215E221D005B48B6 /* SSLClientCertificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */; };
-		BBB5ABEB215E221D005B48B6 /* SSLSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */; };
-		BBB5ABEC215E221D005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -304,11 +303,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CF1D064225055760081C8A8 /* Data+Extensions.swift in Sources */,
 				8A7A719C220248330061166D /* MockServer.swift in Sources */,
 				8A7A719921FFB4650061166D /* MockTransport.swift in Sources */,
 				8A7A719621FFB3190061166D /* FuzzingTests.swift in Sources */,
-				BBB5ABEB215E221D005B48B6 /* SSLSecurity.swift in Sources */,
-				BBB5ABEC215E221D005B48B6 /* WebSocket.swift in Sources */,
 				335FA1F91F5DF71D00F6D2EC /* CompressionTests.swift in Sources */,
 				335FA1FA1F5DF71D00F6D2EC /* StarscreamTests.swift in Sources */,
 				BBB5ABEA215E221D005B48B6 /* SSLClientCertificate.swift in Sources */,

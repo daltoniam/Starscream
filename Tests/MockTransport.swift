@@ -9,8 +9,12 @@
 import Foundation
 @testable import Starscream
 
-
 public class MockTransport: Transport {
+    
+    public var usingTLS: Bool {
+        return false
+    }
+    
     private weak var delegate: TransportEventClient?
     weak var server: MockServer?
     
@@ -22,7 +26,7 @@ public class MockTransport: Transport {
         self.delegate = delegate
     }
     
-    public func connect(url: URL, timeout: Double, isTLS: Bool) {
+    public func connect(url: URL, timeout: Double) {
         server?.connect(client: self)
     }
     
@@ -39,6 +43,18 @@ public class MockTransport: Transport {
     }
     
     public func getSecurityData() -> SecurityData? {
+        return nil
+    }
+}
+
+
+public class MockSecurity: Security {
+    
+    public func isValid(data: SecurityData?) -> Bool {
+        return true
+    }
+    
+    public func validate(headers: [String: String], key: String) -> Error? {
         return nil
     }
 }

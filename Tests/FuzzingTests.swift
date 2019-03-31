@@ -11,7 +11,7 @@ import XCTest
 
 class FuzzingTests: XCTestCase {
     
-    var websocket: WebSocketNew!
+    var websocket: WebSocket!
     var server: MockServer!
     
     override func setUp() {
@@ -20,7 +20,7 @@ class FuzzingTests: XCTestCase {
         let request = URLRequest(url: url)
         let s = MockServer()
         let transport = MockTransport(server: s)
-        websocket = WebSocketNew(request: request, transport: transport)
+        websocket = WebSocket(request: request, transport: transport, security: MockSecurity())
         server = s
     }
     
@@ -44,6 +44,12 @@ class FuzzingTests: XCTestCase {
             case .disconnected(_):
                 break
             case .error(_):
+                break
+            case .viablityChanged(_):
+                break
+            case .reconnectSuggested(_):
+                break
+            case .cancelled:
                 break
             }
         }
