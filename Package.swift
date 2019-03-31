@@ -29,6 +29,7 @@ let package = Package(
         ],
         dependencies: [],
         targets: [
-            .target(name: "Starscream")
+            .target(name: "Starscream",
+                    path: "Sources")
         ]
 )

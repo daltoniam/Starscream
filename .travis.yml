@@ -2,7 +2,7 @@ os: osx
 osx_image: xcode10.2
 #language: objective-c
 before_install:
-  #- gem install cocoapods --pre
-  #- gem cleanup
+  - gem install cocoapods --pre
+  - gem cleanup
 script:
 - ./build.sh

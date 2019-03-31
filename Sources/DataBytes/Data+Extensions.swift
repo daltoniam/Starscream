@@ -28,7 +28,7 @@ internal extension Data {
     
     func withUnsafeBytes<ResultType, ContentType>(_ completion: (UnsafePointer<ContentType>) throws -> ResultType) rethrows -> ResultType {
         #if swift(>=5.0)
-        return try withUnsafeBytes {
+        return try withUnsafeBytes { 
             if let baseAddress = $0.baseAddress, $0.count > 0 {
                 return try completion(baseAddress.assumingMemoryBound(to: ContentType.self))
             } else {
@@ -36,7 +36,7 @@ internal extension Data {
             }
         }
         #else
-        return try withUnsafeBytes(body)
+        return try withUnsafeBytes(completion)
         #endif
     }
     
@@ -50,7 +50,7 @@ internal extension Data {
             }
         }
         #else
-        return try withUnsafeMutableBytes(body)
+        return try withUnsafeMutableBytes(completion)
         #endif
     }
 }
