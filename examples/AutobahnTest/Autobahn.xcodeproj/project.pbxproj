@@ -12,18 +12,11 @@
 		5C178E271B62D0B900A97204 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5C178E251B62D0B900A97204 /* Main.storyboard */; };
 		5C178E291B62D0B900A97204 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5C178E281B62D0B900A97204 /* Images.xcassets */; };
 		5C178E2C1B62D0B900A97204 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5C178E2A1B62D0B900A97204 /* LaunchScreen.xib */; };
-		5C178E381B62D0B900A97204 /* AutobahnTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C178E371B62D0B900A97204 /* AutobahnTests.swift */; };
 		5C178E521B62D11200A97204 /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C178E491B62D0EF00A97204 /* Starscream.framework */; };
+		5CF1D07222552B770081C8A8 /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5C178E491B62D0EF00A97204 /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		5C178E321B62D0B900A97204 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5C178E141B62D0B900A97204 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5C178E1B1B62D0B900A97204;
-			remoteInfo = Autobahn;
-		};
 		5C178E481B62D0EF00A97204 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
@@ -31,49 +24,42 @@
 			remoteGlobalIDString = 6B3E79E619D48B7F006071F7;
 			remoteInfo = Starscream;
 		};
-		5C178E4A1B62D0EF00A97204 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 6B3E79F119D48B7F006071F7;
-			remoteInfo = StarscreamTests;
-		};
-		5C178E4C1B62D0EF00A97204 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D9C3E35F19E48FF1009FC285;
-			remoteInfo = StarscreamOSX;
-		};
-		5C178E4E1B62D0EF00A97204 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D9C3E36919E48FF1009FC285;
-			remoteInfo = StarscreamOSXTests;
-		};
 		5C178E501B62D10A00A97204 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 6B3E79E519D48B7F006071F7;
+			remoteGlobalIDString = 33CCF0841F5DDC030099B092;
 			remoteInfo = Starscream;
 		};
-		5C42C3D51D8DF51C00947AA2 /* PBXContainerItemProxy */ = {
+		5CF1D06B22552AA30081C8A8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 091277971BD673A70003036D;
-			remoteInfo = "Starscream tvOS";
+			remoteGlobalIDString = 335FA2021F5DF71D00F6D2EC;
+			remoteInfo = "Starscream Tests";
 		};
-		5C42C3D71D8DF51C00947AA2 /* PBXContainerItemProxy */ = {
+		5CF1D07322552B770081C8A8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 091277A01BD673A70003036D;
-			remoteInfo = "Starscream tvOSTests";
+			proxyType = 1;
+			remoteGlobalIDString = 33CCF0841F5DDC030099B092;
+			remoteInfo = Starscream;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5CF1D07522552B770081C8A8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5CF1D07222552B770081C8A8 /* Starscream.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		5C178E1C1B62D0B900A97204 /* Autobahn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Autobahn.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,9 +69,6 @@
 		5C178E261B62D0B900A97204 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		5C178E281B62D0B900A97204 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		5C178E2B1B62D0B900A97204 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		5C178E311B62D0B900A97204 /* AutobahnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AutobahnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5C178E361B62D0B900A97204 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5C178E371B62D0B900A97204 /* AutobahnTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutobahnTests.swift; sourceTree = "<group>"; };
 		5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Starscream.xcodeproj; path = ../../Starscream.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -98,13 +81,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5C178E2E1B62D0B900A97204 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -112,7 +88,6 @@
 			isa = PBXGroup;
 			children = (
 				5C178E1E1B62D0B900A97204 /* Autobahn */,
-				5C178E341B62D0B900A97204 /* AutobahnTests */,
 				5C178E1D1B62D0B900A97204 /* Products */,
 				5C178E411B62D0EF00A97204 /* Starscream.xcodeproj */,
 			);
@@ -122,7 +97,6 @@
 			isa = PBXGroup;
 			children = (
 				5C178E1C1B62D0B900A97204 /* Autobahn.app */,
-				5C178E311B62D0B900A97204 /* AutobahnTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -148,32 +122,11 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		5C178E341B62D0B900A97204 /* AutobahnTests */ = {
-			isa = PBXGroup;
-			children = (
-				5C178E371B62D0B900A97204 /* AutobahnTests.swift */,
-				5C178E351B62D0B900A97204 /* Supporting Files */,
-			);
-			path = AutobahnTests;
-			sourceTree = "<group>";
-		};
-		5C178E351B62D0B900A97204 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				5C178E361B62D0B900A97204 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		5C178E421B62D0EF00A97204 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				5C178E491B62D0EF00A97204 /* Starscream.framework */,
-				5C178E4B1B62D0EF00A97204 /* StarscreamTests.xctest */,
-				5C178E4D1B62D0EF00A97204 /* Starscream.framework */,
-				5C178E4F1B62D0EF00A97204 /* StarscreamOSXTests.xctest */,
-				5C42C3D61D8DF51C00947AA2 /* Starscream.framework */,
-				5C42C3D81D8DF51C00947AA2 /* Starscream tvOSTests.xctest */,
+				5CF1D06C22552AA30081C8A8 /* Starscream Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -188,34 +141,18 @@
 				5C178E181B62D0B900A97204 /* Sources */,
 				5C178E191B62D0B900A97204 /* Frameworks */,
 				5C178E1A1B62D0B900A97204 /* Resources */,
+				5CF1D07522552B770081C8A8 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				5C178E511B62D10A00A97204 /* PBXTargetDependency */,
+				5CF1D07422552B770081C8A8 /* PBXTargetDependency */,
 			);
 			name = Autobahn;
 			productName = Autobahn;
 			productReference = 5C178E1C1B62D0B900A97204 /* Autobahn.app */;
 			productType = "com.apple.product-type.application";
-		};
-		5C178E301B62D0B900A97204 /* AutobahnTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 5C178E3E1B62D0B900A97204 /* Build configuration list for PBXNativeTarget "AutobahnTests" */;
-			buildPhases = (
-				5C178E2D1B62D0B900A97204 /* Sources */,
-				5C178E2E1B62D0B900A97204 /* Frameworks */,
-				5C178E2F1B62D0B900A97204 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				5C178E331B62D0B900A97204 /* PBXTargetDependency */,
-			);
-			name = AutobahnTests;
-			productName = AutobahnTests;
-			productReference = 5C178E311B62D0B900A97204 /* AutobahnTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -232,11 +169,6 @@
 						CreatedOnToolsVersion = 6.4;
 						LastSwiftMigration = 0800;
 					};
-					5C178E301B62D0B900A97204 = {
-						CreatedOnToolsVersion = 6.4;
-						LastSwiftMigration = 0800;
-						TestTargetID = 5C178E1B1B62D0B900A97204;
-					};
 				};
 			};
 			buildConfigurationList = 5C178E171B62D0B900A97204 /* Build configuration list for PBXProject "Autobahn" */;
@@ -244,6 +176,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -259,7 +192,6 @@
 			projectRoot = "";
 			targets = (
 				5C178E1B1B62D0B900A97204 /* Autobahn */,
-				5C178E301B62D0B900A97204 /* AutobahnTests */,
 			);
 		};
 /* End PBXProject section */
@@ -272,39 +204,11 @@
 			remoteRef = 5C178E481B62D0EF00A97204 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		5C178E4B1B62D0EF00A97204 /* StarscreamTests.xctest */ = {
+		5CF1D06C22552AA30081C8A8 /* Starscream Tests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = "Starscream iOSTests.xctest";
-			remoteRef = 5C178E4A1B62D0EF00A97204 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		5C178E4D1B62D0EF00A97204 /* Starscream.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Starscream.framework;
-			remoteRef = 5C178E4C1B62D0EF00A97204 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		5C178E4F1B62D0EF00A97204 /* StarscreamOSXTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = "Starscream OSXTests.xctest";
-			remoteRef = 5C178E4E1B62D0EF00A97204 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		5C42C3D61D8DF51C00947AA2 /* Starscream.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Starscream.framework;
-			remoteRef = 5C42C3D51D8DF51C00947AA2 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		5C42C3D81D8DF51C00947AA2 /* Starscream tvOSTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = "Starscream tvOSTests.xctest";
-			remoteRef = 5C42C3D71D8DF51C00947AA2 /* PBXContainerItemProxy */;
+			path = "Starscream Tests.xctest";
+			remoteRef = 5CF1D06B22552AA30081C8A8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -320,13 +224,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5C178E2F1B62D0B900A97204 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -339,26 +236,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5C178E2D1B62D0B900A97204 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5C178E381B62D0B900A97204 /* AutobahnTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		5C178E331B62D0B900A97204 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5C178E1B1B62D0B900A97204 /* Autobahn */;
-			targetProxy = 5C178E321B62D0B900A97204 /* PBXContainerItemProxy */;
-		};
 		5C178E511B62D10A00A97204 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = Starscream;
 			targetProxy = 5C178E501B62D10A00A97204 /* PBXContainerItemProxy */;
+		};
+		5CF1D07422552B770081C8A8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Starscream;
+			targetProxy = 5CF1D07322552B770081C8A8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -468,58 +357,26 @@
 		5C178E3C1B62D0B900A97204 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Autobahn/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		5C178E3D1B62D0B900A97204 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Autobahn/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
-			};
-			name = Release;
-		};
-		5C178E3F1B62D0B900A97204 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = AutobahnTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Autobahn.app/Autobahn";
-			};
-			name = Debug;
-		};
-		5C178E401B62D0B900A97204 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = AutobahnTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Autobahn.app/Autobahn";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -540,15 +397,6 @@
 			buildConfigurations = (
 				5C178E3C1B62D0B900A97204 /* Debug */,
 				5C178E3D1B62D0B900A97204 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		5C178E3E1B62D0B900A97204 /* Build configuration list for PBXNativeTarget "AutobahnTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				5C178E3F1B62D0B900A97204 /* Debug */,
-				5C178E401B62D0B900A97204 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

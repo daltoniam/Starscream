@@ -14,12 +14,17 @@ public class MockTransport: Transport {
     public var usingTLS: Bool {
         return false
     }
-    
     private weak var delegate: TransportEventClient?
+    
+    private let id: String
     weak var server: MockServer?
+    var uuid: String {
+        return id
+    }
     
     public init(server: MockServer) {
         self.server = server
+        self.id = UUID().uuidString
     }
     
     public func register(delegate: TransportEventClient) {
@@ -27,15 +32,16 @@ public class MockTransport: Transport {
     }
     
     public func connect(url: URL, timeout: Double) {
-        server?.connect(client: self)
+        server?.connect(transport: self)
+        delegate?.connectionChanged(state: .connected)
     }
     
     public func disconnect() {
-        server?.disconnect(client: self)
+        server?.disconnect(uuid: uuid)
     }
     
     public func write(data: Data, completion: @escaping ((Error?) -> ())) {
-        server?.write(data: data, client: self)
+        server?.write(data: data, uuid: uuid)
     }
     
     public func received(data: Data) {

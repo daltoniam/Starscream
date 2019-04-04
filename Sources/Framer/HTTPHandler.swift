@@ -80,7 +80,17 @@ public protocol HTTPHandlerDelegate: class {
 public protocol HTTPHandler {
     func register(delegate: HTTPHandlerDelegate)
     func convert(request: URLRequest) -> Data
+    func parse(data: Data) -> Int
+}
+
+public protocol HTTPServerDelegate: class {
+    func didReceive(event: HTTPEvent)
+}
+
+public protocol HTTPServerHandler {
+    func register(delegate: HTTPServerDelegate)
     func parse(data: Data)
+    func createResponse(headers: [String: String]) -> Data
 }
 
 public struct URLParts {

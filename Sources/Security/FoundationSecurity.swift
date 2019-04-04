@@ -51,7 +51,7 @@ public class FoundationSecurity: Security {
     // validates the "Sec-WebSocket-Accept" header as defined 1.3 of the RFC 6455
     // https://tools.ietf.org/html/rfc6455#section-1.3
     public func validate(headers: [String: String], key: String) -> Error? {
-        if let acceptKey = headers[HTTPWSHeader.acceptName.lowercased()] {
+        if let acceptKey = headers[HTTPWSHeader.acceptName] {
             let sha = "\(key)258EAFA5-E914-47DA-95CA-C5AB0DC85B11".sha1Base64()
             if sha != acceptKey {
                 return WSError(type: .securityError, message: "accept header doesn't match", code: SecurityErrorCode.acceptFailed.rawValue)

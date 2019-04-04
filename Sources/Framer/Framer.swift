@@ -88,8 +88,10 @@ public class WSFramer: Framer {
     private weak var delegate: FramerEventClient?
     private var buffer = Data()
     public var compressionEnabled = false
+    private let isServer: Bool
     
-    public init() {
+    public init(isServer: Bool = false) {
+        self.isServer = isServer
     }
     
     public func updateCompression(supports: Bool) {
@@ -153,54 +155,84 @@ public class WSFramer: Framer {
         if compressionEnabled && opcode != .continueFrame {
            needsDecompression = (RSV1Mask & pointer[0]) > 0
         }
-        if (isMasked > 0 || RSV1 > 0) && opcode != .pong && !needsDecompression {
+        if !isServer && (isMasked > 0 || RSV1 > 0) && opcode != .pong && !needsDecompression {
             let errCode = CloseCode.protocolError.rawValue
-            return .failed(WSError(type: .protocolError, message: "masked and rsv data is not currently supported", code: Int(errCode)))
+            return .failed(WSError(type: .protocolError, message: "masked and rsv data is not currently supported", code: errCode))
         }
         let isControlFrame = (opcode == .connectionClose || opcode == .ping)
         if !isControlFrame && (opcode != .binaryFrame && opcode != .continueFrame &&
             opcode != .textFrame && opcode != .pong) {
             let errCode = CloseCode.protocolError.rawValue
-            return .failed(WSError(type: .protocolError, message: "unknown opcode: \(opcodeRawValue)", code: Int(errCode)))
+            return .failed(WSError(type: .protocolError, message: "unknown opcode: \(opcodeRawValue)", code: errCode))
         }
         if isControlFrame && isFin == 0 {
             let errCode = CloseCode.protocolError.rawValue
-            return .failed(WSError(type: .protocolError, message: "control frames can't be fragmented", code: Int(errCode)))
+            return .failed(WSError(type: .protocolError, message: "control frames can't be fragmented", code: errCode))
         }
         
         var offset = 2
+    
+        if isControlFrame && payloadLen > 125 {
+            return .failed(WSError(type: .protocolError, message: "payload length is longer than allowed for a control frame", code: CloseCode.protocolError.rawValue))
+        }
+        
+        var dataLength = UInt64(payloadLen)
         var closeCode = CloseCode.normal.rawValue
         if opcode == .connectionClose {
             if payloadLen == 1 {
                 closeCode = CloseCode.protocolError.rawValue
+                dataLength = 0
             } else if payloadLen > 1 {
+                let size = MemoryLayout<UInt16>.size
                 closeCode = pointer.readUint16(offset: offset)
+                offset += size
+                dataLength -= UInt64(size)
                 if closeCode < 1000 || (closeCode > 1003 && closeCode < 1007) || (closeCode > 1013 && closeCode < 3000) {
                     closeCode = CloseCode.protocolError.rawValue
                 }
             }
-            return .failed(WSError(type: .protocolError, message: "connection closed by server", code: Int(closeCode)))
-        } else if isControlFrame && payloadLen > 125 {
-            return .failed(WSError(type: .protocolError, message: "payload length is longer than allowed for a control frame", code: Int(CloseCode.protocolError.rawValue)))
         }
         
-        var dataLength = UInt64(payloadLen)
         if payloadLen == 127 {
+             let size = MemoryLayout<UInt64>.size
+            if size + offset > pointer.count {
+                return .needsMoreData
+            }
             dataLength = pointer.readUint64(offset: offset)
-            offset += MemoryLayout<UInt64>.size
+            offset += size
         } else if payloadLen == 126 {
+            let size = MemoryLayout<UInt16>.size
+            if size + offset > pointer.count {
+                return .needsMoreData
+            }
             dataLength = UInt64(pointer.readUint16(offset: offset))
-            offset += MemoryLayout<UInt16>.size
+            offset += size
+        }
+        
+        let maskStart = offset
+        if isServer {
+            offset += MemoryLayout<UInt32>.size
         }
         
         if dataLength > (pointer.count - offset) {
             return .needsMoreData
         }
+        
         //I don't like this cast, but Data's count returns an Int.
         //Might be a problem with huge payloads. Need to revisit.
         let readDataLength = Int(dataLength)
         
-        let payload = Data(pointer[offset...readDataLength])
+        let payload: Data
+        if readDataLength == 0 {
+            payload = Data()
+        } else {
+            if isServer {
+                payload = pointer.unmaskData(maskStart: maskStart, offset: offset, length: readDataLength)
+            } else {
+                let end = offset + readDataLength
+                payload = Data(pointer[offset..<end])
+            }
+        }
         offset += readDataLength
 
         let frame = Frame(isFin: isFin > 0, needsDecompression: needsDecompression, isMasked: isMasked > 0, opcode: opcode, payloadLength: dataLength, payload: payload, closeCode: closeCode)
@@ -231,21 +263,29 @@ public class WSFramer: Framer {
             writeUint64(&pointer, offset: offset, value: UInt64(payloadLength))
             offset += MemoryLayout<UInt64>.size
         }
-        pointer[1] |= MaskMask
         
-        //write the random mask key in
-        let maskKey: UInt32 = UInt32.random(in: 0...UInt32.max)
-        
-        writeUint32(&pointer, offset: offset, value: maskKey)
-        let maskStart = offset
-        offset += MemoryLayout<UInt32>.size
-        
-        //now write the payload data in
-        for i in 0..<payloadLength {
-            pointer[offset] = payload[i] ^ pointer[maskStart + (i % MemoryLayout<UInt32>.size)]
-            offset += 1
+        //clients are required to mask the payload data, but server don't according to the RFC
+        if !isServer {
+            pointer[1] |= MaskMask
+            
+            //write the random mask key in
+            let maskKey: UInt32 = UInt32.random(in: 0...UInt32.max)
+            
+            writeUint32(&pointer, offset: offset, value: maskKey)
+            let maskStart = offset
+            offset += MemoryLayout<UInt32>.size
+            
+            //now write the payload data in
+            for i in 0..<payloadLength {
+                pointer[offset] = payload[i] ^ pointer[maskStart + (i % MemoryLayout<UInt32>.size)]
+                offset += 1
+            }
+        } else {
+            for i in 0..<payloadLength {
+                pointer[offset] = payload[i]
+                offset += 1
+            }
         }
-        
         return Data(pointer[0..<offset])
     }
 }
@@ -277,6 +317,15 @@ public extension Array where Element: MyWSArrayType & UnsignedInteger {
             value = (value << 8) | UInt64(self[offset + i])
         }
         return value
+    }
+    
+    func unmaskData(maskStart: Int, offset: Int, length: Int) -> Data {
+        var unmaskedBytes = [UInt8](repeating: 0, count: length)
+        let maskSize = MemoryLayout<UInt32>.size
+        for i in 0..<length {
+            unmaskedBytes[i] = UInt8(self[offset + i] ^ self[maskStart + (i % maskSize)])
+        }
+        return Data(unmaskedBytes)
     }
 }
 

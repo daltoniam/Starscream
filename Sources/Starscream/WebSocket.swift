@@ -30,7 +30,7 @@ public enum ErrorType: Error {
 public struct WSError: Error {
     public let type: ErrorType
     public let message: String
-    public let code: Int
+    public let code: UInt16
 }
 
 public protocol WebSocketClient: class {
@@ -100,6 +100,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public var request: URLRequest
     // Where the callback is executed. It defaults to the main UI thread queue.
     public var callbackQueue = DispatchQueue.main
+    public var respondToPingWithPong: Bool = true
     
     // serial write queue to ensure writes happen in order
     private let writeQueue = DispatchQueue(label: "com.vluxe.starscream.writequeue")
@@ -120,11 +121,11 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         frameHandler.delegate = self
     }
     
-    public convenience init(request: URLRequest) {
+    public convenience init(request: URLRequest, compressionHandler: CompressionHandler? = nil) {
         if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
-            self.init(request: request, transport: TCPTransport(), security: FoundationSecurity())
+            self.init(request: request, transport: TCPTransport(), security: FoundationSecurity(), compressionHandler: compressionHandler)
         } else {
-            self.init(request: request, transport: FoundationTransport(), security: FoundationSecurity())
+            self.init(request: request, transport: FoundationTransport(), security: FoundationSecurity(), compressionHandler: compressionHandler)
         }
     }
     
@@ -151,9 +152,11 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         var pointer = [UInt8](repeating: 0, count: capacity)
         writeUint16(&pointer, offset: 0, value: closeCode)
         let payload = Data(bytes: pointer, count: MemoryLayout<UInt16>.size)
-        write(data: payload, opcode: .connectionClose, completion: nil)
+        write(data: payload, opcode: .connectionClose, completion: { [weak self] in
+            self?.reset()
+            self?.forceDisconnect()
+        })
     }
-    
     
     public func forceDisconnect() {
         transport.disconnect()
@@ -233,7 +236,11 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             if didUpgrade {
                 framer.add(data: data)
             } else {
-                httpHandler.parse(data: data)
+                let offset = httpHandler.parse(data: data)
+                if offset > 0 {
+                    let extraData = data.subdata(in: offset..<data.endIndex)
+                    framer.add(data: extraData)
+                }
             }
         case .cancelled:
             broadcast(event: .cancelled)
@@ -287,8 +294,12 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             broadcast(event: .pong(data))
         case .ping(let data):
             broadcast(event: .ping(data))
+            if respondToPingWithPong {
+                write(pong: data ?? Data(), completion: nil)
+            }
         case .closed(let reason, let code):
             broadcast(event: .disconnected(reason, code))
+            disconnect(closeCode: code)
         case .error(let error):
             handleError(error)
         }
@@ -305,14 +316,23 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     //This call can be coming from a lot of different queues/threads.
     //be aware of that when modifying shared variables
     private func handleError(_ error: Error?) {
-        mutex.wait()
-        canSend = false
-        didUpgrade = false
-        mutex.signal()
+        if let wsError = error as? WSError {
+            disconnect(closeCode: wsError.code)
+        } else {
+            disconnect()
+        }
+
         callbackQueue.async { [weak self] in
             guard let s = self else { return }
             s.delegate?.didReceive(event: .error(error), client: s)
             s.onEvent?(.error(error))
         }
+    }
+    
+    private func reset() {
+        mutex.wait()
+        canSend = false
+        didUpgrade = false
+        mutex.signal()
     }
 }

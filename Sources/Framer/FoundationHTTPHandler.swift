@@ -34,11 +34,17 @@ public class FoundationHTTPHandler: HTTPHandler {
         return data.takeRetainedValue() as Data
     }
     
-    public func parse(data: Data) {
-        buffer.append(data)
+    public func parse(data: Data) -> Int {
+        let offset = findEndOfHTTP(data: data)
+        if offset > 0 {
+            buffer.append(data.subdata(in: 0..<offset))
+        } else {
+            buffer.append(data)
+        }
         if parseContent(data: buffer) {
             buffer = Data()
         }
+        return offset
     }
     
     //returns true when the buffer should be cleared
@@ -78,5 +84,23 @@ public class FoundationHTTPHandler: HTTPHandler {
     
     public func register(delegate: HTTPHandlerDelegate) {
         self.delegate = delegate
+    }
+    
+    private func findEndOfHTTP(data: Data) -> Int {
+        let endBytes = [UInt8(ascii: "\r"), UInt8(ascii: "\n"), UInt8(ascii: "\r"), UInt8(ascii: "\n")]
+        var pointer = [UInt8]()
+        data.withUnsafeBytes { pointer.append(contentsOf: $0) }
+        var k = 0
+        for i in 0..<data.count {
+            if pointer[i] == endBytes[k] {
+                k += 1
+                if k == 4 {
+                    return i + 1
+                }
+            } else {
+                k = 0
+            }
+        }
+        return -1
     }
 }

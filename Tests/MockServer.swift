@@ -7,31 +7,134 @@
 //
 
 import Foundation
+@testable import Starscream
 
-public class MockServer {
-    var didUpgrade = false
-    var client: MockTransport?
-    public func connect(client: MockTransport) {
-        self.client = client
-        didUpgrade = false
-        //TODO: save client and notice it isn't upgrade
+protocol MockConnectionDelegate: class {
+    func didReceive(event: ServerEvent)
+}
+
+public class MockConnection: Connection, HTTPServerDelegate, FramerEventClient, FrameCollectorDelegate {
+    let transport: MockTransport
+    private let httpHandler = FoundationHTTPServerHandler()
+    private let framer = WSFramer(isServer: true)
+    private let frameHandler = FrameCollector()
+    private var didUpgrade = false
+    public var onEvent: ((ConnectionEvent) -> Void)?
+    fileprivate weak var delegate: MockConnectionDelegate?
+    
+    init(transport: MockTransport) {
+        self.transport = transport
+        httpHandler.register(delegate: self)
+        framer.register(delegate: self)
+        frameHandler.delegate = self
     }
     
-    public func disconnect(client: MockTransport) {
+    func add(data: Data) {
+        if !didUpgrade {
+            httpHandler.parse(data: data)
+            //TODO:
+            // 1. handle HTTP request and set didUpgrade flag
+            // 2. send back HTTP response
+            // 3. handle websocket frames as they comes in
+            // 4. have an expectations of results
+            // 5. "timeout" on failure
+        } else {
+            framer.add(data: data)
+        }
+    }
+    
+    public func write(data: Data, opcode: FrameOpCode) {
+        let wsData = framer.createWriteFrame(opcode: opcode, payload: data, isCompressed: false)
+        transport.received(data: wsData)
+    }
+    
+    /// MARK: - HTTPServerDelegate
+    
+    public func didReceive(event: HTTPEvent) {
+        switch event {
+        case .success(let headers):
+            didUpgrade = true
+            //TODO: add headers and key check?
+            let response = httpHandler.createResponse(headers: [:])
+            transport.received(data: response)
+            delegate?.didReceive(event: .connected(self, headers))
+            onEvent?(.connected(headers))
+        case .failure(let error):
+            onEvent?(.error(error))
+        }
+    }
+    
+    /// MARK: - FrameCollectorDelegate
+    
+    public func frameProcessed(event: FrameEvent) {
+        switch event {
+        case .frame(let frame):
+            frameHandler.add(frame: frame)
+        case .error(let error):
+            onEvent?(.error(error))
+        }
+    }
+    
+    public func didForm(event: FrameCollector.Event) {
+        switch event {
+        case .text(let string):
+            delegate?.didReceive(event: .text(self, string))
+            onEvent?(.text(string))
+        case .binary(let data):
+            delegate?.didReceive(event: .binary(self, data))
+            onEvent?(.binary(data))
+        case .pong(let data):
+            delegate?.didReceive(event: .pong(self, data))
+            onEvent?(.pong(data))
+        case .ping(let data):
+            delegate?.didReceive(event: .ping(self, data))
+            onEvent?(.ping(data))
+        case .closed(let reason, let code):
+            delegate?.didReceive(event: .disconnected(self, reason, code))
+            onEvent?(.disconnected(reason, code))
+        case .error(let error):
+            onEvent?(.error(error))
+        }
+    }
+    
+    public func decompress(data: Data, isFinal: Bool) -> Data? {
+        return nil
+    }
+}
+    
+
+public class MockServer: BaseServer, MockConnectionDelegate {
+    fileprivate var connections = [String: MockConnection]()
+    
+    public var onEvent: ((ServerEvent) -> Void)?
+    
+    public func start(address: String, port: Int) {
+        //noop in mock server
+    }
+    
+    public func connect(transport: MockTransport) {
+        let conn = MockConnection(transport: transport)
+        conn.delegate = self
+        connections[transport.uuid] = conn
+    }
+    
+    public func disconnect(uuid: String) {
+        guard let conn = connections[uuid] else {
+            return
+        }
         //TODO: force disconnect
-        didUpgrade = false
+        connections.removeValue(forKey: uuid)
     }
     
-    public func write(data: Data, client: MockTransport) {
-        //TODO:
-        // 1. handle HTTP request and set didUpgrade flag
-        // 2. send back HTTP response
-        // 3. handle websocket frames as they comes in
-        // 4. have an expectations of results
-        // 5. "timeout" on failure
+    public func write(data: Data, uuid: String) {
+        guard let conn = connections[uuid] else {
+            return
+        }
+        conn.add(data: data)
     }
     
-    public func write(data: Data) {
-        
+    /// MARK: - MockConnectionDelegate
+    func didReceive(event: ServerEvent) {
+        onEvent?(event)
     }
 }

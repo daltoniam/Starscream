@@ -38,6 +38,7 @@ public class FrameCollector {
     }
     weak var delegate: FrameCollectorDelegate?
     var buffer = Data()
+    var frameCount = 0
     var isText = false //was the first frame a text frame or a binary frame?
     var needsDecompression = false
     
@@ -59,17 +60,18 @@ public class FrameCollector {
         } else if frame.opcode == .ping {
             delegate?.didForm(event: .ping(frame.payload))
             return
-        } else if frame.opcode == .continueFrame && buffer.isEmpty {
+        } else if frame.opcode == .continueFrame && frameCount == 0 {
             let errCode = CloseCode.protocolError.rawValue
-            delegate?.didForm(event: .error(WSError(type: .protocolError, message: "first frame can't be a continue frame", code: Int(errCode))))
+            delegate?.didForm(event: .error(WSError(type: .protocolError, message: "first frame can't be a continue frame", code: errCode)))
+            reset()
             return
-        } else if !buffer.isEmpty && frame.opcode != .continueFrame {
+        } else if frameCount > 0 && frame.opcode != .continueFrame {
             let errCode = CloseCode.protocolError.rawValue
-            delegate?.didForm(event: .error(WSError(type: .protocolError, message: "second and beyond of fragment message must be a continue frame", code: Int(errCode))))
-            buffer = Data()
+            delegate?.didForm(event: .error(WSError(type: .protocolError, message: "second and beyond of fragment message must be a continue frame", code: errCode)))
+            reset()
             return
         }
-        if buffer.isEmpty {
+        if frameCount == 0 {
             isText = frame.opcode == .textFrame
             needsDecompression = frame.needsDecompression
         }
@@ -81,6 +83,15 @@ public class FrameCollector {
             payload = frame.payload
         }
         buffer.append(payload)
+        frameCount += 1
+        if isText {
+            if String(data: buffer, encoding: .utf8) == nil {
+                let errCode = CloseCode.protocolError.rawValue
+                delegate?.didForm(event: .error(WSError(type: .protocolError, message: "not valid UTF-8 data", code: errCode)))
+                reset()
+                return
+            }
+        }
         
         if frame.isFin {
             if isText {
@@ -89,7 +100,12 @@ public class FrameCollector {
             } else {
                 delegate?.didForm(event: .binary(buffer))
             }
-            buffer = Data()
+            reset()
         }
+    }
+    
+    func reset() {
+        buffer = Data()
+        frameCount = 0
     }
 }
