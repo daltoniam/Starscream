@@ -13,6 +13,7 @@
 		33CCF08A1F5DDC030099B092 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D88EAF811ED4DFD3004FE2C3 /* libz.tbd */; };
 		33CCF08C1F5DDC030099B092 /* Starscream.h in Headers */ = {isa = PBXBuildFile; fileRef = 5C1360001C473BEF00AA3A01 /* Starscream.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5C23C24521FBB0EE00D315F1 /* FoundationHTTPHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C23C24421FBB0EE00D315F1 /* FoundationHTTPHandler.swift */; };
+		5C85661D2257AE9D00A371DD /* WebSocketServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C85661C2257AE9D00A371DD /* WebSocketServer.swift */; };
 		5CF1D064225055760081C8A8 /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ABD446F224C036A00FB8370 /* Data+Extensions.swift */; };
 		5CF1D0662253DD490081C8A8 /* FoundationHTTPServerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF1D0652253DD490081C8A8 /* FoundationHTTPServerHandler.swift */; };
 		5CF1D0682253DD940081C8A8 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF1D0672253DD940081C8A8 /* Server.swift */; };
@@ -42,8 +43,9 @@
 		5C1360001C473BEF00AA3A01 /* Starscream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Starscream.h; path = Sources/Starscream.h; sourceTree = SOURCE_ROOT; };
 		5C13600C1C473BFE00AA3A01 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Sources/Info.plist; sourceTree = SOURCE_ROOT; };
 		5C23C24421FBB0EE00D315F1 /* FoundationHTTPHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationHTTPHandler.swift; sourceTree = "<group>"; };
+		5C85661C2257AE9D00A371DD /* WebSocketServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketServer.swift; sourceTree = "<group>"; };
 		5CF1D0652253DD490081C8A8 /* FoundationHTTPServerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationHTTPServerHandler.swift; sourceTree = "<group>"; };
-		5CF1D0672253DD940081C8A8 /* Server.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Server.swift; path = Starscream/Server.swift; sourceTree = "<group>"; };
+		5CF1D0672253DD940081C8A8 /* Server.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
 		6B3E7A0019D48C2F006071F7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		742419BB1DC6BDBA003ACE43 /* StarscreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StarscreamTests.swift; path = StarscreamTests/StarscreamTests.swift; sourceTree = "<group>"; };
 		8A1681A6223D8664000C08D8 /* Security.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security.swift; sourceTree = "<group>"; };
@@ -87,6 +89,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5C85661B2257AE7500A371DD /* Server */ = {
+			isa = PBXGroup;
+			children = (
+				5CF1D0672253DD940081C8A8 /* Server.swift */,
+				5C85661C2257AE9D00A371DD /* WebSocketServer.swift */,
+			);
+			path = Server;
+			sourceTree = "<group>";
+		};
 		6B3E79DC19D48B7F006071F7 = {
 			isa = PBXGroup;
 			children = (
@@ -117,7 +128,7 @@
 				BBB5ABE2215E2217005B48B6 /* SSLClientCertificate.swift */,
 				BBB5ABE3215E2217005B48B6 /* SSLSecurity.swift */,
 				BBB5ABE4215E2217005B48B6 /* WebSocket.swift */,
-				5CF1D0672253DD940081C8A8 /* Server.swift */,
+				5C85661B2257AE7500A371DD /* Server */,
 				5C1360001C473BEF00AA3A01 /* Starscream.h */,
 				6B3E79E919D48B7F006071F7 /* Supporting Files */,
 			);
@@ -335,6 +346,7 @@
 				8A7A718821F8E1490061166D /* Transport.swift in Sources */,
 				8ABD4470224C036A00FB8370 /* Data+Extensions.swift in Sources */,
 				5C23C24521FBB0EE00D315F1 /* FoundationHTTPHandler.swift in Sources */,
+				5C85661D2257AE9D00A371DD /* WebSocketServer.swift in Sources */,
 				BBB5ABE7215E2217005B48B6 /* SSLSecurity.swift in Sources */,
 				BBB5ABE6215E2217005B48B6 /* SSLClientCertificate.swift in Sources */,
 				5CF1D0682253DD940081C8A8 /* Server.swift in Sources */,

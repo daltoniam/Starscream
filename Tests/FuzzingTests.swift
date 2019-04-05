@@ -19,7 +19,7 @@ class FuzzingTests: XCTestCase {
         super.setUp()
         
         let s = MockServer()
-        s.start(address: "", port: 0)
+        let _ = s.start(address: "", port: 0)
         server = s
         
         let transport = MockTransport(server: s)
@@ -181,5 +181,5 @@ class FuzzingTests: XCTestCase {
         sendMessage(string: String(repeating: "*", count: 65536), isBinary: true)
     }
     
-    //TODO: the rest of them. 
+    //TODO: the rest of them.
 }

@@ -25,12 +25,19 @@ public enum ErrorType: Error {
     case compressionError
     case securityError
     case protocolError //There was an error parsing the WebSocket frames
+    case serverError
 }
 
 public struct WSError: Error {
     public let type: ErrorType
     public let message: String
     public let code: UInt16
+    
+    public init(type: ErrorType, message: String, code: UInt16) {
+        self.type = type
+        self.message = message
+        self.code = code
+    }
 }
 
 public protocol WebSocketClient: class {

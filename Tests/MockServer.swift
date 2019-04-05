@@ -9,10 +9,6 @@
 import Foundation
 @testable import Starscream
 
-protocol MockConnectionDelegate: class {
-    func didReceive(event: ServerEvent)
-}
-
 public class MockConnection: Connection, HTTPServerDelegate, FramerEventClient, FrameCollectorDelegate {
     let transport: MockTransport
     private let httpHandler = FoundationHTTPServerHandler()
@@ -20,7 +16,7 @@ public class MockConnection: Connection, HTTPServerDelegate, FramerEventClient, 
     private let frameHandler = FrameCollector()
     private var didUpgrade = false
     public var onEvent: ((ConnectionEvent) -> Void)?
-    fileprivate weak var delegate: MockConnectionDelegate?
+    fileprivate weak var delegate: ConnectionDelegate?
     
     init(transport: MockTransport) {
         self.transport = transport
@@ -32,12 +28,6 @@ public class MockConnection: Connection, HTTPServerDelegate, FramerEventClient, 
     func add(data: Data) {
         if !didUpgrade {
             httpHandler.parse(data: data)
-            //TODO:
-            // 1. handle HTTP request and set didUpgrade flag
-            // 2. send back HTTP response
-            // 3. handle websocket frames as they comes in
-            // 4. have an expectations of results
-            // 5. "timeout" on failure
         } else {
             framer.add(data: data)
         }
@@ -103,13 +93,13 @@ public class MockConnection: Connection, HTTPServerDelegate, FramerEventClient, 
 }
     
 
-public class MockServer: BaseServer, MockConnectionDelegate {
+public class MockServer: Server, ConnectionDelegate {
     fileprivate var connections = [String: MockConnection]()
     
     public var onEvent: ((ServerEvent) -> Void)?
     
-    public func start(address: String, port: Int) {
-        //noop in mock server
+    public func start(address: String, port: UInt16) -> Error? {
+        return nil
     }
     
     public func connect(transport: MockTransport) {
@@ -134,7 +124,7 @@ public class MockServer: BaseServer, MockConnectionDelegate {
     }
     
     /// MARK: - MockConnectionDelegate
-    func didReceive(event: ServerEvent) {
+    public func didReceive(event: ServerEvent) {
         onEvent?(event)
     }
 }

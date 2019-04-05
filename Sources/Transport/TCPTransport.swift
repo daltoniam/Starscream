@@ -40,6 +40,15 @@ public class TCPTransport: Transport {
         return self.isTLS
     }
     
+    public init(connection: NWConnection) {
+        self.connection = connection
+        start()
+    }
+    
+    public init() {
+        //normal connection, will use the "connect" method below
+    }
+    
     public func connect(url: URL, timeout: Double = 10) {
         guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(TCPTransportError.invalidRequest))
@@ -50,9 +59,35 @@ public class TCPTransport: Transport {
         options.connectionTimeout = Int(timeout.rounded(.up))
 
         let tlsOptions = isTLS ? NWProtocolTLS.Options() : nil
-        let parameters = NWParameters(tls: tlsOptions, tcp:NWProtocolTCP.Options())
+        let parameters = NWParameters(tls: tlsOptions, tcp: options)
         let conn = NWConnection(host: NWEndpoint.Host.name(parts.host, nil), port: NWEndpoint.Port(rawValue: UInt16(parts.port))!, using: parameters)
-
+        connection = conn
+        start()
+    }
+    
+    public func disconnect() {
+        isRunning = false
+        connection?.cancel()
+    }
+    
+    public func register(delegate: TransportEventClient) {
+        self.delegate = delegate
+    }
+    
+    public func write(data: Data, completion: @escaping ((Error?) -> ())) {
+        connection?.send(content: data, completion: .contentProcessed { (error) in
+            completion(error)
+        })
+    }
+    
+    public func getSecurityData() -> SecurityData? {
+        return nil
+    }
+    
+    private func start() {
+        guard let conn = connection else {
+            return
+        }
         conn.stateUpdateHandler = { [weak self] (newState) in
             switch newState {
             case .ready:
@@ -79,28 +114,8 @@ public class TCPTransport: Transport {
         }
         
         conn.start(queue: queue)
-        connection = conn
         isRunning = true
         readLoop()
-    }
-    
-    public func disconnect() {
-        isRunning = false
-        connection?.cancel()
-    }
-    
-    public func register(delegate: TransportEventClient) {
-        self.delegate = delegate
-    }
-    
-    public func write(data: Data, completion: @escaping ((Error?) -> ())) {
-        connection?.send(content: data, completion: .contentProcessed { (error) in
-            completion(error)
-        })
-    }
-    
-    public func getSecurityData() -> SecurityData? {
-        return nil
     }
     
     //readLoop keeps reading from the connection to get the latest content
