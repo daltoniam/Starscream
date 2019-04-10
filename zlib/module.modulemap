@@ -1,0 +1,4 @@
+module SSCommonCrypto [system] {
+    header "include.h"
+    export *
+}

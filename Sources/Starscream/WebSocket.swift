@@ -21,7 +21,12 @@
 
 import Foundation
 import CoreFoundation
+
+#if swift(>=4.2)
 import CommonCrypto
+#else
+import SSCommonCrypto
+#endif
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
@@ -671,35 +676,35 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         let timeout = request.timeoutInterval * 1_000_000
         stream.delegate = self
         stream.connect(url: url, port: port, timeout: timeout, ssl: settings, completion: { [weak self] (error) in
-            guard let self = self else {return}
+            guard let strongSelf = self else {return}
             if error != nil {
-                self.disconnectStream(error)
+                strongSelf.disconnectStream(error)
                 return
             }
             let operation = BlockOperation()
             operation.addExecutionBlock { [weak self, weak operation] in
-                guard let sOperation = operation, let self = self else { return }
+                guard let sOperation = operation, let strongSelf = self else { return }
                 guard !sOperation.isCancelled else { return }
                 // Do the pinning now if needed
                 #if os(Linux) || os(watchOS)
                     self.certValidated = false
                 #else
-                    if let sec = self.security, !self.certValidated {
-                        let trustObj = self.stream.sslTrust()
+                    if let sec = strongSelf.security, !strongSelf.certValidated {
+                        let trustObj = strongSelf.stream.sslTrust()
                         if let possibleTrust = trustObj.trust {
-                            self.certValidated = sec.isValid(possibleTrust, domain: trustObj.domain)
+                            strongSelf.certValidated = sec.isValid(possibleTrust, domain: trustObj.domain)
                         } else {
-                            self.certValidated = false
+                            strongSelf.certValidated = false
                         }
-                        if !self.certValidated {
-                            self.disconnectStream(WSError(type: .invalidSSLError, message: "Invalid SSL certificate", code: 0))
+                        if !strongSelf.certValidated {
+                            strongSelf.disconnectStream(WSError(type: .invalidSSLError, message: "Invalid SSL certificate", code: 0))
                             return
                         }
                     }
                 #endif
-                let _ = self.stream.write(data: data)
+                let _ = strongSelf.stream.write(data: data)
             }
-            self.writeQueue.addOperation(operation)
+            strongSelf.writeQueue.addOperation(operation)
         })
 
         self.mutex.lock()
@@ -834,11 +839,11 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             didDisconnect = false
             if canDispatch {
                 callbackQueue.async { [weak self] in
-                    guard let self = self else { return }
-                    self.onConnect?()
-                    self.delegate?.websocketDidConnect(socket: self)
-                    self.advancedDelegate?.websocketDidConnect(socket: self)
-                    NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidConnectNotification), object: self)
+                    guard let strongSelf = self else { return }
+                    strongSelf.onConnect?()
+                    strongSelf.delegate?.websocketDidConnect(socket: strongSelf)
+                    strongSelf.advancedDelegate?.websocketDidConnect(socket: strongSelf)
+                    NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidConnectNotification), object: strongSelf)
                 }
             }
             //totalSize += 1 //skip the last \n
@@ -1090,10 +1095,10 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             if receivedOpcode == .pong {
                 if canDispatch {
                     callbackQueue.async { [weak self] in
-                        guard let self = self else { return }
+                        guard let strongSelf = self else { return }
                         let pongData: Data? = data.count > 0 ? data : nil
-                        self.onPong?(pongData)
-                        self.pongDelegate?.websocketDidReceivePong(socket: self, data: pongData)
+                        strongSelf.onPong?(pongData)
+                        strongSelf.pongDelegate?.websocketDidReceivePong(socket: strongSelf, data: pongData)
                     }
                 }
                 return buffer.fromOffset(offset + Int(len))
@@ -1177,20 +1182,20 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 }
                 if canDispatch {
                     callbackQueue.async { [weak self] in
-                        guard let self = self else { return }
-                        self.onText?(str)
-                        self.delegate?.websocketDidReceiveMessage(socket: self, text: str)
-                        self.advancedDelegate?.websocketDidReceiveMessage(socket: self, text: str, response: response)
+                        guard let strongSelf = self else { return }
+                        strongSelf.onText?(str)
+                        strongSelf.delegate?.websocketDidReceiveMessage(socket: strongSelf, text: str)
+                        strongSelf.advancedDelegate?.websocketDidReceiveMessage(socket: strongSelf, text: str, response: response)
                     }
                 }
             } else if response.code == .binaryFrame {
                 if canDispatch {
                     let data = response.buffer! // local copy so it is perverse for writing
                     callbackQueue.async { [weak self] in
-                        guard let self = self else { return }
-                        self.onData?(data as Data)
-                        self.delegate?.websocketDidReceiveData(socket: self, data: data as Data)
-                        self.advancedDelegate?.websocketDidReceiveData(socket: self, data: data as Data, response: response)
+                        guard let strongSelf = self else { return }
+                        strongSelf.onData?(data as Data)
+                        strongSelf.delegate?.websocketDidReceiveData(socket: strongSelf, data: data as Data)
+                        strongSelf.advancedDelegate?.websocketDidReceiveData(socket: strongSelf, data: data as Data, response: response)
                     }
                 }
             }
@@ -1217,24 +1222,24 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         let operation = BlockOperation()
         operation.addExecutionBlock { [weak self, weak operation] in
             //stream isn't ready, let's wait
-            guard let self = self else { return }
+            guard let strongSelf = self else { return }
             guard let sOperation = operation else { return }
             var offset = 2
-            var firstByte:UInt8 = self.FinMask | code.rawValue
+            var firstByte:UInt8 = strongSelf.FinMask | code.rawValue
             var data = data
-            if [.textFrame, .binaryFrame].contains(code), let compressor = self.compressionState.compressor {
+            if [.textFrame, .binaryFrame].contains(code), let compressor = strongSelf.compressionState.compressor {
                 do {
                     data = try compressor.compress(data)
-                    if self.compressionState.clientNoContextTakeover {
+                    if strongSelf.compressionState.clientNoContextTakeover {
                         try compressor.reset()
                     }
-                    firstByte |= self.RSV1Mask
+                    firstByte |= strongSelf.RSV1Mask
                 } catch {
                     // TODO: report error?  We can just send the uncompressed frame.
                 }
             }
             let dataLength = data.count
-            let frame = NSMutableData(capacity: dataLength + self.MaxFrameSize)
+            let frame = NSMutableData(capacity: dataLength + strongSelf.MaxFrameSize)
             let buffer = UnsafeMutableRawPointer(frame!.mutableBytes).assumingMemoryBound(to: UInt8.self)
             buffer[0] = firstByte
             if dataLength < 126 {
@@ -1248,7 +1253,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 WebSocket.writeUint64(buffer, offset: offset, value: UInt64(dataLength))
                 offset += MemoryLayout<UInt64>.size
             }
-            buffer[1] |= self.MaskMask
+            buffer[1] |= strongSelf.MaskMask
             let maskKey = UnsafeMutablePointer<UInt8>(buffer + offset)
             _ = SecRandomCopyBytes(kSecRandomDefault, Int(MemoryLayout<UInt32>.size), maskKey)
             offset += MemoryLayout<UInt32>.size
@@ -1259,22 +1264,22 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             }
             var total = 0
             while !sOperation.isCancelled {
-                if !self.readyToWrite {
-                    self.doDisconnect(WSError(type: .outputStreamWriteError, message: "output stream had an error during write", code: 0))
+                if !strongSelf.readyToWrite {
+                    strongSelf.doDisconnect(WSError(type: .outputStreamWriteError, message: "output stream had an error during write", code: 0))
                     break
                 }
-                let stream = self.stream
+                let stream = strongSelf.stream
                 let writeBuffer = UnsafeRawPointer(frame!.bytes+total).assumingMemoryBound(to: UInt8.self)
                 let len = stream.write(data: Data(bytes: writeBuffer, count: offset-total))
                 if len <= 0 {
-                    self.doDisconnect(WSError(type: .outputStreamWriteError, message: "output stream had an error during write", code: 0))
+                    strongSelf.doDisconnect(WSError(type: .outputStreamWriteError, message: "output stream had an error during write", code: 0))
                     break
                 } else {
                     total += len
                 }
                 if total >= offset {
                     if let callback = writeCompletion {
-                        self.callbackQueue.async {
+                        strongSelf.callbackQueue.async {
                             callback()
                         }
                     }
@@ -1298,12 +1303,12 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         mutex.unlock()
         guard canDispatch else {return}
         callbackQueue.async { [weak self] in
-            guard let self = self else { return }
-            self.onDisconnect?(error)
-            self.delegate?.websocketDidDisconnect(socket: self, error: error)
-            self.advancedDelegate?.websocketDidDisconnect(socket: self, error: error)
+            guard let strongSelf = self else { return }
+            strongSelf.onDisconnect?(error)
+            strongSelf.delegate?.websocketDidDisconnect(socket: strongSelf, error: error)
+            strongSelf.advancedDelegate?.websocketDidDisconnect(socket: strongSelf, error: error)
             let userInfo = error.map{ [WebsocketDisconnectionErrorKeyName: $0] }
-            NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidDisconnectNotification), object: self, userInfo: userInfo)
+            NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidDisconnectNotification), object: strongSelf, userInfo: userInfo)
         }
     }
 
