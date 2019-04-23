@@ -19,7 +19,7 @@ EM.run {
 
     ws.onmessage { |msg|
       puts "message from client: #{msg}"
-      ws.send Faker::Hacker.say_something_smart
+      ws.send +Faker::Hacker.say_something_smart
     }
   end
 }
