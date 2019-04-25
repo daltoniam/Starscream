@@ -3,7 +3,7 @@ default_platform(:ios)
 update_fastlane
 
 platform :ios do
-  desc "Depoy new version"
+  desc "Deploy new version"
   lane :release do
     ensure_git_branch
     version = version_get_podspec(path: "Starscream.podspec")
