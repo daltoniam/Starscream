@@ -3,7 +3,7 @@
 //  WSCompression.swift
 //
 //  Created by Joseph Ross on 7/16/14.
-//  Copyright © 2017 Joseph Ross.
+//  Copyright © 2017 Joseph Ross & Vluxe. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
