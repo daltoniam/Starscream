@@ -36,6 +36,7 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     private var isOpen = false
     private var onConnect: ((InputStream, OutputStream) -> Void)?
     private var isTLS = false
+    private var certPinner: CertificatePinning?
     
     public var usingTLS: Bool {
         return self.isTLS
@@ -46,11 +47,12 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         onConnect = streamConfiguration
     }
     
-     public func connect(url: URL, timeout: Double = 10) {
+     public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil) {
         guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(FoundationTransportError.invalidRequest))
             return
         }
+        self.certPinner = certificatePinning
         self.isTLS = parts.isTLS
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
@@ -120,9 +122,9 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         completion(nil)
     }
     
-    public func getSecurityData() -> SecurityData? {
+    private func getSecurityData() -> (SecTrust?, String?) {
         guard let outputStream = outputStream else {
-            return nil
+            return (nil, nil)
         }
         let trust = outputStream.property(forKey: kCFStreamPropertySSLPeerTrust as Stream.PropertyKey) as! SecTrust?
         var domain = outputStream.property(forKey: kCFStreamSSLPeerName as Stream.PropertyKey) as! String?
@@ -139,7 +141,7 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
                 domain = peerDomain
             }
         }
-        return FoundationSecurityData(trust: trust, domain: domain)
+        return (trust, domain)
     }
     
     private func read() {
@@ -173,8 +175,22 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
             }
         case .openCompleted:
             if aStream == inputStream {
-                isOpen = true
-                delegate?.connectionChanged(state: .connected)
+                let (trust, domain) = getSecurityData()
+                if let pinner = certPinner, let trust = trust {
+                    pinner.evaluateTrust(trust: trust, domain:  domain, completion: { [weak self] (state) in
+                        switch state {
+                        case .success:
+                            self?.isOpen = true
+                            self?.delegate?.connectionChanged(state: .connected)
+                        case .failed(let error):
+                            self?.delegate?.connectionChanged(state: .failed(error))
+                        }
+                        
+                    })
+                } else {
+                    isOpen = true
+                    delegate?.connectionChanged(state: .connected)
+                }
             }
         case .endEncountered:
             if aStream == inputStream {

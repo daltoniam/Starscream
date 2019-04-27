@@ -96,7 +96,8 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private let framer: Framer
     private let httpHandler: HTTPHandler
     private let compressionHandler: CompressionHandler?
-    private let secHandler: Security
+    private let certPinner: CertificatePinning?
+    private let headerChecker: HeaderValidator
     private let frameHandler = FrameCollector()
     private var didUpgrade = false
     private var secKeyValue = ""
@@ -114,7 +115,9 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private var canSend = false
     private let mutex = DispatchSemaphore(value: 1)
     
-    public init(request: URLRequest, transport: Transport, security: Security,
+    public init(request: URLRequest, transport: Transport,
+                certPinner: CertificatePinning? = nil,
+                headerValidator: HeaderValidator = FoundationSecurity(),
                 httpHandler: HTTPHandler = FoundationHTTPHandler(),
                 framer: Framer = WSFramer(),
                 compressionHandler: CompressionHandler? = nil) {
@@ -122,17 +125,18 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         self.transport = transport
         self.framer = framer
         self.httpHandler = httpHandler
-        self.secHandler = security
+        self.certPinner = certPinner
+        self.headerChecker = headerValidator
         self.compressionHandler = compressionHandler
         framer.updateCompression(supports: compressionHandler != nil)
         frameHandler.delegate = self
     }
     
-    public convenience init(request: URLRequest, compressionHandler: CompressionHandler? = nil) {
+    public convenience init(request: URLRequest, certPinner: CertificatePinning? = FoundationSecurity(), compressionHandler: CompressionHandler? = nil) {
         if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
-            self.init(request: request, transport: TCPTransport(), security: FoundationSecurity(), compressionHandler: compressionHandler)
+            self.init(request: request, transport: TCPTransport(), certPinner: certPinner, compressionHandler: compressionHandler)
         } else {
-            self.init(request: request, transport: FoundationTransport(), security: FoundationSecurity(), compressionHandler: compressionHandler)
+            self.init(request: request, transport: FoundationTransport(), certPinner: certPinner, compressionHandler: compressionHandler)
         }
     }
     
@@ -151,7 +155,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         guard let url = request.url else {
             return
         }
-        transport.connect(url: url, timeout: request.timeoutInterval)
+        transport.connect(url: url, timeout: request.timeoutInterval, certificatePinning: certPinner)
     }
     
     public func disconnect(closeCode: UInt16 = CloseCode.normal.rawValue) {
@@ -219,14 +223,6 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func connectionChanged(state: ConnectionState) {
         switch state {
         case .connected:
-            if transport.usingTLS {
-                if !secHandler.isValid(data: transport.getSecurityData()) {
-                    let error = WSError(type: .securityError, message: "ssl pinning host doesn't match", code: SecurityErrorCode.pinningFailed.rawValue)
-                    handleError(error)
-                    return
-                }
-            }
-
             secKeyValue = HTTPWSHeader.generateWebSocketKey()
             let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: framer.supportsCompression(), secKeyValue: secKeyValue)
             let data = httpHandler.convert(request: wsReq)
@@ -259,7 +255,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func didReceiveHTTP(event: HTTPEvent) {
         switch event {
         case .success(let headers):
-            if let error = secHandler.validate(headers: headers, key: secKeyValue) {
+            if let error = headerChecker.validate(headers: headers, key: secKeyValue) {
                 handleError(error)
                 return
             }

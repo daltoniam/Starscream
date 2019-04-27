@@ -27,15 +27,19 @@ public enum SecurityErrorCode: UInt16 {
     case pinningFailed = 2
 }
 
-// SecurityData is an empty protocol so that an Transport can provide
-// the security information needed to do SSL pinning
-public protocol SecurityData {
-    
+public enum PinningState {
+    case success
+    case failed(CFError?)
 }
 
-// the base methods needed to do all the security related things
-// e.g. SSL pinning, HTTP response header validation, etc
-public protocol Security: class {
-    func isValid(data: SecurityData?) -> Bool
+// CertificatePinning protocol provides an interface for Transports to handle Certificate
+// or Public Key Pinning.
+public protocol CertificatePinning: class {
+    func evaluateTrust(trust: SecTrust, domain: String?, completion: ((PinningState) -> ()))
+}
+
+// validates the "Sec-WebSocket-Accept" header as defined 1.3 of the RFC 6455
+// https://tools.ietf.org/html/rfc6455#section-1.3
+public protocol HeaderValidator: class {
     func validate(headers: [String: String], key: String) -> Error?
 }

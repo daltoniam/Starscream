@@ -16,20 +16,20 @@ class ViewController: UIViewController, WebSocketDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let err = server.start(address: "localhost", port: 8080)
-        if err != nil {
-            print("server didn't start!")
-        }
-        server.onEvent = { event in
-            switch event {
-            case .text(let conn, let string):
-                let payload = string.data(using: .utf8)!
-                conn.write(data: payload, opcode: .textFrame)
-            default:
-                break
-            }
-        }
-        var request = URLRequest(url: URL(string: "http://localhost:8080")!)
+//        let err = server.start(address: "localhost", port: 8080)
+//        if err != nil {
+//            print("server didn't start!")
+//        }
+//        server.onEvent = { event in
+//            switch event {
+//            case .text(let conn, let string):
+//                let payload = string.data(using: .utf8)!
+//                conn.write(data: payload, opcode: .textFrame)
+//            default:
+//                break
+//            }
+//        }
+        var request = URLRequest(url: URL(string: "https://localhost:8080")!)
         request.timeoutInterval = 5
         socket = WebSocket(request: request)
         socket.delegate = self

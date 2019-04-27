@@ -46,9 +46,8 @@ public protocol TransportEventClient: class {
 
 public protocol Transport: class {
     func register(delegate: TransportEventClient)
-    func connect(url: URL, timeout: Double)
+    func connect(url: URL, timeout: Double, certificatePinning: CertificatePinning?)
     func disconnect()
     func write(data: Data, completion: @escaping ((Error?) -> ()))
-    func getSecurityData() -> SecurityData?
     var usingTLS: Bool { get }
 }

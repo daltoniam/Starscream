@@ -49,7 +49,7 @@ public class TCPTransport: Transport {
         //normal connection, will use the "connect" method below
     }
     
-    public func connect(url: URL, timeout: Double = 10) {
+    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil) {
         guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(TCPTransportError.invalidRequest))
             return
@@ -59,6 +59,23 @@ public class TCPTransport: Transport {
         options.connectionTimeout = Int(timeout.rounded(.up))
 
         let tlsOptions = isTLS ? NWProtocolTLS.Options() : nil
+        if let tlsOpts = tlsOptions {
+            sec_protocol_options_set_verify_block(tlsOpts.securityProtocolOptions, { (sec_protocol_metadata, sec_trust, sec_protocol_verify_complete) in
+                let trust = sec_trust_copy_ref(sec_trust).takeRetainedValue()
+                guard let pinner = certificatePinning else {
+                    sec_protocol_verify_complete(true)
+                    return
+                }
+                pinner.evaluateTrust(trust: trust, domain:  url.absoluteString, completion: { (state) in
+                    switch state {
+                    case .success:
+                        sec_protocol_verify_complete(true)
+                    case .failed(_):
+                        sec_protocol_verify_complete(false)
+                    }
+                })
+            }, queue)
+        }
         let parameters = NWParameters(tls: tlsOptions, tcp: options)
         let conn = NWConnection(host: NWEndpoint.Host.name(parts.host, nil), port: NWEndpoint.Port(rawValue: UInt16(parts.port))!, using: parameters)
         connection = conn
@@ -78,10 +95,6 @@ public class TCPTransport: Transport {
         connection?.send(content: data, completion: .contentProcessed { (error) in
             completion(error)
         })
-    }
-    
-    public func getSecurityData() -> SecurityData? {
-        return nil
     }
     
     private func start() {
