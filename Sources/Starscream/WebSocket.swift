@@ -579,6 +579,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      */
     private func createHTTPRequest() {
         guard let url = request.url else {return}
+	guard url.scheme != nil, url.host != nil else {return}
         var port = url.port
         if port == nil {
             if supportedSSLSchemes.contains(url.scheme!) {
