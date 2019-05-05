@@ -3,4 +3,4 @@
 set -o pipefail && xcodebuild -project Starscream.xcodeproj -scheme Starscream CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO clean build | xcpretty
 swift build
 pod repo update
-pod lib lint --verbose
+pod lib lint --verbose --allow-warnings
