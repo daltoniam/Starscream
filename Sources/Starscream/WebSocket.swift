@@ -868,10 +868,9 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                     code = c
                 }
             } else {
-                let responseSplit = str.components(separatedBy: ":")
-                guard responseSplit.count > 1 else { break }
-                let key = responseSplit[0].trimmingCharacters(in: .whitespaces)
-                let val = responseSplit[1].trimmingCharacters(in: .whitespaces)
+                guard let separatorIndex = str.firstIndex(of: ":") else { break }
+                let key = str.prefix(upTo: separatorIndex).trimmingCharacters(in: .whitespaces)
+                let val = str.suffix(from: str.index(after: separatorIndex)).trimmingCharacters(in: .whitespaces)
                 headers[key.lowercased()] = val
             }
             i += 1
