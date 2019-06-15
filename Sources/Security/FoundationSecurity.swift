@@ -52,7 +52,7 @@ extension FoundationSecurity: CertificatePinning {
     }
     
     private func handleSecurityTrust(trust: SecTrust, completion: ((PinningState) -> ())) {
-        if #available(iOSApplicationExtension 12.0, *) {
+        if #available(iOS 12.0, OSX 10.14, *) {
             var error: CFError?
             if SecTrustEvaluateWithError(trust, &error) {
                 completion(.success)

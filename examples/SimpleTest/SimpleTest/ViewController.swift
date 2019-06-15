@@ -43,7 +43,8 @@ class ViewController: UIViewController, WebSocketDelegate {
 //                break
 //            }
 //        }
-        var request = URLRequest(url: URL(string: "https://localhost:8080")!)
+        //https://echo.websocket.org
+        var request = URLRequest(url: URL(string: "http://localhost:8080")!)//https://localhost:8080
         request.timeoutInterval = 5
         socket = WebSocket(request: request)
         socket.delegate = self
