@@ -723,11 +723,11 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      Disconnect the stream object and notifies the delegate.
      */
     private func disconnectStream(_ error: Error?, runDelegate: Bool = true) {
-        if error == nil {
-            writeQueue.waitUntilAllOperationsAreFinished()
-        } else {
+        if error != nil {
             writeQueue.cancelAllOperations()
         }
+
+        writeQueue.waitUntilAllOperationsAreFinished()
         
         mutex.lock()
         cleanupStream()
