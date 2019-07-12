@@ -723,11 +723,17 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      Disconnect the stream object and notifies the delegate.
      */
     private func disconnectStream(_ error: Error?, runDelegate: Bool = true) {
-        if error == nil {
-            writeQueue.waitUntilAllOperationsAreFinished()
-        } else {
+        // We should always be waiting until currently executing operations have completed before we set outputStream to nil,
+        // and avoid another concurrentOperation from accessing a nil outputStream.
+        // Per the documentation on cancelAllOperations:
+        // https://developer.apple.com/documentation/foundation/nsoperationqueue/1417849-cancelalloperations
+        // Canceling the operations does not automatically remove them from the queue or stop those that are currently executing
+        // Source: https://github.com/daltoniam/Starscream/pull/670
+        if error != nil {
             writeQueue.cancelAllOperations()
         }
+
+        writeQueue.waitUntilAllOperationsAreFinished()
         
         mutex.lock()
         cleanupStream()
