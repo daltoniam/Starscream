@@ -311,6 +311,29 @@ To integrate Starscream into your Xcode project using Carthage, specify it in yo
 github "daltoniam/Starscream" >= 3.0.2
 ```
 
+### Accio
+
+Check out the [Accio](https://github.com/JamitLabs/Accio) docs on how to add a install. 
+
+Add the following to your Package.swift:
+
+```swift
+.package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "3.1.0")),
+```
+
+Next, add `Starscream` to your App targets dependencies like so:
+
+```swift
+.target(
+    name: "App",
+    dependencies: [
+        "Starscream",
+    ]
+),
+```
+
+Then run `accio update`.
+
 ### Rogue
 
 First see the [installation docs](https://github.com/acmacalister/Rogue) for how to install Rogue.
