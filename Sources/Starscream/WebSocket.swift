@@ -618,6 +618,12 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 httpBody += "\(key): \(val)\r\n"
             }
         }
+        if let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty {
+            let headers = HTTPCookie.requestHeaderFields(with: cookies)
+            for (key, val) in headers {
+                httpBody += "\(key): \(val)\r\n"
+            }
+        }
         httpBody += "\r\n"
         
         initStreamsWithData(httpBody.data(using: .utf8)!, Int(port!))
@@ -877,6 +883,10 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             i += 1
         }
         advancedDelegate?.websocketHttpUpgrade(socket: self, response: str)
+        let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers, for: self.currentURL)
+        cookies.forEach {
+            HTTPCookieStorage.shared.setCookie($0)
+        }
         onHttpResponseHeaders?(headers)
         if code != httpSwitchProtocolCode {
             return code
