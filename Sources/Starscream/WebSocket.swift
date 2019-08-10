@@ -121,9 +121,11 @@ open class WebSocket: WebSocketClient, EngineDelegate {
     }
     
     public convenience init(request: URLRequest, certPinner: CertificatePinning? = FoundationSecurity(), compressionHandler: CompressionHandler? = nil) {
-        if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) {
-            self.init(request: request, engine: NativeEngine())
-        } else if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
+        //TODO: will release once Xcode 11 is out of beta
+//        if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) {
+//            self.init(request: request, engine: NativeEngine())
+//        } else
+        if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
             self.init(request: request, engine: WSEngine(transport: TCPTransport(), certPinner: certPinner, compressionHandler: compressionHandler))
         } else {
             self.init(request: request, engine: WSEngine(transport: FoundationTransport(), certPinner: certPinner, compressionHandler: compressionHandler))
