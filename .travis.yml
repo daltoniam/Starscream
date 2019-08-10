@@ -1,6 +1,5 @@
-os: osx
-osx_image: xcode10.2
-#language: objective-c
+osx_image: xcode10.3
+language: objective-c
 before_install:
   - gem install cocoapods --pre
   - gem cleanup
