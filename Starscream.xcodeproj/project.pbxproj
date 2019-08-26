@@ -16,6 +16,7 @@
 		5C7CB5A722B59ABA006AF81B /* NativeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C7CB5A622B59ABA006AF81B /* NativeEngine.swift */; };
 		5C7CB5A922B5A14C006AF81B /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C7CB5A822B5A14C006AF81B /* Engine.swift */; };
 		5C7CB5AB22B5ABF0006AF81B /* WSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C7CB5AA22B5ABF0006AF81B /* WSEngine.swift */; };
+		5C839729231359AE00856501 /* StringHTTPHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C839728231359AE00856501 /* StringHTTPHandler.swift */; };
 		5C85661D2257AE9D00A371DD /* WebSocketServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C85661C2257AE9D00A371DD /* WebSocketServer.swift */; };
 		5CF1D064225055760081C8A8 /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ABD446F224C036A00FB8370 /* Data+Extensions.swift */; };
 		5CF1D0662253DD490081C8A8 /* FoundationHTTPServerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF1D0652253DD490081C8A8 /* FoundationHTTPServerHandler.swift */; };
@@ -46,6 +47,7 @@
 		5C7CB5A622B59ABA006AF81B /* NativeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeEngine.swift; sourceTree = "<group>"; };
 		5C7CB5A822B5A14C006AF81B /* Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
 		5C7CB5AA22B5ABF0006AF81B /* WSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WSEngine.swift; sourceTree = "<group>"; };
+		5C839728231359AE00856501 /* StringHTTPHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringHTTPHandler.swift; sourceTree = "<group>"; };
 		5C85661C2257AE9D00A371DD /* WebSocketServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketServer.swift; sourceTree = "<group>"; };
 		5CF1D0652253DD490081C8A8 /* FoundationHTTPServerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationHTTPServerHandler.swift; sourceTree = "<group>"; };
 		5CF1D0672253DD940081C8A8 /* Server.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
@@ -75,7 +77,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				48F1584221FBC1200093F06A /* Starscream.framework in Frameworks */,
 				335FA1FC1F5DF71D00F6D2EC /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -203,6 +204,7 @@
 				8A7A719221FA42BA0061166D /* HTTPHandler.swift */,
 				5C23C24421FBB0EE00D315F1 /* FoundationHTTPHandler.swift */,
 				5CF1D0652253DD490081C8A8 /* FoundationHTTPServerHandler.swift */,
+				5C839728231359AE00856501 /* StringHTTPHandler.swift */,
 			);
 			path = Framer;
 			sourceTree = "<group>";
@@ -352,6 +354,7 @@
 				8A1681A9223D8707000C08D8 /* FoundationSecurity.swift in Sources */,
 				8A7A718C21F8F9790061166D /* FoundationTransport.swift in Sources */,
 				BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */,
+				5C839729231359AE00856501 /* StringHTTPHandler.swift in Sources */,
 				5C7CB5A922B5A14C006AF81B /* Engine.swift in Sources */,
 				8A7A718F21F924D40061166D /* Framer.swift in Sources */,
 				5CF1D0662253DD490081C8A8 /* FoundationHTTPServerHandler.swift in Sources */,

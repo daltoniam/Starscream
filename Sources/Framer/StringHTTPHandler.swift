@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  FoundationHTTPHandler.swift
+//  StringHTTPHandler.swift
 //  Starscream
 //
-//  Created by Dalton Cherry on 1/25/19.
+//  Created by Dalton Cherry on 8/25/19.
 //  Copyright © 2019 Vluxe. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,11 +21,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Foundation
-#if os(watchOS)
-typealias FoundationHTTPHandler = StringHTTPHandler
-#else
-public class FoundationHTTPHandler: HTTPHandler {
 
+public class StringHTTPHandler: HTTPHandler {
+    
     var buffer = Data()
     weak var delegate: HTTPHandlerDelegate?
     
@@ -34,67 +32,90 @@ public class FoundationHTTPHandler: HTTPHandler {
     }
     
     public func convert(request: URLRequest) -> Data {
-        let msg = CFHTTPMessageCreateRequest(kCFAllocatorDefault, request.httpMethod! as CFString,
-                                             request.url! as CFURL, kCFHTTPVersion1_1).takeRetainedValue()
-        if let headers = request.allHTTPHeaderFields {
-            for (aKey, aValue) in headers {
-                CFHTTPMessageSetHeaderFieldValue(msg, aKey as CFString, aValue as CFString)
-            }
-        }
-        if let body = request.httpBody {
-            CFHTTPMessageSetBody(msg, body as CFData)
-        }
-        guard let data = CFHTTPMessageCopySerializedMessage(msg) else {
+        guard let url = request.url else {
             return Data()
         }
-        return data.takeRetainedValue() as Data
+        
+        var path = url.absoluteString
+        let offset = (url.scheme?.count ?? 2) + 3
+        path = String(path[path.index(path.startIndex, offsetBy: offset)..<path.endIndex])
+        if let range = path.range(of: "/") {
+            path = String(path[range.lowerBound..<path.endIndex])
+        } else {
+            path = "/"
+            if let query = url.query {
+                path += "?" + query
+            }
+        }
+        
+        var httpBody = "\(request.httpMethod ?? "GET") \(path) HTTP/1.1\r\n"
+        if let headers = request.allHTTPHeaderFields {
+            for (key, val) in headers {
+                httpBody += "\(key): \(val)\r\n"
+            }
+        }
+        httpBody += "\r\n"
+        
+        guard var data = httpBody.data(using: .utf8) else {
+            return Data()
+        }
+        
+        if let body = request.httpBody {
+            data.append(body)
+        }
+        
+        return data
     }
     
     public func parse(data: Data) -> Int {
         let offset = findEndOfHTTP(data: data)
         if offset > 0 {
             buffer.append(data.subdata(in: 0..<offset))
+            if parseContent(data: buffer) {
+                buffer = Data()
+            }
         } else {
             buffer.append(data)
-        }
-        if parseContent(data: buffer) {
-            buffer = Data()
         }
         return offset
     }
     
     //returns true when the buffer should be cleared
     func parseContent(data: Data) -> Bool {
-        var pointer = [UInt8]()
-        data.withUnsafeBytes { pointer.append(contentsOf: $0) }
-
-        let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, false).takeRetainedValue()
-        if !CFHTTPMessageAppendBytes(response, pointer, data.count) {
-            return false //not enough data, wait for more
+        guard let str = String(data: data, encoding: .utf8) else {
+            delegate?.didReceiveHTTP(event: .failure(HTTPUpgradeError.invalidData))
+            return true
         }
-        if !CFHTTPMessageIsHeaderComplete(response) {
-            return false //not enough data, wait for more
+        let splitArr = str.components(separatedBy: "\r\n")
+        var code = -1
+        var i = 0
+        var headers = [String: String]()
+        for str in splitArr {
+            if i == 0 {
+                let responseSplit = str.components(separatedBy: .whitespaces)
+                guard responseSplit.count > 1 else {
+                    delegate?.didReceiveHTTP(event: .failure(HTTPUpgradeError.invalidData))
+                    return true
+                }
+                if let c = Int(responseSplit[1]) {
+                    code = c
+                }
+            } else {
+                let responseSplit = str.components(separatedBy: ":")
+                guard responseSplit.count > 1 else { break }
+                let key = responseSplit[0].trimmingCharacters(in: .whitespaces)
+                let val = responseSplit[1].trimmingCharacters(in: .whitespaces)
+                headers[key.lowercased()] = val
+            }
+            i += 1
         }
         
-        let code = CFHTTPMessageGetResponseStatusCode(response)
         if code != HTTPWSHeader.switchProtocolCode {
             delegate?.didReceiveHTTP(event: .failure(HTTPUpgradeError.notAnUpgrade(code)))
             return true
         }
         
-        if let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response) {
-            let nsHeaders = cfHeaders.takeRetainedValue() as NSDictionary
-            var headers = [String: String]()
-            for (key, value) in nsHeaders {
-                if let key = key as? String, let value = value as? String {
-                    headers[key] = value
-                }
-            }
-            delegate?.didReceiveHTTP(event: .success(headers))
-            return true
-        }
-        
-        delegate?.didReceiveHTTP(event: .failure(HTTPUpgradeError.invalidData))
+        delegate?.didReceiveHTTP(event: .success(headers))
         return true
     }
     
@@ -120,4 +141,4 @@ public class FoundationHTTPHandler: HTTPHandler {
         return -1
     }
 }
-#endif
+
