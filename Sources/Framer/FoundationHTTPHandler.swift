@@ -22,7 +22,7 @@
 
 import Foundation
 #if os(watchOS)
-typealias FoundationHTTPHandler = StringHTTPHandler
+public typealias FoundationHTTPHandler = StringHTTPHandler
 #else
 public class FoundationHTTPHandler: HTTPHandler {
 

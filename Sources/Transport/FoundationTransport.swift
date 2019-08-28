@@ -123,6 +123,9 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     }
     
     private func getSecurityData() -> (SecTrust?, String?) {
+        #if os(watchOS)
+        return (nil, nil)
+        #else
         guard let outputStream = outputStream else {
             return (nil, nil)
         }
@@ -142,6 +145,7 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
             }
         }
         return (trust, domain)
+        #endif
     }
     
     private func read() {
