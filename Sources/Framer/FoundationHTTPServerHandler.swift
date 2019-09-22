@@ -32,6 +32,10 @@ public class FoundationHTTPServerHandler: HTTPServerHandler {
     }
     
     public func createResponse(headers: [String: String]) -> Data {
+        #if os(watchOS)
+        //TODO: build response header
+        return Data()
+        #else
         let response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, HTTPWSHeader.switchProtocolCode,
                                                    nil, kCFHTTPVersion1_1).takeRetainedValue()
         
@@ -44,6 +48,7 @@ public class FoundationHTTPServerHandler: HTTPServerHandler {
             return Data()
         }
         return cfData as Data
+        #endif
     }
     
     public func parse(data: Data) {
@@ -57,7 +62,10 @@ public class FoundationHTTPServerHandler: HTTPServerHandler {
     func parseContent(data: Data) -> Bool {
         var pointer = [UInt8]()
         data.withUnsafeBytes { pointer.append(contentsOf: $0) }
-        
+        #if os(watchOS)
+        //TODO: parse data
+        return false
+        #else
         let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true).takeRetainedValue()
         if !CFHTTPMessageAppendBytes(response, pointer, data.count) {
             return false //not enough data, wait for more
@@ -86,5 +94,6 @@ public class FoundationHTTPServerHandler: HTTPServerHandler {
         
         delegate?.didReceive(event: .failure(HTTPUpgradeError.invalidData))
         return true
+        #endif
     }
 }
