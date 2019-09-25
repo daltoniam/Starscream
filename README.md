@@ -2,18 +2,6 @@
 
 Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6455)) library in Swift.
 
-## v4 Refactor Notice (WIP)
-
-This branch is currently a major refactor of the codebase into more modern Swift. It is protocol driven to make things more easily extensible. The code should be stable and ready for testing (it still passes the whole Autobahn test suite). Below are some of the TODOs left:
-
-- [ ] Test WatchOS/TVOS support. The original Core Foundation APIs have been updated to use the Network.framework or Foundation APIs as a fallback. Testing is still needed to see if this will effect WatchOS. In the past, WatchOS didn't have the Foundation APIs available, meaning we were forced to drop down to the CoreFoundation APIs. If this is still the case, Another `Transport` will need to be implemented to bring this functionality back.
-
-- [ ] Finish the tests. Work has been done to replicate all the existing Autobahn test suite. Examples can be seen in the Tests directory. We would like to have all 500+ base cases tests so CI builds could easily test PRs for compatibility. Additional tests for the Certificate/Key Pinning are also planned. This is a huge improvement over the current testing cycle which is generally done manually.
-
-- [ ] Experimental server support. With the addition of the Network.framework, WebSocket server support is much easier and being explored. (See the Server folder for more information)
-
-- [ ] Test Linux support.
-
 ## Features
 
 - Conforms to all of the base [Autobahn test suite](http://autobahn.ws/testsuite/).
@@ -205,7 +193,7 @@ To use Starscream in your project add the following 'Podfile' to your project
 	platform :ios, '9.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 3.0.2'
+	pod 'Starscream', '~> 4.0.0'
 
 Then run:
 
@@ -227,7 +215,7 @@ $ brew install carthage
 To integrate Starscream into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```
-github "daltoniam/Starscream" >= 3.0.2
+github "daltoniam/Starscream" >= 4.0.0
 ```
 
 ### Accio
@@ -237,7 +225,7 @@ Check out the [Accio](https://github.com/JamitLabs/Accio) docs on how to add a i
 Add the following to your Package.swift:
 
 ```swift
-.package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "3.1.0")),
+.package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "4.0.0")),
 ```
 
 Next, add `Starscream` to your App targets dependencies like so:
@@ -273,7 +261,7 @@ Once you have your Swift package set up, adding Starscream as a dependency is as
 
 ```swift
 dependencies: [
-    .Package(url: "https://github.com/daltoniam/Starscream.git", majorVersion: 3)
+    .Package(url: "https://github.com/daltoniam/Starscream.git", majorVersion: 4)
 ]
 ```
 
@@ -286,10 +274,6 @@ Add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in 
 ### Add Copy Frameworks Phase
 
 If you are running this in an OSX app or on a physical iOS device you will need to make sure you add the `Starscream.framework` to be included in your app bundle. To do this, in Xcode, navigate to the target configuration window by clicking on the blue project icon, and selecting the application target under the "Targets" heading in the sidebar. In the tab bar at the top of that window, open the "Build Phases" panel. Expand the "Link Binary with Libraries" group, and add `Starscream.framework`. Click on the + button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add `Starscream.framework` respectively.
-
-## KNOWN ISSUES
-- WatchOS does not have the the CFNetwork String constants to modify the stream's SSL behavior. It will be the default Foundation SSL behavior. This means watchOS CANNOT use `SSLCiphers`,  `disableSSLCertValidation`, or SSL pinning. All these values set on watchOS will do nothing. 
-- Linux does not have the security framework, so it CANNOT use SSL pinning or `SSLCiphers` either. 
 
 ## TODOs
 
