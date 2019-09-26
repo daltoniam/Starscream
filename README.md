@@ -388,7 +388,7 @@ func websocketDidReceiveMessage(socket: WebSocketClient, text: String, response:
 
 #### websocketDidReceiveData
 ```swift
-func websocketDidReceiveData(socket: WebSocketClient, data: Date, response: WebSocket.WSResponse) {
+func websocketDidReceiveData(socket: WebSocketClient, data: Data, response: WebSocket.WSResponse) {
 	print("got some data it long: \(data.count)")
 	print("A total of \(response.frameCount) frames were used to send this data")
 }
