@@ -109,9 +109,9 @@ public class MockServer: Server, ConnectionDelegate {
     }
     
     public func disconnect(uuid: String) {
-        guard let conn = connections[uuid] else {
-            return
-        }
+//        guard let conn = connections[uuid] else {
+//            return
+//        }
         //TODO: force disconnect
         connections.removeValue(forKey: uuid)
     }

@@ -124,10 +124,10 @@ public class ServerConnection: Connection, HTTPServerDelegate, FramerEventClient
         case .waiting:
             break
         case .failed(let error):
-            print("server connection error: \(error)")//handleError(error)
-        case .viability(let isViable):
+            print("server connection error: \(error ?? WSError(type: .protocolError, message: "default error, no extra data", code: 0))") //handleError(error)
+        case .viability(_):
             break
-        case .shouldReconnect(let status):
+        case .shouldReconnect(_):
             break
         case .receive(let data):
             if didUpgrade {

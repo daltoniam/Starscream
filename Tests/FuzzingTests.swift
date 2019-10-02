@@ -26,8 +26,8 @@ class FuzzingTests: XCTestCase {
         uuid = transport.uuid
         
         let url = URL(string: "http://vluxe.io/ws")! //domain doesn't matter with the mock transport
-        let request = URLRequest(url: url)
-        websocket = WebSocket(request: request, transport: transport, security: MockSecurity())
+        let request = URLRequest(url: url)        
+        websocket = WebSocket(request: request, engine: WSEngine(transport: transport))
         
     }
     
@@ -50,11 +50,11 @@ class FuzzingTests: XCTestCase {
                 self.websocket.write(string: string)
             case .binary(let data):
                 self.websocket.write(data: data)
-            case .ping(let data):
+            case .ping(_):
                 break
-            case .pong(let data):
+            case .pong(_):
                 break
-            case .connected(let headers):
+            case .connected(_):
                 break
             case .disconnected(let reason, let code):
                 print("reason: \(reason) code: \(code)")

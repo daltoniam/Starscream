@@ -31,7 +31,7 @@ public class MockTransport: Transport {
         self.delegate = delegate
     }
     
-    public func connect(url: URL, timeout: Double) {
+   public func connect(url: URL, timeout: Double, certificatePinning: CertificatePinning?) {
         server?.connect(transport: self)
         delegate?.connectionChanged(state: .connected)
     }
@@ -48,18 +48,17 @@ public class MockTransport: Transport {
         delegate?.connectionChanged(state: .receive(data))
     }
     
-    public func getSecurityData() -> SecurityData? {
-        return nil
+    public func getSecurityData() -> (SecTrust?, String?) {
+        return (nil, nil)
     }
 }
 
-
-public class MockSecurity: Security {
+public class MockSecurity: CertificatePinning, HeaderValidator {
     
-    public func isValid(data: SecurityData?) -> Bool {
-        return true
+    public func evaluateTrust(trust: SecTrust, domain: String?, completion: ((PinningState) -> ())) {
+        completion(.success)
     }
-    
+
     public func validate(headers: [String: String], key: String) -> Error? {
         return nil
     }
