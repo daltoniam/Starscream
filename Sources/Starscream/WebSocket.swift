@@ -237,8 +237,9 @@ open class FoundationStream : NSObject, WSStream, StreamDelegate  {
     
     public func write(data: Data) -> Int {
         guard let outStream = outputStream else {return -1}
-        let buffer = UnsafeRawPointer((data as NSData).bytes).assumingMemoryBound(to: UInt8.self)
-        return outStream.write(buffer, maxLength: data.count)
+        return data.withUnsafeBytes { buffer in
+            outStream.write(buffer, maxLength: data.count)
+        }
     }
     
     public func read() -> Data? {
@@ -635,7 +636,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
             key += "\(Character(uni!))"
         }
         let data = key.data(using: String.Encoding.utf8)
-        let baseKey = data?.base64EncodedString(options: NSData.Base64EncodingOptions(rawValue: 0))
+        let baseKey = data?.base64EncodedString(options: [])
         return baseKey!
     }
 
@@ -771,17 +772,19 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 let data = inputQueue[0]
                 var work = data
                 if let buffer = fragBuffer {
-                    var combine = NSData(data: buffer) as Data
+                    var combine = Data(buffer)
                     combine.append(data)
                     work = combine
                     fragBuffer = nil
                 }
-                let buffer = UnsafeRawPointer((work as NSData).bytes).assumingMemoryBound(to: UInt8.self)
-                let length = work.count
-                if !connected {
-                    processTCPHandshake(buffer, bufferLen: length)
-                } else {
-                    processRawMessagesInBuffer(buffer, bufferLen: length)
+                work.withUnsafeBytes { buffer in
+                    let length = buffer.count
+                    if !connected {
+                        processTCPHandshake(buffer.baseAddress!.assumingMemoryBound(to: UInt8.self), bufferLen: length)
+                    } else {
+                        processRawMessagesInBuffer(buffer.baseAddress!.assumingMemoryBound(to: UInt8.self), bufferLen: length)
+                    }
+
                 }
                 inputQueue = inputQueue.filter{ $0 != data }
             }

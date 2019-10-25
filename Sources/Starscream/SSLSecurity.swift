@@ -72,12 +72,12 @@ open class SSLSecurity : SSLTrustValidator {
     - returns: a representation security object to be used with
     */
     public convenience init(usePublicKeys: Bool = false) {
-        let paths = Bundle.main.paths(forResourcesOfType: "cer", inDirectory: ".")
-        
-        let certs = paths.reduce([SSLCert]()) { (certs: [SSLCert], path: String) -> [SSLCert] in
+        let urls = Bundle.main.urls(forResourcesWithExtension: "cer", subdirectory: ".") ?? []
+
+        let certs = urls.reduce([SSLCert]()) { (certs: [SSLCert], url: URL) -> [SSLCert] in
             var certs = certs
-            if let data = NSData(contentsOfFile: path) {
-                certs.append(SSLCert(data: data as Data))
+            if let data = try? Data(contentsOf: url) {
+                certs.append(SSLCert(data: data))
             }
             return certs
         }
