@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+### [3.1.1](https://github.com/daltoniam/Starscream/tree/3.1.1)
+
+Small version number fix for 3.1.0: [#703](https://github.com/daltoniam/Starscream/issues/703)
+
 ### [3.1.0](https://github.com/daltoniam/Starscream/tree/3.1.0)
 
 * Swift 5.0 and Xcode 10.2 support
