@@ -21,7 +21,7 @@ public class SSLClientCertificate {
 
     /**
      Convenience init.
-     - parameter pkcs12Path: Path to pkcs12 file containing private key and X.509 ceritifacte (.p12)
+     - parameter pkcs12Path: Path to pkcs12 file containing private key and X.509 certificate (.p12)
      - parameter password: file password, see **kSecImportExportPassphrase**
      */
     public convenience init(pkcs12Path: String, password: String) throws {
@@ -44,7 +44,7 @@ public class SSLClientCertificate {
     
     /**
      Convenience init.
-     - parameter pkcs12Url: URL to pkcs12 file containing private key and X.509 ceritifacte (.p12)
+     - parameter pkcs12Url: URL to pkcs12 file containing private key and X.509 certificate (.p12)
      - parameter password: file password, see **kSecImportExportPassphrase**
      */
     public convenience init(pkcs12Url: URL, password: String) throws {
@@ -57,15 +57,44 @@ public class SSLClientCertificate {
     }
     
     /**
-     Designated init.
-     - parameter pkcs12Url: URL to pkcs12 file containing private key and X.509 ceritifacte (.p12)
+     Convenience init.
+     - parameter pkcs12Url: URL to pkcs12 file containing private key and X.509 certificate (.p12)
      - parameter importOptions: A dictionary containing import options. A
      kSecImportExportPassphrase entry is required at minimum. Only password-based
      PKCS12 blobs are currently supported. See **SecImportExport.h**
      */
-    public init(pkcs12Url: URL, importOptions: CFDictionary) throws {
+    public convenience init(pkcs12Url: URL, importOptions: CFDictionary) throws {
         do {
             let pkcs12Data = try Data(contentsOf: pkcs12Url)
+            try self.init(pkcs12Data: pkcs12Data, importOptions: importOptions)
+        } catch {
+            throw error
+        }
+    }
+
+    /**
+     Convenience init.
+     - parameter pkcs12Url: Data representing a pkcs12 file containing private key and X.509 certificate (.p12)
+     - parameter password: file password, see **kSecImportExportPassphrase**
+     */
+    public convenience init(pkcs12Data: Data, password: String) throws {
+        let importOptions = [kSecImportExportPassphrase as String : password] as CFDictionary
+        do {
+            try self.init(pkcs12Data: pkcs12Data, importOptions: importOptions)
+        } catch {
+            throw error
+        }
+    }
+
+    /**
+     Designated init.
+     - parameter pkcs12Data: Data representing a pkcs12 file containing private key and X.509 certificate (.p12)
+     - parameter importOptions: A dictionary containing import options. A
+     kSecImportExportPassphrase entry is required at minimum. Only password-based
+     PKCS12 blobs are currently supported. See **SecImportExport.h**
+     */
+    public init(pkcs12Data: Data, importOptions: CFDictionary) throws {
+        do {
             var rawIdentitiesAndCertificates: CFArray?
             let pkcs12CFData: CFData = pkcs12Data as CFData
             let importStatus = SecPKCS12Import(pkcs12CFData, importOptions, &rawIdentitiesAndCertificates)
