@@ -66,7 +66,7 @@ public class TCPTransport: Transport {
                     sec_protocol_verify_complete(true)
                     return
                 }
-                pinner.evaluateTrust(trust: trust, domain: url.host, completion: { (state) in
+                pinner.evaluateTrust(trust: trust, domain: parts.host, completion: { (state) in
                     switch state {
                     case .success:
                         sec_protocol_verify_complete(true)
