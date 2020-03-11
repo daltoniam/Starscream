@@ -66,6 +66,12 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         inStream.delegate = self
         outStream.delegate = self
     
+        if isTLS {
+            let key = CFStreamPropertyKey(rawValue: kCFStreamPropertySocketSecurityLevel)
+            CFReadStreamSetProperty(inStream, key, kCFStreamSocketSecurityLevelNegotiatedSSL)
+            CFWriteStreamSetProperty(outStream, key, kCFStreamSocketSecurityLevelNegotiatedSSL)
+        }
+        
         onConnect?(inStream, outStream)
         
         isOpen = false
