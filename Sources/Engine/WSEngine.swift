@@ -125,7 +125,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         case .failed(let error):
             handleError(error)
         case .viability(let isViable):
-            broadcast(event: .viablityChanged(isViable))
+            broadcast(event: .viabilityChanged(isViable))
         case .shouldReconnect(let status):
             broadcast(event: .reconnectSuggested(status))
         case .receive(let data):
