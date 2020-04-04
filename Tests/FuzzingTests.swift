@@ -60,7 +60,7 @@ class FuzzingTests: XCTestCase {
                 print("reason: \(reason) code: \(code)")
             case .error(_):
                 break
-            case .viablityChanged(_):
+            case .viabilityChanged(_):
                 break
             case .reconnectSuggested(_):
                 break

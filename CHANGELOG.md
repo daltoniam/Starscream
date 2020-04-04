@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 `Starscream` adheres to [Semantic Versioning](http://semver.org/).
 
+### [4.0.1](https://github.com/daltoniam/Starscream/tree/4.0.1)
+
+Bug fixes for 4.0.0. Enabled Native engine now that the API is out of beta and works properly.
+
+[#749](https://github.com/daltoniam/Starscream/pull/749)
+[#755](https://github.com/daltoniam/Starscream/pull/755)
+
+### [4.0.0](https://github.com/daltoniam/Starscream/tree/4.0.0)
+
+Major API refactor.
+
 ### [3.1.1](https://github.com/daltoniam/Starscream/tree/3.1.1)
 
 Small version number fix for 3.1.0: [#703](https://github.com/daltoniam/Starscream/issues/703)

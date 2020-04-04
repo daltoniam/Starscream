@@ -22,7 +22,9 @@ import Starscream
 Once imported, you can open a connection to your WebSocket server. Note that `socket` is probably best as a property, so it doesn't get deallocated right after being setup.
 
 ```swift
-socket = WebSocket(url: URL(string: "ws://localhost:8080/")!)
+var request = URLRequest(url: URL(string: "http://localhost:8080")!)
+request.timeoutInterval = 5
+socket = WebSocket(request: request)
 socket.delegate = self
 socket.connect()
 ```
@@ -50,7 +52,7 @@ func didReceive(event: WebSocketEvent, client: WebSocket) {
 		break
 	case .pong(_):
 		break
-	case .viablityChanged(_):
+	case .viabilityChanged(_):
 		break
 	case .reconnectSuggested(_):
 		break
@@ -150,6 +152,15 @@ let socket = WebSocket(request: request)
 
 SSL Pinning is also supported in Starscream.
 
+
+Allow Self-signed certificates:
+
+```swift
+var request = URLRequest(url: URL(string: "ws://localhost:8080/")!)
+let pinner = FoundationSecurity(allowSelfSigned: true) // don't validate SSL certificates
+let socket = WebSocket(request: request, certPinner: pinner)
+```
+
 TODO: Update docs on how to load certificates and public keys into an app bundle, use the builtin pinner and TrustKit.
 
 ### Compression Extensions
@@ -157,8 +168,9 @@ TODO: Update docs on how to load certificates and public keys into an app bundle
 Compression Extensions ([RFC 7692](https://tools.ietf.org/html/rfc7692)) is supported in Starscream.  Compression is enabled by default, however compression will only be used if it is supported by the server as well.  You may enable or disable compression via the `.enableCompression` property:
 
 ```swift
-socket = WebSocket(url: URL(string: "ws://localhost:8080/")!)
-socket.enableCompression = false
+var request = URLRequest(url: URL(string: "ws://localhost:8080/")!)
+let compression = WSCompression()
+let socket = WebSocket(request: request, compressionHandler: compression)
 ```
 
 Compression should be disabled if your application is transmitting already-compressed, random, or other uncompressable data.
