@@ -183,6 +183,9 @@ public class WSFramer: Framer {
                 closeCode = CloseCode.protocolError.rawValue
                 dataLength = 0
             } else if payloadLen > 1 {
+                if pointer.count < 4 {
+                    return .needsMoreData
+                }
                 let size = MemoryLayout<UInt16>.size
                 closeCode = pointer.readUint16(offset: offset)
                 offset += size
