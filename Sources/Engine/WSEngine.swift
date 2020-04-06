@@ -157,6 +157,12 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             canSend = true
             mutex.signal()
             compressionHandler?.load(headers: headers)
+            if let url = request.url {
+                HTTPCookie.cookies(withResponseHeaderFields: headers, for: url).forEach {
+                    HTTPCookieStorage.shared.setCookie($0)
+                }
+            }
+
             broadcast(event: .connected(headers))
         case .failure(let error):
             handleError(error)
