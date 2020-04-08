@@ -52,7 +52,7 @@ func didReceive(event: WebSocketEvent, client: WebSocket) {
 		break
 	case .pong(_):
 		break
-	case .viabilityChanged(_):
+	case .viablityChanged(_):
 		break
 	case .reconnectSuggested(_):
 		break
