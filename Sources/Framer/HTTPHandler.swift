@@ -70,7 +70,7 @@ public struct HTTPWSHeader {
         if let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty {
             let headers = HTTPCookie.requestHeaderFields(with: cookies)
             for (key, val) in headers {
-                req.setValue(key, forHTTPHeaderField: val)
+                req.setValue(val, forHTTPHeaderField: key)
             }
         }
         
