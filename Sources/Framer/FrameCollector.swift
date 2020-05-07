@@ -45,12 +45,12 @@ public class FrameCollector {
     public func add(frame: Frame) {
         //check single frame action and out of order frames
         if frame.opcode == .connectionClose {
-            var code = frame.closeCode
+            let code = frame.closeCode
             var reason = "connection closed by server"
             if let customCloseReason = String(data: frame.payload, encoding: .utf8) {
                 reason = customCloseReason
             } else {
-                code = CloseCode.protocolError.rawValue
+                //code = CloseCode.protocolError.rawValue
             }
             delegate?.didForm(event: .closed(reason, code))
             return
