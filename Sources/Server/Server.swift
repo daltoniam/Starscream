@@ -24,7 +24,7 @@ import Foundation
 
 public enum ConnectionEvent {
     case connected([String: String])
-    case disconnected(String, UInt16)
+    case disconnected(Data, UInt16)
     case text(String)
     case binary(Data)
     case pong(Data?)
@@ -42,7 +42,7 @@ public protocol ConnectionDelegate: class {
 
 public enum ServerEvent {
     case connected(Connection, [String: String])
-    case disconnected(Connection, String, UInt16)
+    case disconnected(Connection, Data, UInt16)
     case text(Connection, String)
     case binary(Connection, Data)
     case pong(Connection, Data?)

@@ -76,7 +76,7 @@ extension WebSocketClient {
 
 public enum WebSocketEvent {
     case connected([String: String])
-    case disconnected(String, UInt16)
+    case disconnected(Data, UInt16)
     case text(String)
     case binary(Data)
     case pong(Data?)

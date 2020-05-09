@@ -34,7 +34,7 @@ public class FrameCollector {
         case pong(Data?)
         case ping(Data?)
         case error(Error)
-        case closed(String, UInt16)
+        case closed(Data, UInt16)
     }
     weak var delegate: FrameCollectorDelegate?
     var buffer = Data()
@@ -46,13 +46,14 @@ public class FrameCollector {
         //check single frame action and out of order frames
         if frame.opcode == .connectionClose {
             let code = frame.closeCode
+            let data = frame.payload
             var reason = "connection closed by server"
             if let customCloseReason = String(data: frame.payload, encoding: .utf8) {
                 reason = customCloseReason
             } else {
-                //code = CloseCode.protocolError.rawValue
+//                code = CloseCode.protocolError.rawValue
             }
-            delegate?.didForm(event: .closed(reason, code))
+            delegate?.didForm(event: .closed(data, code))
             return
         } else if frame.opcode == .pong {
             delegate?.didForm(event: .pong(frame.payload))

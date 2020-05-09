@@ -88,9 +88,11 @@ public class NativeEngine: NSObject, Engine, URLSessionDataDelegate, URLSessionW
     
     public func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         var r = ""
+        var data = Data()
         if let d = reason {
             r = String(data: d, encoding: .utf8) ?? ""
+            data = d
         }
-        broadcast(event: .disconnected(r, UInt16(closeCode.rawValue)))
+        broadcast(event: .disconnected(data, UInt16(closeCode.rawValue)))
     }
 }
