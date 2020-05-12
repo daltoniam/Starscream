@@ -59,13 +59,9 @@ public class TCPTransport: Transport {
         options.connectionTimeout = Int(timeout.rounded(.up))
 
         let tlsOptions = isTLS ? NWProtocolTLS.Options() : nil
-        if let tlsOpts = tlsOptions {
+        if let tlsOpts = tlsOptions, let pinner = certificatePinning {
             sec_protocol_options_set_verify_block(tlsOpts.securityProtocolOptions, { (sec_protocol_metadata, sec_trust, sec_protocol_verify_complete) in
                 let trust = sec_trust_copy_ref(sec_trust).takeRetainedValue()
-                guard let pinner = certificatePinning else {
-                    sec_protocol_verify_complete(true)
-                    return
-                }
                 pinner.evaluateTrust(trust: trust, domain: parts.host, completion: { (state) in
                     switch state {
                     case .success:
