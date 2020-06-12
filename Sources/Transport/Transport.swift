@@ -28,6 +28,7 @@ public enum ConnectionState {
     case connected
     case waiting
     case cancelled
+    case timedout
     case failed(Error?)
     
     //the viability (connection status) of the connection has updated
