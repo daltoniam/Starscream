@@ -84,19 +84,15 @@ public class FrameCollector {
         }
         buffer.append(payload)
         frameCount += 1
-        if isText {
-            if String(data: buffer, encoding: .utf8) == nil {
-                let errCode = CloseCode.protocolError.rawValue
-                delegate?.didForm(event: .error(WSError(type: .protocolError, message: "not valid UTF-8 data", code: errCode)))
-                reset()
-                return
-            }
-        }
-        
+
         if frame.isFin {
             if isText {
-                let string = String(data: buffer, encoding: .utf8) ?? ""
-                delegate?.didForm(event: .text(string))
+                if let string = String(data: buffer, encoding: .utf8) {
+                    delegate?.didForm(event: .text(string))
+                } else {
+                    let errCode = CloseCode.protocolError.rawValue
+                    delegate?.didForm(event: .error(WSError(type: .protocolError, message: "not valid UTF-8 data", code: errCode)))
+                }
             } else {
                 delegate?.didForm(event: .binary(buffer))
             }
