@@ -38,6 +38,16 @@
 		BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		6B0BE7AA24A157BB0051F7A7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6B3E79DD19D48B7F006071F7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 33CCF0841F5DDC030099B092;
+			remoteInfo = Starscream;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		335FA2021F5DF71D00F6D2EC /* Starscream Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Starscream Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		33CCF0921F5DDC030099B092 /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -250,6 +260,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				6B0BE7AB24A157BB0051F7A7 /* PBXTargetDependency */,
 			);
 			name = "Starscream Tests";
 			productName = StarscreamTests;
@@ -371,6 +382,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6B0BE7AB24A157BB0051F7A7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 33CCF0841F5DDC030099B092 /* Starscream */;
+			targetProxy = 6B0BE7AA24A157BB0051F7A7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		335FA2001F5DF71D00F6D2EC /* Debug */ = {
