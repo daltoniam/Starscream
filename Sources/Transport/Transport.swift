@@ -26,7 +26,7 @@ import Foundation
 
 public enum ConnectionState {
     case connected
-    case waiting
+    case waiting(Error?)
     case cancelled
     case failed(Error?)
     
