@@ -159,7 +159,7 @@ public class WSFramer: Framer {
             let errCode = CloseCode.protocolError.rawValue
             return .failed(WSError(type: .protocolError, message: "masked and rsv data is not currently supported", code: errCode))
         }
-        let isControlFrame = (opcode == .connectionClose || opcode == .ping)
+        let isControlFrame = (opcode == .connectionClose || opcode == .ping || opcode == .pong)
         if !isControlFrame && (opcode != .binaryFrame && opcode != .continueFrame &&
             opcode != .textFrame && opcode != .pong) {
             let errCode = CloseCode.protocolError.rawValue
