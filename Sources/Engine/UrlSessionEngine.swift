@@ -16,16 +16,22 @@ public class UrlSessionEngine : NSObject, Engine, FramerEventClient, FrameCollec
     
     weak var delegate: EngineDelegate?
 
-    private let compressionHandler: CompressionHandler?
-    private let frameHandler = FrameCollector()
-    private let headerChecker: HeaderValidator = FoundationSecurity()
-    public var respondToPingWithPong: Bool = true
-    private let framer: Framer = WSFramer()
-    private let httpHandler: HTTPHandler = FoundationHTTPHandler()
+    let compressionHandler: CompressionHandler?
+    let frameHandler = FrameCollector()
+    let headerChecker: HeaderValidator = FoundationSecurity()
+    let framer: Framer = WSFramer()
+    let httpHandler: HTTPHandler = FoundationHTTPHandler()
     
-    private var didUpgrade = false
-    private var secKeyValue = ""
-    private var request: URLRequest!
+    var didUpgrade = false
+    var secKeyValue = ""
+    var request: URLRequest!
+  
+    public var respondToPingWithPong: Bool = true
+    
+    // It is useful to ignore errors caused by invalid or self signed certificates etc particularly
+    // in development environments.
+    public var acceptAnyCredentials: Bool = false
+    
     
     public init(compressionHandler: CompressionHandler? = nil)
     {
@@ -251,6 +257,11 @@ extension UrlSessionEngine : URLSessionDelegate
 {
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
     {
-        completionHandler(.useCredential,  URLCredential(trust: challenge.protectionSpace.serverTrust!))
+        if acceptAnyCredentials {
+            completionHandler(.useCredential,  URLCredential(trust: challenge.protectionSpace.serverTrust!))
+        }
+        else {
+            completionHandler(.performDefaultHandling, challenge.proposedCredential)
+        }
     }
 }
