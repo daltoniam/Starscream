@@ -141,7 +141,16 @@ public class TCPTransport: Transport {
             if let data = data {
                 s.delegate?.connectionChanged(state: .receive(data))
             }
-            s.readLoop()
+            
+            // Refer to https://developer.apple.com/documentation/network/implementing_netcat_with_network_framework
+            if let context = context, context.isFinal, isComplete {
+                return
+            }
+            
+            if error == nil {
+                s.readLoop()
+            }
+
         })
     }
 }

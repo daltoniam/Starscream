@@ -4,7 +4,7 @@ Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6
 
 ## Features
 
-- Conforms to all of the base [Autobahn test suite](http://autobahn.ws/testsuite/).
+- Conforms to all of the base [Autobahn test suite](https://crossbar.io/autobahn/).
 - Nonblocking. Everything happens in the background, thanks to GCD.
 - TLS/WSS support.
 - Compression Extensions support ([RFC 7692](https://tools.ietf.org/html/rfc7692))
