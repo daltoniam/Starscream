@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.1
 
 //
 //  Package.Swift
@@ -29,11 +29,12 @@ let package = Package(
         ],
         dependencies: [],
         targets: [
-            .target(name: "Starscream",
-                    path: "Sources")
+            .target(
+                name: "Starscream",
+                path: "Sources",
+                linkerSettings: [
+                    .linkedLibrary("z")
+                ]
+            )
         ]
 )
-
-#if os(Linux)
-    package.dependencies.append(.package(url: "https://github.com/apple/swift-nio-zlib-support.git", from: "1.0.0"))
-#endif
