@@ -76,12 +76,6 @@ public class FoundationHTTPHandler: HTTPHandler {
             return false //not enough data, wait for more
         }
         
-        let code = CFHTTPMessageGetResponseStatusCode(response)
-        if code != HTTPWSHeader.switchProtocolCode {
-            delegate?.didReceiveHTTP(event: .failure(HTTPUpgradeError.notAnUpgrade(code)))
-            return true
-        }
-        
         if let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response) {
             let nsHeaders = cfHeaders.takeRetainedValue() as NSDictionary
             var headers = [String: String]()
@@ -90,6 +84,13 @@ public class FoundationHTTPHandler: HTTPHandler {
                     headers[key] = value
                 }
             }
+            
+            let code = CFHTTPMessageGetResponseStatusCode(response)
+            if code != HTTPWSHeader.switchProtocolCode {
+                delegate?.didReceiveHTTP(event: .failure(HTTPUpgradeError.notAnUpgrade(code, headers)))
+                return true
+            }
+            
             delegate?.didReceiveHTTP(event: .success(headers))
             return true
         }
