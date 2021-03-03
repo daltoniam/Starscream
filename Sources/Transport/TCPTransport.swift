@@ -49,7 +49,7 @@ public class TCPTransport: Transport {
         //normal connection, will use the "connect" method below
     }
     
-    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil) {
+    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil, clientIdentity: SecIdentity? = nil) {
         guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(TCPTransportError.invalidRequest))
             return
@@ -75,6 +75,13 @@ public class TCPTransport: Transport {
                     }
                 })
             }, queue)
+            
+            if let clientIdentity = clientIdentity {
+                sec_protocol_options_set_local_identity(tlsOpts.securityProtocolOptions, sec_identity_create(clientIdentity)!)
+                sec_protocol_options_set_challenge_block(tlsOpts.securityProtocolOptions, { (_, completionHandler) in
+                    completionHandler(sec_identity_create(clientIdentity)!)
+                }, queue)
+            }
         }
         let parameters = NWParameters(tls: tlsOptions, tcp: options)
         let conn = NWConnection(host: NWEndpoint.Host.name(parts.host, nil), port: NWEndpoint.Port(rawValue: UInt16(parts.port))!, using: parameters)

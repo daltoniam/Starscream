@@ -15,6 +15,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private let httpHandler: HTTPHandler
     private let compressionHandler: CompressionHandler?
     private let certPinner: CertificatePinning?
+    private let clientIdentity: SecIdentity?
     private let headerChecker: HeaderValidator
     private var request: URLRequest!
     
@@ -30,6 +31,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     
     public init(transport: Transport,
                 certPinner: CertificatePinning? = nil,
+                clientIdentity: SecIdentity? = nil,
                 headerValidator: HeaderValidator = FoundationSecurity(),
                 httpHandler: HTTPHandler = FoundationHTTPHandler(),
                 framer: Framer = WSFramer(),
@@ -38,6 +40,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         self.framer = framer
         self.httpHandler = httpHandler
         self.certPinner = certPinner
+        self.clientIdentity = clientIdentity
         self.headerChecker = headerValidator
         self.compressionHandler = compressionHandler
         framer.updateCompression(supports: compressionHandler != nil)
@@ -64,7 +67,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         guard let url = request.url else {
             return
         }
-        transport.connect(url: url, timeout: request.timeoutInterval, certificatePinning: certPinner)
+        transport.connect(url: url, timeout: request.timeoutInterval, certificatePinning: certPinner, clientIdentity: clientIdentity)
     }
     
     public func stop(closeCode: UInt16 = CloseCode.normal.rawValue) {
