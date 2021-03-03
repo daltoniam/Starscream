@@ -37,6 +37,7 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     private var onConnect: ((InputStream, OutputStream) -> Void)?
     private var isTLS = false
     private var certPinner: CertificatePinning?
+    private var clientIdentity: SecIdentity?
     
     public var usingTLS: Bool {
         return self.isTLS
@@ -52,7 +53,7 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         outputStream?.delegate = nil
     }
     
-    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil) {
+    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil, clientIdentity: SecIdentity? = nil) {
         guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(FoundationTransportError.invalidRequest))
             return
@@ -75,6 +76,19 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
             let key = CFStreamPropertyKey(rawValue: kCFStreamPropertySocketSecurityLevel)
             CFReadStreamSetProperty(inStream, key, kCFStreamSocketSecurityLevelNegotiatedSSL)
             CFWriteStreamSetProperty(outStream, key, kCFStreamSocketSecurityLevelNegotiatedSSL)
+            
+            if let clientIdentity = clientIdentity {
+                var certificate: SecCertificate?
+                let certificateStatus = SecIdentityCopyCertificate(clientIdentity, &certificate)
+                if certificateStatus == errSecSuccess && certificate != nil {
+                    // TODO: Handle failure status and nil certificate
+                    let sslSettings: [CFString:Any] = [
+                        kCFStreamSSLCertificates: [clientIdentity, certificate!]
+                    ]
+                    inStream.setValue(sslSettings, forKey: kCFStreamPropertySSLSettings as String)
+                    outStream.setValue(sslSettings, forKey: kCFStreamPropertySSLSettings as String)
+                }
+            }
         }
         
         onConnect?(inStream, outStream)
