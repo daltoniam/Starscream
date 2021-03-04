@@ -120,9 +120,9 @@ open class WebSocket: WebSocketClient, EngineDelegate {
         self.engine = engine
     }
     
-    public convenience init(request: URLRequest, certPinner: CertificatePinning? = FoundationSecurity(), clientIdentity: SecIdentity? = nil, compressionHandler: CompressionHandler? = nil, useCustomEngine: Bool = true) {
+    public convenience init(request: URLRequest, certPinner: CertificatePinning? = FoundationSecurity(), clientIdentity: SecIdentity? = nil, clientCredential: URLCredential? = nil, compressionHandler: CompressionHandler? = nil, useCustomEngine: Bool = true) {
         if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *), !useCustomEngine {
-            self.init(request: request, engine: NativeEngine())
+            self.init(request: request, engine: NativeEngine(clientCredential: clientCredential))
         } else if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
             self.init(request: request, engine: WSEngine(transport: TCPTransport(), certPinner: certPinner, clientIdentity: clientIdentity, compressionHandler: compressionHandler))
         } else {
