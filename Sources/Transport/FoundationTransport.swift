@@ -37,7 +37,6 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     private var onConnect: ((InputStream, OutputStream) -> Void)?
     private var isTLS = false
     private var certPinner: CertificatePinning?
-    private var clientIdentity: SecIdentity?
     
     public var usingTLS: Bool {
         return self.isTLS
@@ -53,7 +52,7 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         outputStream?.delegate = nil
     }
     
-    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil, clientIdentity: SecIdentity? = nil) {
+    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil, clientCredential: URLCredential? = nil) {
         guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(FoundationTransportError.invalidRequest))
             return
@@ -77,17 +76,12 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
             CFReadStreamSetProperty(inStream, key, kCFStreamSocketSecurityLevelNegotiatedSSL)
             CFWriteStreamSetProperty(outStream, key, kCFStreamSocketSecurityLevelNegotiatedSSL)
             
-            if let clientIdentity = clientIdentity {
-                var certificate: SecCertificate?
-                let certificateStatus = SecIdentityCopyCertificate(clientIdentity, &certificate)
-                if certificateStatus == errSecSuccess && certificate != nil {
-                    let sslSettings = [
-                        kCFStreamSSLCertificates: [clientIdentity, certificate!]
-                    ] as CFDictionary
-                    let sslSettingsKey = CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings)
-                    CFReadStreamSetProperty(inStream, sslSettingsKey, sslSettings)
-                    CFWriteStreamSetProperty(outStream, sslSettingsKey, sslSettings)
-                }
+            if let clientCredential = clientCredential {
+                let certificates = [clientCredential.identity] + clientCredential.certificates
+                let sslSettings = [kCFStreamSSLCertificates: certificates] as CFDictionary
+                let sslSettingsKey = CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings)
+                CFReadStreamSetProperty(inStream, sslSettingsKey, sslSettings)
+                CFWriteStreamSetProperty(outStream, sslSettingsKey, sslSettings)
             }
         }
         

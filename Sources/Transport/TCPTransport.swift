@@ -49,7 +49,7 @@ public class TCPTransport: Transport {
         //normal connection, will use the "connect" method below
     }
     
-    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil, clientIdentity: SecIdentity? = nil) {
+    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil, clientCredential: URLCredential? = nil) {
         guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(TCPTransportError.invalidRequest))
             return
@@ -76,9 +76,9 @@ public class TCPTransport: Transport {
                 })
             }, queue)
             
-            if let clientIdentity = clientIdentity {
+            if let clientCredential = clientCredential {
                 sec_protocol_options_set_challenge_block(tlsOpts.securityProtocolOptions, { (_, completionHandler) in
-                    completionHandler(sec_identity_create(clientIdentity)!)
+                    completionHandler(sec_identity_create(clientCredential.identity!)!)
                 }, queue)
             }
         }
