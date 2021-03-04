@@ -81,12 +81,12 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
                 var certificate: SecCertificate?
                 let certificateStatus = SecIdentityCopyCertificate(clientIdentity, &certificate)
                 if certificateStatus == errSecSuccess && certificate != nil {
-                    // TODO: Handle failure status and nil certificate
-                    let sslSettings: [CFString:Any] = [
+                    let sslSettings = [
                         kCFStreamSSLCertificates: [clientIdentity, certificate!]
-                    ]
-                    inStream.setValue(sslSettings, forKey: kCFStreamPropertySSLSettings as String)
-                    outStream.setValue(sslSettings, forKey: kCFStreamPropertySSLSettings as String)
+                    ] as CFDictionary
+                    let sslSettingsKey = CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings)
+                    CFReadStreamSetProperty(inStream, sslSettingsKey, sslSettings)
+                    CFWriteStreamSetProperty(outStream, sslSettingsKey, sslSettings)
                 }
             }
         }
