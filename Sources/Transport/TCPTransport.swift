@@ -77,7 +77,6 @@ public class TCPTransport: Transport {
             }, queue)
             
             if let clientIdentity = clientIdentity {
-                sec_protocol_options_set_local_identity(tlsOpts.securityProtocolOptions, sec_identity_create(clientIdentity)!)
                 sec_protocol_options_set_challenge_block(tlsOpts.securityProtocolOptions, { (_, completionHandler) in
                     completionHandler(sec_identity_create(clientIdentity)!)
                 }, queue)
