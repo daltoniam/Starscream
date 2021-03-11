@@ -113,6 +113,6 @@ public class FoundationHTTPServerHandler: HTTPServerHandler {
         data.withUnsafeBytes {
             _ = CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest)
         }
-        return digest.toBase64()!
+        return Data(digest).base64EncodedString()
     }
 }
