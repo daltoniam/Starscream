@@ -21,27 +21,27 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Foundation
+import CommonCrypto
 
 public class FoundationHTTPServerHandler: HTTPServerHandler {
     var buffer = Data()
     weak var delegate: HTTPServerDelegate?
     let getVerb: NSString = "GET"
-    
+
     public func register(delegate: HTTPServerDelegate) {
         self.delegate = delegate
     }
-    
-    public func createResponse(headers: [String: String]) -> Data {
+
+    public func createResponse(requestHeaders: [String: String]) -> Data {
         #if os(watchOS)
-        //TODO: build response header
+        // TODO: build response header
         return Data()
         #else
+
         let response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, HTTPWSHeader.switchProtocolCode,
                                                    nil, kCFHTTPVersion1_1).takeRetainedValue()
-        
-        //TODO: add other values to make a proper response here...
-        //TODO: also sec key thing (Sec-WebSocket-Key)
-        for (key, value) in headers {
+
+        for (key, value) in handshakeHeaders(requestHeaders: requestHeaders) {
             CFHTTPMessageSetHeaderFieldValue(response, key as CFString, value as CFString)
         }
         guard let cfData = CFHTTPMessageCopySerializedMessage(response)?.takeRetainedValue() else {
@@ -50,28 +50,28 @@ public class FoundationHTTPServerHandler: HTTPServerHandler {
         return cfData as Data
         #endif
     }
-    
+
     public func parse(data: Data) {
         buffer.append(data)
         if parseContent(data: buffer) {
             buffer = Data()
         }
     }
-    
-    //returns true when the buffer should be cleared
+
+    // returns true when the buffer should be cleared
     func parseContent(data: Data) -> Bool {
         var pointer = [UInt8]()
         data.withUnsafeBytes { pointer.append(contentsOf: $0) }
         #if os(watchOS)
-        //TODO: parse data
+        // TODO: parse data
         return false
         #else
         let response = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true).takeRetainedValue()
         if !CFHTTPMessageAppendBytes(response, pointer, data.count) {
-            return false //not enough data, wait for more
+            return false // not enough data, wait for more
         }
         if !CFHTTPMessageIsHeaderComplete(response) {
-            return false //not enough data, wait for more
+            return false // not enough data, wait for more
         }
         if let method = CFHTTPMessageCopyRequestMethod(response)?.takeRetainedValue() {
             if (method as NSString) != getVerb {
@@ -79,7 +79,7 @@ public class FoundationHTTPServerHandler: HTTPServerHandler {
                 return true
             }
         }
-        
+
         if let cfHeaders = CFHTTPMessageCopyAllHeaderFields(response) {
             let nsHeaders = cfHeaders.takeRetainedValue() as NSDictionary
             var headers = [String: String]()
@@ -91,9 +91,28 @@ public class FoundationHTTPServerHandler: HTTPServerHandler {
             delegate?.didReceive(event: .success(headers))
             return true
         }
-        
+
         delegate?.didReceive(event: .failure(HTTPUpgradeError.invalidData))
         return true
         #endif
+    }
+
+    private func handshakeHeaders(requestHeaders: [String: String]) -> [String: String] {
+        let magicWebSocketGUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+        let websocketKey = requestHeaders["Sec-WebSocket-Key"] ?? ""
+        let acceptKey = sha1base64("\(websocketKey)\(magicWebSocketGUID)")
+
+        return ["Connection": "Upgrade",
+                "Upgrade": "Websocket",
+                "Sec-WebSocket-Accept": acceptKey]
+    }
+
+    private func sha1base64(_ input: String) -> String {
+        let data = Data(input.utf8)
+        var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
+        data.withUnsafeBytes {
+            _ = CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest)
+        }
+        return digest.toBase64()!
     }
 }
