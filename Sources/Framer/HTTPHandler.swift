@@ -28,20 +28,20 @@ public enum HTTPUpgradeError: Error {
 }
 
 public struct HTTPWSHeader {
-    static let upgradeName        = "Upgrade"
-    static let upgradeValue       = "websocket"
-    static let hostName           = "Host"
-    static let connectionName     = "Connection"
-    static let connectionValue    = "Upgrade"
-    static let protocolName       = "Sec-WebSocket-Protocol"
-    static let versionName        = "Sec-WebSocket-Version"
-    static let versionValue       = "13"
-    static let extensionName      = "Sec-WebSocket-Extensions"
-    static let keyName            = "Sec-WebSocket-Key"
-    static let originName         = "Origin"
-    static let acceptName         = "Sec-WebSocket-Accept"
-    static let switchProtocolCode = 101
-    static let defaultSSLSchemes  = ["wss", "https"]
+    public static let upgradeName        = "Upgrade"
+    public static let upgradeValue       = "websocket"
+    public static let hostName           = "Host"
+    public static let connectionName     = "Connection"
+    public static let connectionValue    = "Upgrade"
+    public static let protocolName       = "Sec-WebSocket-Protocol"
+    public static let versionName        = "Sec-WebSocket-Version"
+    public static let versionValue       = "13"
+    public static let extensionName      = "Sec-WebSocket-Extensions"
+    public static let keyName            = "Sec-WebSocket-Key"
+    public static let originName         = "Origin"
+    public static let acceptName         = "Sec-WebSocket-Accept"
+    public static let switchProtocolCode = 101
+    public static let defaultSSLSchemes  = ["wss", "https"]
     
     /// Creates a new URLRequest based off the source URLRequest.
     /// - Parameter request: the request to "upgrade" the WebSocket request by adding headers.
@@ -115,9 +115,9 @@ public protocol HTTPServerHandler {
 }
 
 public struct URLParts {
-    let port: Int
-    let host: String
-    let isTLS: Bool
+    public let port: Int
+    public let host: String
+    public let isTLS: Bool
 }
 
 public extension URL {
