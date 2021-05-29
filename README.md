@@ -165,7 +165,7 @@ TODO: Update docs on how to load certificates and public keys into an app bundle
 
 ### Compression Extensions
 
-Compression Extensions ([RFC 7692](https://tools.ietf.org/html/rfc7692)) is supported in Starscream.  Compression is enabled by default, however compression will only be used if it is supported by the server as well.  You may enable or disable compression via the `.enableCompression` property:
+Compression Extensions ([RFC 7692](https://tools.ietf.org/html/rfc7692)) is supported in Starscream.  Compression is enabled by default, however compression will only be used if it is supported by the server as well. You may enable compression by adding a `compressionHandler`:
 
 ```swift
 var request = URLRequest(url: URL(string: "ws://localhost:8080/")!)
