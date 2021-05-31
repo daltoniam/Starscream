@@ -123,6 +123,8 @@ public class ServerConnection: Connection, HTTPServerDelegate, FramerEventClient
             break
         case .waiting:
             break
+        case .timedout:
+            break
         case .failed(let error):
             print("server connection error: \(error ?? WSError(type: .protocolError, message: "default error, no extra data", code: 0))") //handleError(error)
         case .viability(_):
