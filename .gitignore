@@ -112,7 +112,6 @@ iOSInjectionProject/
 ### SwiftPM ###
 Packages
 xcuserdata
-*.xcodeproj
 
 
 # End of https://www.gitignore.io/api/swift,swiftpm
