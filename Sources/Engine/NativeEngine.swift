@@ -11,7 +11,12 @@ import Foundation
 @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public class NativeEngine: NSObject, Engine, URLSessionDataDelegate, URLSessionWebSocketDelegate {
     private var task: URLSessionWebSocketTask?
+    private var clientCredential: URLCredential?
     weak var delegate: EngineDelegate?
+
+    public init(clientCredential: URLCredential? = nil) {
+        self.clientCredential = clientCredential
+    }
 
     public func register(delegate: EngineDelegate) {
         self.delegate = delegate
@@ -93,5 +98,18 @@ public class NativeEngine: NSObject, Engine, URLSessionDataDelegate, URLSessionW
             r = String(data: d, encoding: .utf8) ?? ""
         }
         broadcast(event: .disconnected(r, UInt16(closeCode.rawValue)))
+    }
+
+    public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        var credential: URLCredential? = nil
+        var disposition: URLSession.AuthChallengeDisposition = .performDefaultHandling
+
+        let authMethod = challenge.protectionSpace.authenticationMethod
+        if authMethod == NSURLAuthenticationMethodClientCertificate && self.clientCredential != nil {
+            credential = self.clientCredential
+            disposition = .useCredential
+        }
+
+        completionHandler(disposition, credential)
     }
 }
