@@ -35,6 +35,7 @@
 		8A906E3D2208BD9B0015057D /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A906E3C2208BD9B0015057D /* Compression.swift */; };
 		8A906E3F2208C7E80015057D /* WSCompression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A906E3E2208C7E80015057D /* WSCompression.swift */; };
 		8ABD4470224C036A00FB8370 /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ABD446F224C036A00FB8370 /* Data+Extensions.swift */; };
+		9A36C27F251ACBBF00D69392 /* UrlSessionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A36C27E251ACBBF00D69392 /* UrlSessionEngine.swift */; };
 		BBB5ABE8215E2217005B48B6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5ABE4215E2217005B48B6 /* WebSocket.swift */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +78,7 @@
 		8A906E3C2208BD9B0015057D /* Compression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Compression/Compression.swift; sourceTree = "<group>"; };
 		8A906E3E2208C7E80015057D /* WSCompression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WSCompression.swift; path = Compression/WSCompression.swift; sourceTree = "<group>"; };
 		8ABD446F224C036A00FB8370 /* Data+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extensions.swift"; sourceTree = "<group>"; };
+		9A36C27E251ACBBF00D69392 /* UrlSessionEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UrlSessionEngine.swift; sourceTree = "<group>"; };
 		BBB5ABE4215E2217005B48B6 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.swift; name = WebSocket.swift; path = Starscream/WebSocket.swift; sourceTree = "<group>"; tabWidth = 4; };
 		D88EAF811ED4DFD3004FE2C3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		D88EAF831ED4E7D8004FE2C3 /* CompressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompressionTests.swift; sourceTree = "<group>"; };
@@ -105,6 +107,7 @@
 		5C7CB5A522B59A82006AF81B /* Engine */ = {
 			isa = PBXGroup;
 			children = (
+				9A36C27E251ACBBF00D69392 /* UrlSessionEngine.swift */,
 				5C7CB5A822B5A14C006AF81B /* Engine.swift */,
 				5C7CB5A622B59ABA006AF81B /* NativeEngine.swift */,
 				5C7CB5AA22B5ABF0006AF81B /* WSEngine.swift */,
@@ -359,6 +362,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8A7A719321FA42BA0061166D /* HTTPHandler.swift in Sources */,
+				9A36C27F251ACBBF00D69392 /* UrlSessionEngine.swift in Sources */,
 				8A7A719121FA3DCD0061166D /* FrameCollector.swift in Sources */,
 				8A1681A7223D8664000C08D8 /* Security.swift in Sources */,
 				8A7A718A21F8E23C0061166D /* TCPTransport.swift in Sources */,
