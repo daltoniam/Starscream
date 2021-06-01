@@ -273,7 +273,7 @@ Once you have your Swift package set up, adding Starscream as a dependency is as
 
 ```swift
 dependencies: [
-    .Package(url: "https://github.com/daltoniam/Starscream.git", majorVersion: 4)
+    .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.0")
 ]
 ```
 
