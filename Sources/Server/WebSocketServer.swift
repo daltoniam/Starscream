@@ -73,6 +73,15 @@ public class WebSocketServer: Server, ConnectionDelegate {
         return nil
     }
     
+    public func stop() {
+        self.onEvent = nil
+        self.listener?.cancel()
+        for connection in self.connections.values {
+            connection.stop()
+        }
+        self.connections.removeAll()
+    }
+    
     public func didReceive(event: ServerEvent) {
         onEvent?(event)
         switch event {
@@ -108,6 +117,10 @@ public class ServerConnection: Connection, HTTPServerDelegate, FramerEventClient
         httpHandler.register(delegate: self)
         framer.register(delegate: self)
         frameHandler.delegate = self
+    }
+    
+    public func stop() {
+        transport.disconnect()
     }
     
     public func write(data: Data, opcode: FrameOpCode) {
@@ -147,7 +160,7 @@ public class ServerConnection: Connection, HTTPServerDelegate, FramerEventClient
         switch event {
         case .success(let headers):
             didUpgrade = true
-            let response = httpHandler.createResponse(headers: [:])
+            let response = httpHandler.createResponse(requestHeaders: headers)
             transport.write(data: response, completion: {_ in })
             delegate?.didReceive(event: .connected(self, headers))
             onEvent?(.connected(headers))

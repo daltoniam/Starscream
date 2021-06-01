@@ -36,7 +36,7 @@ public protocol Connection {
     func write(data: Data, opcode: FrameOpCode)
 }
 
-public protocol ConnectionDelegate: class {
+public protocol ConnectionDelegate: AnyObject {
     func didReceive(event: ServerEvent)
 }
 
@@ -51,6 +51,5 @@ public enum ServerEvent {
 
 public protocol Server {
     func start(address: String, port: UInt16) -> Error?
+    func stop()
 }
-
-
