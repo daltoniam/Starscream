@@ -57,13 +57,13 @@ public enum FrameOpCode: UInt8 {
 }
 
 public struct Frame {
-    let isFin: Bool
-    let needsDecompression: Bool
-    let isMasked: Bool
-    let opcode: FrameOpCode
-    let payloadLength: UInt64
-    let payload: Data
-    let closeCode: UInt16 //only used by connectionClose opcode
+    public let isFin: Bool
+    public let needsDecompression: Bool
+    public let isMasked: Bool
+    public let opcode: FrameOpCode
+    public let payloadLength: UInt64
+    public let payload: Data
+    public let closeCode: UInt16 //only used by connectionClose opcode
 }
 
 public enum FrameEvent {
