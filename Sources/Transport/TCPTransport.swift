@@ -35,7 +35,11 @@ public class TCPTransport: Transport {
     private weak var delegate: TransportEventClient?
     private var isRunning = false
     private var isTLS = false
-    
+   
+    deinit {
+        disconnect()
+    }
+ 
     public var usingTLS: Bool {
         return self.isTLS
     }
@@ -85,6 +89,7 @@ public class TCPTransport: Transport {
     public func disconnect() {
         isRunning = false
         connection?.cancel()
+        connection = nil
     }
     
     public func register(delegate: TransportEventClient) {
