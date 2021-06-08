@@ -34,12 +34,12 @@ public enum PinningState {
 
 // CertificatePinning protocol provides an interface for Transports to handle Certificate
 // or Public Key Pinning.
-public protocol CertificatePinning: class {
+public protocol CertificatePinning: AnyObject {
     func evaluateTrust(trust: SecTrust, domain: String?, completion: ((PinningState) -> ()))
 }
 
 // validates the "Sec-WebSocket-Accept" header as defined 1.3 of the RFC 6455
 // https://tools.ietf.org/html/rfc6455#section-1.3
-public protocol HeaderValidator: class {
+public protocol HeaderValidator: AnyObject {
     func validate(headers: [String: String], key: String) -> Error?
 }
