@@ -25,6 +25,10 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private let mutex = DispatchSemaphore(value: 1)
     private var canSend = false
     
+    // osApps: if triggered, will not automate send headers upon a made connection, will not create a frame for each written data (will just send the data as is)
+    public static var manualState = false
+    
+    
     weak var delegate: EngineDelegate?
     public var respondToPingWithPong: Bool = true
     
@@ -99,12 +103,16 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             
             var isCompressed = false
             var sendData = data
-            if let compressedData = s.compressionHandler?.compress(data: data) {
-                sendData = compressedData
-                isCompressed = true
+            var frameData = data
+            if !WSEngine.manualState {
+                if let compressedData = s.compressionHandler?.compress(data: data) {
+                    sendData = compressedData
+                    isCompressed = true
+                    
+                    frameData = s.framer.createWriteFrame(opcode: opcode, payload: sendData, isCompressed: isCompressed)
+                }
             }
             
-            let frameData = s.framer.createWriteFrame(opcode: opcode, payload: sendData, isCompressed: isCompressed)
             s.transport.write(data: frameData, completion: {_ in
                 completion?()
             })
@@ -116,10 +124,15 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func connectionChanged(state: ConnectionState) {
         switch state {
         case .connected:
-            secKeyValue = HTTPWSHeader.generateWebSocketKey()
-            let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: framer.supportsCompression(), secKeyValue: secKeyValue)
-            let data = httpHandler.convert(request: wsReq)
-            transport.write(data: data, completion: {_ in })
+            if WSEngine.manualState {
+                self.canSend = true
+                break
+            }else {
+                secKeyValue = HTTPWSHeader.generateWebSocketKey()
+                let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: framer.supportsCompression(), secKeyValue: secKeyValue)
+                let data = httpHandler.convert(request: wsReq)
+                transport.write(data: data, completion: {_ in })
+            }
         case .waiting:
             break
         case .failed(let error):
@@ -148,10 +161,10 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     public func didReceiveHTTP(event: HTTPEvent) {
         switch event {
         case .success(let headers):
-            if let error = headerChecker.validate(headers: headers, key: secKeyValue) {
-                handleError(error)
-                return
-            }
+//            if let error = headerChecker.validate(headers: headers, key: secKeyValue) {
+//                handleError(error)
+//                return
+//            }
             mutex.wait()
             didUpgrade = true
             canSend = true
