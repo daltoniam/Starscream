@@ -28,6 +28,30 @@ public enum FoundationTransportError: Error {
     case timeout
 }
 
+struct SOCKSConfiguration {
+    let streamKey: CFStreamPropertyKey
+    let streamConfiguration: CFDictionary
+    
+    init?() {
+        guard
+            let proxySettings = CFNetworkCopySystemProxySettings()?.takeRetainedValue(),
+            let config = CFDictionaryCreateMutableCopy(nil, 0, proxySettings) as? [String: Any],
+            let ipAddress = config["SOCKSProxy"] as? String,
+            let port = config["SOCKSPort"] as? Int else {
+            return nil
+        }
+        
+        let socksConfiguration: [String: Any] = [
+            "SOCKSProxy": ipAddress,
+            "SOCKSPort": port,
+            "SOCKSEnable": true
+        ]
+        
+        streamKey = CFStreamPropertyKey(rawValue: kCFStreamPropertySOCKSProxy)
+        streamConfiguration = socksConfiguration as CFDictionary
+    }
+}
+
 public class FoundationTransport: NSObject, Transport, StreamDelegate {
     private weak var delegate: TransportEventClient?
     private let workQueue = DispatchQueue(label: "com.vluxe.starscream.websocket", attributes: [])
@@ -37,6 +61,7 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
     private var onConnect: ((InputStream, OutputStream) -> Void)?
     private var isTLS = false
     private var certPinner: CertificatePinning?
+    public var enableSOCKSProxy = false
     
     public var usingTLS: Bool {
         return self.isTLS
@@ -70,6 +95,11 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         }
         inStream.delegate = self
         outStream.delegate = self
+        
+        if enableSOCKSProxy, let socks = SOCKSConfiguration() {
+            CFWriteStreamSetProperty(outputStream, socks.streamKey, socks.streamConfiguration)
+            CFReadStreamSetProperty(inputStream, socks.streamKey, socks.streamConfiguration)
+        }
     
         if isTLS {
             let key = CFStreamPropertyKey(rawValue: kCFStreamPropertySocketSecurityLevel)

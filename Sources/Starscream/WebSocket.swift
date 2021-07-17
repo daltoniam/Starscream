@@ -22,6 +22,12 @@
 
 import Foundation
 
+public enum TransportType {
+    case native
+    case tcp
+    case foundation(enableSOCKSProxy: Bool)
+}
+
 public enum ErrorType: Error {
     case compressionError
     case securityError
@@ -115,14 +121,27 @@ open class WebSocket: WebSocketClient, EngineDelegate {
         self.engine = engine
     }
     
-    public convenience init(request: URLRequest, certPinner: CertificatePinning? = FoundationSecurity(), compressionHandler: CompressionHandler? = nil, useCustomEngine: Bool = true) {
-        if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *), !useCustomEngine {
-            self.init(request: request, engine: NativeEngine())
-        } else if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
-            self.init(request: request, engine: WSEngine(transport: TCPTransport(), certPinner: certPinner, compressionHandler: compressionHandler))
-        } else {
-            self.init(request: request, engine: WSEngine(transport: FoundationTransport(), certPinner: certPinner, compressionHandler: compressionHandler))
+    public convenience init(request: URLRequest, certPinner: CertificatePinning? = FoundationSecurity(), compressionHandler: CompressionHandler? = nil, preferredTransport: TransportType = .native) {
+        var engine: Engine = WSEngine(transport: FoundationTransport(), certPinner: certPinner, compressionHandler: compressionHandler)
+        
+        switch preferredTransport {
+        case .native:
+            if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) {
+                engine = NativeEngine()
+            }
+            
+        case .tcp:
+            if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
+                engine = WSEngine(transport: TCPTransport(), certPinner: certPinner, compressionHandler: compressionHandler)
+            }
+            
+        case .foundation(let enableSOCKSProxy):
+            let transport = FoundationTransport()
+            transport.enableSOCKSProxy = enableSOCKSProxy
+            engine = WSEngine(transport: transport, certPinner: certPinner, compressionHandler: compressionHandler)
         }
+            
+        self.init(request: request, engine: engine)
     }
     
     public func connect() {
