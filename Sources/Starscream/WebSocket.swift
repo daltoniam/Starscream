@@ -41,9 +41,9 @@ public struct WSError: Error {
     }
 }
 
-public protocol WebSocketClient: class {
+public protocol WebSocketClient: AnyObject {
     func connect()
-    func disconnect(closeCode: UInt16)
+    func disconnect(closeCode: CloseCode)
     func write(string: String, completion: (() -> ())?)
     func write(stringData: Data, completion: (() -> ())?)
     func write(data: Data, completion: (() -> ())?)
@@ -70,7 +70,7 @@ extension WebSocketClient {
     }
     
     public func disconnect() {
-        disconnect(closeCode: CloseCode.normal.rawValue)
+        disconnect(closeCode: .normal)
     }
 }
 
@@ -87,7 +87,7 @@ public enum WebSocketEvent {
     case cancelled
 }
 
-public protocol WebSocketDelegate: class {
+public protocol WebSocketDelegate: AnyObject {
     func didReceive(event: WebSocketEvent, client: WebSocketClient)
 }
 
@@ -130,8 +130,8 @@ open class WebSocket: WebSocketClient, EngineDelegate {
         engine.start(request: request)
     }
     
-    public func disconnect(closeCode: UInt16 = CloseCode.normal.rawValue) {
-        engine.stop(closeCode: closeCode)
+    public func disconnect(closeCode: CloseCode = .normal) {
+        engine.stop(closeCode: closeCode.rawValue)
     }
     
     public func forceDisconnect() {
