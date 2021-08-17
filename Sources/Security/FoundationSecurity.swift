@@ -79,23 +79,56 @@ extension FoundationSecurity: CertificatePinning {
 extension FoundationSecurity: HeaderValidator {
     public func validate(headers: [String: String], key: String) -> Error? {
         if let acceptKey = headers[HTTPWSHeader.acceptName] {
-            let sha = "\(key)258EAFA5-E914-47DA-95CA-C5AB0DC85B11".sha1Base64()
+            let sha = "\(key + obsfuscatedSalt)".sha512Base64()
             if sha != acceptKey {
                 return WSError(type: .securityError, message: "accept header doesn't match", code: SecurityErrorCode.acceptFailed.rawValue)
             }
         }
         return nil
     }
+    
+    private var obsfuscatedSalt: String {
+        let _A = "A"
+        let _B = "B"
+        let _C = "C"
+        let _D = "D"
+        let _E = "E"
+        let _F = "F"
+        
+        let _0 = "0"
+        let _1 = "1"
+        let _2 = "2"
+        let _4 = "4"
+        let _5 = "5"
+        let _7 = "7"
+        let _8 = "8"
+        let _9 = "9"
+        
+        let salt =
+            _2 + _5 + _8 + _E + _A + _F + _A + _5 + "-" +
+            _E + _9 + _1 + _4 + "-" +
+            _4 + _7 + _D + _A + "-" +
+            _9 + _5 + _C + _A + "-" +
+            _C + _5 + _A + _B + _0 + _D + _C + _8 + _5 + _B + _1 + _1
+        
+        return salt
+    }
 }
 
 private extension String {
-    func sha1Base64() -> String {
-        let data = self.data(using: .utf8)!
-        let pointer = data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) -> [UInt8] in
+    func sha512Base64() -> String {
+        let data = self.data(using: String.Encoding.utf8)!
+        
+        let digest: [UInt8] = data.withUnsafeBytes {
+            guard let bytes = $0.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
+                return [UInt8]()
+            }
+            
             var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
-            CC_SHA1(bytes.baseAddress, CC_LONG(data.count), &digest)
+            CC_SHA512(bytes, CC_LONG(data.count), &digest)
             return digest
         }
-        return Data(pointer).base64EncodedString()
+        
+        return Data(digest).base64EncodedString()
     }
 }
