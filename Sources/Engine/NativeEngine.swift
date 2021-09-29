@@ -49,8 +49,13 @@ public class NativeEngine: NSObject, Engine, URLSessionDataDelegate, URLSessionW
             let text = String(data: data, encoding: .utf8)!
             write(string: text, completion: completion)
         case .ping:
-            task?.sendPing(pongReceiveHandler: { (error) in
-                completion?()
+            task?.sendPing(pongReceiveHandler: { [weak self] (error) in
+                defer { completion?() }
+                if let error = error {
+                    self?.broadcast(event: .error(error))
+                    return
+                }
+                self?.broadcast(event: .pong(nil))
             })
         default:
             break //unsupported
