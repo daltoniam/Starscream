@@ -51,6 +51,5 @@ public enum ServerEvent {
 
 public protocol Server {
     func start(address: String, port: UInt16) -> Error?
+    func stop()
 }
-
-
