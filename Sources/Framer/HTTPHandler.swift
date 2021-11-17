@@ -23,7 +23,7 @@
 import Foundation
 
 public enum HTTPUpgradeError: Error {
-    case notAnUpgrade(Int)
+    case notAnUpgrade(Int, [String: String])
     case invalidData
 }
 
