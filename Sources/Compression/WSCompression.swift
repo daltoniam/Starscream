@@ -44,6 +44,10 @@ public class WSCompression: CompressionHandler {
         guard let extensionHeader = headers[headerWSExtensionName] else { return }
         decompressorTakeOver = false
         compressorTakeOver = false
+
+        // assume defaults unless the headers say otherwise
+        compressor = Compressor(windowBits: 15)
+        decompressor = Decompressor(windowBits: 15)
         
         let parts = extensionHeader.components(separatedBy: ";")
         for p in parts {
@@ -204,6 +208,11 @@ class Compressor {
     }
 
     func compress(_ data: Data) throws -> Data {
+        guard !data.isEmpty else {
+            // For example, PONG has no content
+            return data
+        }
+
         var compressed = Data()
         var res: CInt = 0
         data.withUnsafeBytes { (ptr:UnsafePointer<UInt8>) -> Void in
