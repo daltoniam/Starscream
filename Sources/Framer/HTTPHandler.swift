@@ -33,13 +33,13 @@ public struct HTTPWSHeader {
     static let hostName           = "Host"
     static let connectionName     = "Connection"
     static let connectionValue    = "Upgrade"
-    static let protocolName       = "Sec-WebSocket-Protocol"
-    static let versionName        = "Sec-WebSocket-Version"
+    static let protocolName       = "Sec-Websocket-Protocol"
+    static let versionName        = "Sec-Websocket-Version"
     static let versionValue       = "13"
-    static let extensionName      = "Sec-WebSocket-Extensions"
-    static let keyName            = "Sec-WebSocket-Key"
+    static let extensionName      = "Sec-Websocket-Extensions"
+    static let keyName            = "Sec-Websocket-Key"
     static let originName         = "Origin"
-    static let acceptName         = "Sec-WebSocket-Accept"
+    static let acceptName         = "Sec-Websocket-Accept"
     static let switchProtocolCode = 101
     static let defaultSSLSchemes  = ["wss", "https"]
     
