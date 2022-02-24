@@ -144,6 +144,13 @@ public class TCPTransport: Transport {
             
             // Refer to https://developer.apple.com/documentation/network/implementing_netcat_with_network_framework
             if let context = context, context.isFinal, isComplete {
+                if let delegate = s.delegate {
+                    // Let the owner of this TCPTransport decide what to do next: disconnect or reconnect?
+                    delegate.connectionChanged(state: .peerClosed)
+                } else {
+                    // No use to keep connection alive
+                    s.disconnect()
+                }
                 return
             }
             

@@ -66,6 +66,8 @@ class FuzzingTests: XCTestCase {
                 break
             case .cancelled:
                 break
+            case .peerClosed:
+                break
             }
         }
         websocket.connect()
