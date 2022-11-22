@@ -97,6 +97,7 @@ open class WebSocket: WebSocketClient, EngineDelegate {
     public var onEvent: ((WebSocketEvent) -> Void)?
     
     public var request: URLRequest
+    public var configuration: URLSessionConfiguration? = nil
     // Where the callback is executed. It defaults to the main UI thread queue.
     public var callbackQueue = DispatchQueue.main
     public var respondToPingWithPong: Bool {
@@ -127,7 +128,7 @@ open class WebSocket: WebSocketClient, EngineDelegate {
     
     public func connect() {
         engine.register(delegate: self)
-        engine.start(request: request)
+        engine.start(request: request, configuration: self.configuration)
     }
     
     public func disconnect(closeCode: UInt16 = CloseCode.normal.rawValue) {
