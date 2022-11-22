@@ -14,7 +14,7 @@ public protocol EngineDelegate: class {
 
 public protocol Engine {
     func register(delegate: EngineDelegate)
-    func start(request: URLRequest)
+    func start(request: URLRequest, configuration: URLSessionConfiguration?)
     func stop(closeCode: UInt16)
     func forceStop()
     func write(data: Data, opcode: FrameOpCode, completion: (() -> ())?)
