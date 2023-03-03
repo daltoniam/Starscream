@@ -52,7 +52,7 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
         outputStream?.delegate = nil
     }
     
-    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil) {
+    public func connect(url: URL, timeout: Double = 10, certificatePinning: CertificatePinning? = nil, clientCredential: URLCredential? = nil) {
         guard let parts = url.getParts() else {
             delegate?.connectionChanged(state: .failed(FoundationTransportError.invalidRequest))
             return
@@ -75,6 +75,14 @@ public class FoundationTransport: NSObject, Transport, StreamDelegate {
             let key = CFStreamPropertyKey(rawValue: kCFStreamPropertySocketSecurityLevel)
             CFReadStreamSetProperty(inStream, key, kCFStreamSocketSecurityLevelNegotiatedSSL)
             CFWriteStreamSetProperty(outStream, key, kCFStreamSocketSecurityLevelNegotiatedSSL)
+            
+            if let clientCredential = clientCredential {
+                let certificates = [clientCredential.identity] + clientCredential.certificates
+                let sslSettings = [kCFStreamSSLCertificates: certificates] as CFDictionary
+                let sslSettingsKey = CFStreamPropertyKey(rawValue: kCFStreamPropertySSLSettings)
+                CFReadStreamSetProperty(inStream, sslSettingsKey, sslSettings)
+                CFWriteStreamSetProperty(outStream, sslSettingsKey, sslSettings)
+            }
         }
         
         onConnect?(inStream, outStream)
