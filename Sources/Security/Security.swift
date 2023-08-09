@@ -29,7 +29,7 @@ public enum SecurityErrorCode: UInt16 {
 
 public enum PinningState {
     case success
-    case failed(CFError?)
+    case failed(Error?)
 }
 
 // CertificatePinning protocol provides an interface for Transports to handle Certificate
