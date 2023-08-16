@@ -205,7 +205,7 @@ To use Starscream in your project add the following 'Podfile' to your project
 	platform :ios, '9.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 4.0.0'
+	pod 'Starscream', '~> 4.0.4'
 
 Then run:
 
@@ -227,7 +227,7 @@ $ brew install carthage
 To integrate Starscream into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```
-github "daltoniam/Starscream" >= 4.0.0
+github "daltoniam/Starscream" >= 4.0.4
 ```
 
 ### Accio
@@ -237,7 +237,7 @@ Check out the [Accio](https://github.com/JamitLabs/Accio) docs on how to add a i
 Add the following to your Package.swift:
 
 ```swift
-.package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "4.0.0")),
+.package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "4.0.4")),
 ```
 
 Next, add `Starscream` to your App targets dependencies like so:
