@@ -17,8 +17,9 @@ public class NativeEngine: NSObject, Engine, URLSessionDataDelegate, URLSessionW
         self.delegate = delegate
     }
 
-    public func start(request: URLRequest) {
-        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: self, delegateQueue: nil)
+    public func start(request: URLRequest, configuration: URLSessionConfiguration?) {
+        let sessionConfiguration: URLSessionConfiguration = configuration ?? URLSessionConfiguration.default
+        let session = URLSession(configuration: sessionConfiguration, delegate: self, delegateQueue: nil)
         task = session.webSocketTask(with: request)
         doRead()
         task?.resume()
