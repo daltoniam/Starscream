@@ -140,6 +140,8 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             }
         case .cancelled:
             broadcast(event: .cancelled)
+        case .peerClosed:
+            broadcast(event: .peerClosed)
         }
     }
     
