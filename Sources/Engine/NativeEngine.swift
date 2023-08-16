@@ -94,4 +94,8 @@ public class NativeEngine: NSObject, Engine, URLSessionDataDelegate, URLSessionW
         }
         broadcast(event: .disconnected(r, UInt16(closeCode.rawValue)))
     }
+    
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        broadcast(event: .error(error))
+    }
 }
