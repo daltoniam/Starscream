@@ -19,6 +19,6 @@ jobs:
       - run: bundle exec fastlane test
       - run: bundle exec fastlane release
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
           TAG: ${{ steps.vars.outputs.tag }}
