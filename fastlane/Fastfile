@@ -13,12 +13,12 @@ end
 platform :ios do
   desc "Deploy new version"
   lane :release do
-    version = version_bump_podspec(path: "Starscream.podspec", version_number: ENV['TAG'])
+    version = version_bump_podspec(path: "Starscream.podspec", version_number: ENV["TAG"])
     changelog = changelog_from_git_commits(merge_commit_filtering: "exclude_merges")
 
     github_release = set_github_release(
-      repository_name: "daltoniam/Starscream",
-      api_token: ENV['GITHUB_TOKEN'],
+      repository_name: "daltoniam/starscream",
+      api_token: ENV["GITHUB_TOKEN"],
       name: version,
       tag_name: version,
       description: changelog,
