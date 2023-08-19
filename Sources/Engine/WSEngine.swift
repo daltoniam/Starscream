@@ -38,6 +38,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private let writeQueue = DispatchQueue(label: "com.vluxe.starscream.writequeue")
     private let mutex = DispatchSemaphore(value: 1)
     private var canSend = false
+    private var isConnecting = false
     
     weak var delegate: EngineDelegate?
     public var respondToPingWithPong: Bool = true
@@ -64,9 +65,10 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     
     public func start(request: URLRequest) {
         mutex.wait()
+        let isConnecting = self.isConnecting
         let isConnected = canSend
         mutex.signal()
-        if isConnected {
+        if isConnecting || isConnected {
             return
         }
         
@@ -78,6 +80,9 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         guard let url = request.url else {
             return
         }
+        mutex.wait()
+        self.isConnecting = true
+        mutex.signal()
         transport.connect(url: url, timeout: request.timeoutInterval, certificatePinning: certPinner)
     }
     
@@ -93,6 +98,10 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     }
     
     public func forceStop() {
+        mutex.wait()
+        isConnecting = false
+        mutex.signal()
+        
         transport.disconnect()
     }
     
@@ -153,6 +162,10 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
                 }
             }
         case .cancelled:
+            mutex.wait()
+            isConnecting = false
+            mutex.signal()
+            
             broadcast(event: .cancelled)
         case .peerClosed:
             broadcast(event: .peerClosed)
@@ -169,6 +182,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
                 return
             }
             mutex.wait()
+            isConnecting = false
             didUpgrade = true
             canSend = true
             mutex.signal()
@@ -241,6 +255,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     
     private func reset() {
         mutex.wait()
+        isConnecting = false
         canSend = false
         didUpgrade = false
         mutex.signal()
