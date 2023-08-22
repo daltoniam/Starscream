@@ -61,8 +61,8 @@ func didReceive(event: WebSocketEvent, client: WebSocket) {
 	case .error(let error):
 		isConnected = false
 		handleError(error)
-    case .peerClosed:
-        break
+        case .peerClosed:
+               break
 	}
 }
 ```
