@@ -1,10 +1,24 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  WSEngine.swift
 //  Starscream
 //
-//  Created by Dalton Cherry on 6/15/19.
+//  Created by Dalton Cherry on 6/15/19
 //  Copyright © 2019 Vluxe. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 import Foundation
 
@@ -24,6 +38,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     private let writeQueue = DispatchQueue(label: "com.vluxe.starscream.writequeue")
     private let mutex = DispatchSemaphore(value: 1)
     private var canSend = false
+    private var isConnecting = false
     
     weak var delegate: EngineDelegate?
     public var respondToPingWithPong: Bool = true
@@ -50,9 +65,10 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     
     public func start(request: URLRequest) {
         mutex.wait()
+        let isConnecting = self.isConnecting
         let isConnected = canSend
         mutex.signal()
-        if isConnected {
+        if isConnecting || isConnected {
             return
         }
         
@@ -64,6 +80,9 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
         guard let url = request.url else {
             return
         }
+        mutex.wait()
+        self.isConnecting = true
+        mutex.signal()
         transport.connect(url: url, timeout: request.timeoutInterval, certificatePinning: certPinner)
     }
     
@@ -79,6 +98,10 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     }
     
     public func forceStop() {
+        mutex.wait()
+        isConnecting = false
+        mutex.signal()
+        
         transport.disconnect()
     }
     
@@ -139,7 +162,13 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
                 }
             }
         case .cancelled:
+            mutex.wait()
+            isConnecting = false
+            mutex.signal()
+            
             broadcast(event: .cancelled)
+        case .peerClosed:
+            broadcast(event: .peerClosed)
         }
     }
     
@@ -153,6 +182,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
                 return
             }
             mutex.wait()
+            isConnecting = false
             didUpgrade = true
             canSend = true
             mutex.signal()
@@ -225,6 +255,7 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     
     private func reset() {
         mutex.wait()
+        isConnecting = false
         canSend = false
         didUpgrade = false
         mutex.signal()

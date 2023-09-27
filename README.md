@@ -1,6 +1,6 @@
 ![starscream](https://raw.githubusercontent.com/daltoniam/starscream/assets/starscream.jpg)
 
-Starscream is a conforming WebSocket ([RFC 6455](http://tools.ietf.org/html/rfc6455)) library in Swift.
+Starscream is a conforming WebSocket ([RFC 6455](https://datatracker.ietf.org/doc/html/rfc6455)) library in Swift.
 
 ## Features
 
@@ -61,6 +61,8 @@ func didReceive(event: WebSocketEvent, client: WebSocket) {
 	case .error(let error):
 		isConnected = false
 		handleError(error)
+        case .peerClosed:
+               break
 	}
 }
 ```
@@ -202,10 +204,10 @@ Check out [Get Started](http://cocoapods.org/) tab on [cocoapods.org](http://coc
 To use Starscream in your project add the following 'Podfile' to your project
 
 	source 'https://github.com/CocoaPods/Specs.git'
-	platform :ios, '9.0'
+	platform :ios, '11.0'
 	use_frameworks!
 
-	pod 'Starscream', '~> 4.0.0'
+	pod 'Starscream', '~> 4.0.6'
 
 Then run:
 
@@ -227,7 +229,7 @@ $ brew install carthage
 To integrate Starscream into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```
-github "daltoniam/Starscream" >= 4.0.0
+github "daltoniam/Starscream" >= 4.0.6
 ```
 
 ### Accio
@@ -237,7 +239,7 @@ Check out the [Accio](https://github.com/JamitLabs/Accio) docs on how to add a i
 Add the following to your Package.swift:
 
 ```swift
-.package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "4.0.0")),
+.package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "4.0.6")),
 ```
 
 Next, add `Starscream` to your App targets dependencies like so:
@@ -273,7 +275,7 @@ Once you have your Swift package set up, adding Starscream as a dependency is as
 
 ```swift
 dependencies: [
-    .Package(url: "https://github.com/daltoniam/Starscream.git", majorVersion: 4)
+    .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.0")
 ]
 ```
 
@@ -290,6 +292,9 @@ If you are running this in an OSX app or on a physical iOS device you will need 
 ## TODOs
 
 - [ ] Proxy support
+- [ ] Thread safe implementation
+- [ ] Better testing/CI
+- [ ] SSL Pinning/client auth examples
 
 ## License
 

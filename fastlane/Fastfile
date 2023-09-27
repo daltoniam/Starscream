@@ -2,27 +2,28 @@ default_platform(:ios)
 
 update_fastlane
 
+
+desc "Run tests"
+lane :test do
+  run_tests(
+    devices: ["iPhone 14 Pro", "iPad Pro (11-inch) (4th generation)"],
+  )
+end
+
 platform :ios do
   desc "Deploy new version"
   lane :release do
-    ensure_git_branch
-    version = version_get_podspec(path: "Starscream.podspec")
-    changelog = prompt(text: "Changelog: ", multi_line_end_keyword: "END")
-
-    github_token = ENV['GITHUB_TOKEN']
-    if !github_token || github_token.empty?
-      github_token = prompt(text: "Please enter your GitHub token: ")
-    end
+    version = version_bump_podspec(path: "Starscream.podspec", version_number: ENV["TAG"])
+    changelog = changelog_from_git_commits(merge_commit_filtering: "exclude_merges")
 
     github_release = set_github_release(
-      repository_name: "daltoniam/Starscream",
-      api_token: github_token,
+      repository_name: "daltoniam/starscream",
+      api_token: ENV["GITHUB_TOKEN"],
       name: version,
       tag_name: version,
       description: changelog,
       commitish: "master"
     )
-    sh("git fetch --tags")
-    pod_push(allow_warnings: true, verbose: true)
+    pod_push(allow_warnings: false, verbose: true)
   end
 end
