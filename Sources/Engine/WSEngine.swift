@@ -165,7 +165,6 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             mutex.wait()
             isConnecting = false
             mutex.signal()
-            
             broadcast(event: .cancelled)
         case .peerClosed:
             broadcast(event: .peerClosed)
