@@ -31,7 +31,9 @@ public enum ConnectionState {
     
     /// Cancelled connections have been invalidated by the client and will send no more events
     case cancelled
-    
+
+    case timeout(Error?)
+
     /// Failed connections are disconnected and can no longer send or receive data
     case failed(Error?)
     

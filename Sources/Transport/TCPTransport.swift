@@ -116,7 +116,7 @@ public class TCPTransport: Transport {
                     // handle timeout and network unreachable
                     if errorCode == .ETIMEDOUT {
                         debugPrint("Socket connection error - timedout")
-                        self?.delegate?.connectionChanged(state: .failed(error))
+                        self?.delegate?.connectionChanged(state: .timeout(error))
                     } else if (errorCode == .ENETDOWN || errorCode == .ENETUNREACH) {
                         debugPrint("Socket connection error - network down / unreachable")
                         self?.delegate?.connectionChanged(state: .failed(error))

@@ -145,6 +145,8 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
             transport.write(data: data, completion: {_ in })
         case .waiting:
             break
+        case .timeout(let error):
+            broadcast(event: .timeout(error))
         case .failed(let error):
             handleError(error)
         case .viability(let isViable):
