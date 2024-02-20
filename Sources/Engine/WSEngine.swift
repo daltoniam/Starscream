@@ -22,8 +22,13 @@
 
 import Foundation
 
-public class WSEngine: Engine, TransportEventClient, FramerEventClient,
-FrameCollectorDelegate, HTTPHandlerDelegate {
+public class WSEngine: 
+    Engine,
+    TransportEventClient,
+    FramerEventClient,
+    FrameCollectorDelegate,
+    HTTPHandlerDelegate
+{
     private let transport: Transport
     private let framer: Framer
     private let httpHandler: HTTPHandler
@@ -135,19 +140,23 @@ FrameCollectorDelegate, HTTPHandlerDelegate {
     }
     
     // MARK: - TransportEventClient
-    
+    private func logConnectionState(_ state: ConnectionState) {
+        guard let message = state.logMessage else { return }
+        debugPrint("WSEngine: \(message)")
+    }
+
     public func connectionChanged(state: ConnectionState) {
+        logConnectionState(state)
+
         switch state {
         case .connected:
             secKeyValue = HTTPWSHeader.generateWebSocketKey()
             let wsReq = HTTPWSHeader.createUpgrade(request: request, supportsCompression: framer.supportsCompression(), secKeyValue: secKeyValue)
             let data = httpHandler.convert(request: wsReq)
             transport.write(data: data, completion: {_ in })
-        case .waiting:
-            break
         case .timeout(let error):
             broadcast(event: .timeout(error))
-        case .failed(let error):
+        case .waiting(let error), .failed(let error):
             handleError(error)
         case .viability(let isViable):
             broadcast(event: .viabilityChanged(isViable))

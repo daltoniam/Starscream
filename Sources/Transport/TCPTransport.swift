@@ -122,10 +122,11 @@ public class TCPTransport: Transport {
                         self?.delegate?.connectionChanged(state: .failed(error))
                     } else{
                         debugPrint("Socket connection error - waiting")
-                        self?.delegate?.connectionChanged(state: .waiting)
+                        self?.delegate?.connectionChanged(state: .waiting(error))
                     }
                 default:
-                    self?.delegate?.connectionChanged(state: .waiting)
+                    debugPrint("TCPTransport error: \(error.debugDescription)")
+                    self?.delegate?.connectionChanged(state: .waiting(error))
                 }
             case .cancelled:
                 self?.delegate?.connectionChanged(state: .cancelled)

@@ -27,7 +27,7 @@ public enum ConnectionState {
     case connected
     
     /// Waiting connections have not yet been started, or do not have a viable network
-    case waiting
+    case waiting(Error?)
     
     /// Cancelled connections have been invalidated by the client and will send no more events
     case cancelled
@@ -50,6 +50,20 @@ public enum ConnectionState {
     
     /// Remote peer has closed the network connection.
     case peerClosed
+
+    var logMessage: String? {
+        switch self {
+        case .connected: return "Connected"
+        case .waiting(let error): return "Waiting \n\(String(describing: error?.localizedDescription))"
+        case .cancelled: return "Cancelled"
+        case .timeout(let error): return "Timeout \n\(String(describing: error?.localizedDescription))"
+        case .failed(let error): return "Failed \n\(String(describing: error?.localizedDescription))"
+        case .viability(let bool): return "Viablity changed to \(bool)"
+        case .shouldReconnect(let bool): return "Should reconnect \(bool)"
+        case .receive: return nil
+        case .peerClosed: return "Peer closed"
+        }
+    }
 }
 
 public protocol TransportEventClient: AnyObject {
