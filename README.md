@@ -105,7 +105,6 @@ socket.write(ping: Data()) //example on how to write a ping control frame over t
 
 ### write a pong frame
 
-
 the writePong method is the same as writePing, but sends a pong control frame.
 
 ```swift
@@ -197,6 +196,18 @@ Starscream works with iOS 8/10.10 or above for CocoaPods/framework support. To u
 
 ## Installation
 
+### Swift Package Manager
+
+The [Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler.
+
+Once you have your Swift package set up, adding Starscream as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.6")
+]
+```
+
 ### CocoaPods
 
 Check out [Get Started](http://cocoapods.org/) tab on [cocoapods.org](http://cocoapods.org/).
@@ -230,53 +241,6 @@ To integrate Starscream into your Xcode project using Carthage, specify it in yo
 
 ```
 github "daltoniam/Starscream" >= 4.0.6
-```
-
-### Accio
-
-Check out the [Accio](https://github.com/JamitLabs/Accio) docs on how to add a install. 
-
-Add the following to your Package.swift:
-
-```swift
-.package(url: "https://github.com/daltoniam/Starscream.git", .upToNextMajor(from: "4.0.6")),
-```
-
-Next, add `Starscream` to your App targets dependencies like so:
-
-```swift
-.target(
-    name: "App",
-    dependencies: [
-        "Starscream",
-    ]
-),
-```
-
-Then run `accio update`.
-
-### Rogue
-
-First see the [installation docs](https://github.com/acmacalister/Rogue) for how to install Rogue.
-
-To install Starscream run the command below in the directory you created the rogue file.
-
-```
-rogue add https://github.com/daltoniam/Starscream
-```
-
-Next open the `libs` folder and add the `Starscream.xcodeproj` to your Xcode project. Once that is complete, in your "Build Phases" add the `Starscream.framework` to your "Link Binary with Libraries" phase. Make sure to add the `libs` folder to your `.gitignore` file.
-
-### Swift Package Manager
-
-The [Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler.
-
-Once you have your Swift package set up, adding Starscream as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.0")
-]
 ```
 
 ### Other
