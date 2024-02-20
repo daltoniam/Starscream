@@ -33,8 +33,6 @@ public class FoundationSecurity  {
     public init(allowSelfSigned: Bool = false) {
         self.allowSelfSigned = allowSelfSigned
     }
-    
-    
 }
 
 extension FoundationSecurity: CertificatePinning {
@@ -50,26 +48,11 @@ extension FoundationSecurity: CertificatePinning {
     }
     
     private func handleSecurityTrust(trust: SecTrust, completion: ((PinningState) -> ())) {
-        if #available(iOS 12.0, OSX 10.14, watchOS 5.0, tvOS 12.0, *) {
-            var error: CFError?
-            if SecTrustEvaluateWithError(trust, &error) {
-                completion(.success)
-            } else {
-                completion(.failed(error))
-            }
-        } else {
-            handleOldSecurityTrust(trust: trust, completion: completion)
-        }
-    }
-    
-    private func handleOldSecurityTrust(trust: SecTrust, completion: ((PinningState) -> ())) {
-        var result: SecTrustResultType = .unspecified
-        SecTrustEvaluate(trust, &result)
-        if result == .unspecified || result == .proceed {
+        var error: CFError?
+        if SecTrustEvaluateWithError(trust, &error) {
             completion(.success)
         } else {
-            let e = CFErrorCreate(kCFAllocatorDefault, "FoundationSecurityError" as NSString?, Int(result.rawValue), nil)
-            completion(.failed(e))
+            completion(.failed(error))
         }
     }
 }

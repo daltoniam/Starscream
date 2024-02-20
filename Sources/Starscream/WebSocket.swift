@@ -117,13 +117,18 @@ open class WebSocket: WebSocketClient, EngineDelegate {
         self.engine = engine
     }
     
-    public convenience init(request: URLRequest, certPinner: CertificatePinning? = FoundationSecurity(), compressionHandler: CompressionHandler? = nil, useCustomEngine: Bool = true) {
+    public convenience init(
+        request: URLRequest,
+        certPinner: CertificatePinning? = FoundationSecurity(),
+        compressionHandler: CompressionHandler? = nil,
+        useCustomEngine: Bool = true
+    ) {
         if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *), !useCustomEngine {
             self.init(request: request, engine: NativeEngine())
         } else if #available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
             self.init(request: request, engine: WSEngine(transport: TCPTransport(), certPinner: certPinner, compressionHandler: compressionHandler))
         } else {
-            self.init(request: request, engine: WSEngine(transport: FoundationTransport(), certPinner: certPinner, compressionHandler: compressionHandler))
+            fatalError("Starscream supported from iOS 12+")
         }
     }
     

@@ -24,6 +24,7 @@ import PackageDescription
 
 let package = Package(
         name: "Starscream",
+        platforms: [.iOS(.v13)],
         products: [
             .library(name: "Starscream", targets: ["Starscream"])
         ],
