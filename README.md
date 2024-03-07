@@ -215,7 +215,7 @@ Check out [Get Started](http://cocoapods.org/) tab on [cocoapods.org](http://coc
 To use Starscream in your project add the following 'Podfile' to your project
 
 	source 'https://github.com/CocoaPods/Specs.git'
-	platform :ios, '11.0'
+	platform :ios, '12.0'
 	use_frameworks!
 
 	pod 'Starscream', '~> 4.0.6'
